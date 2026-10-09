@@ -138,7 +138,7 @@ function PendingCard({ report, onReview }) {
                 <div className="dis-review-panel">
                     <div className="form-group u-m-0">
                         <label className="form-label">Notes (optional)</label>
-                        <textarea className="form-input form-textarea" rows="2" placeholder="Add a note…" value={notes} onChange={e => setNotes(e.target.value)} />
+                        <textarea className="form-input form-textarea" rows="2" placeholder="Add a note…" value={notes} onChange={e => setNotes(e.target.value)}  aria-label="Add a note…"/>
                     </div>
                     <div className="u-row-sm u-justify-end">
                         <button className="btn btn-sm dis-btn-reject" onClick={() => handle('reject')} disabled={saving}>

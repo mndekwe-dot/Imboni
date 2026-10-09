@@ -1,0 +1,107 @@
+{
+  "notFound": {
+    "title": "Page not found",
+    "subtitle": "The page you are looking for doesn’t exist. Here are some helpful links:",
+    "back": "Go back",
+    "home": "Take me home"
+  },
+  "about": {
+    "title": "About Imboni",
+    "subtitle": "School management software built specifically for Rwandan secondary schools.",
+    "whyTitle": "Why we built it",
+    "why1": "Most Rwandan secondary schools run on paper and spreadsheets. A class timetable takes days to build and breaks the moment one teacher changes. Marks travel from teacher to Director of Studies on paper and get queried, recopied, or lost. Attendance sits in registers nobody can total until the end of term. Boarding, medical and conduct records live in three different books.",
+    "why2": "None of that is a technology problem in the abstract. It is a specific set of jobs that specific people do every week, and it is entirely automatable. Imboni exists to do that automating without asking a school to change how it already works.",
+    "differentTitle": "What makes it different",
+    "different": "Imboni is built around the structure of a Rwandan secondary school rather than adapted from a generic product. O-Level and A-Level sections, streams, three terms, continuous assessment out of 30 and examinations out of 70, boarding and day scholars, matrons and Directors of Discipline: these are first-class parts of the system, not custom fields bolted onto something designed elsewhere.",
+    "values": {
+      "children": {
+        "title": "Children first",
+        "body": "This system holds minors’ grades, medical notes and disciplinary records. Every design decision starts from that, not from what is convenient to build."
+      },
+      "offline": {
+        "title": "Built for real connectivity",
+        "body": "Registers, medication rounds and night checks are recorded offline and sync when the connection returns. A dropped network should never mean a lost register."
+      },
+      "time": {
+        "title": "Give time back",
+        "body": "Timetables, exam schedules, duty rosters and dormitory allocation are generated rather than assembled by hand. That is days returned to every term."
+      },
+      "separate": {
+        "title": "Separate by default",
+        "body": "Each school gets its own isolated database schema. One school can never see another’s records, because the data is not in the same tables."
+      }
+    },
+    "whereTitle": "Where we are",
+    "where": "Imboni is developed in Musanze, Northern Province, Rwanda. We work directly with the schools using the system, and the roadmap is shaped by what they ask for rather than by what looks impressive in a demo.",
+    "talkTitle": "Talk to us",
+    "talk": "If you run a school and want to see the system loaded with your own classes and subjects, <contact>get in touch</contact>. If you would rather try it yourself first, the <pricing>Free plan</pricing> is the full system and takes a few minutes to set up."
+  },
+  "contact": {
+    "title": "Contact us",
+    "subtitle": "Questions about the system, pricing, or getting your school set up? Talk to a person.",
+    "email": "Email",
+    "emailNote": "Best for detailed questions. We reply within one working day.",
+    "phone": "Phone",
+    "phoneNote": "Monday to Friday, 08:00 to 17:00 (Kigali time).",
+    "office": "Office",
+    "officeAddress": "Musanze, Northern Province, Rwanda",
+    "officeNote": "Visits by appointment.",
+    "joinTitle": "Want your school on Imboni?",
+    "joinIntro": "There are two ways in, depending on how much you want to do yourself.",
+    "selfTitle": "Set it up now",
+    "self": "<signup>Sign up your school</signup> and your own subdomain is created automatically, on the Free plan, with an admin account for you. You can import classes and students straight away. No conversation required.",
+    "assistedTitle": "Have us do it with you",
+    "assisted": "<apply>Apply to join</apply> and we will review your details, get in touch, and set the school up with your real classes, subjects and staff so you can see your own school rather than a demo.",
+    "existingTitle": "Already using Imboni?",
+    "existing": "Support requests are raised inside the system rather than here, so they arrive attached to your school and the staff member reporting them. Sign in and use the support option in your portal. If you cannot sign in at all, email us and say which school you are from.",
+    "dataTitle": "Data protection enquiries",
+    "data": "Requests about student records, access, correction or erasure are handled under our <privacy>privacy policy</privacy>. Email us with “data request” in the subject line and we will respond within the period set out there."
+  },
+  "pricing": {
+    "title": "Plans that fit your school",
+    "subtitle": "Start free and move up when your roster grows. Parent accounts are free on every plan and never count towards your limit.",
+    "students": "students",
+    "staff": "staff",
+    "unlimited": "Unlimited",
+    "free": {
+      "name": "Free",
+      "for": "Small schools starting out, or anyone who wants to try the whole system with real data.",
+      "cta": "Start free",
+      "f1": "All seven portals",
+      "f2": "Results, attendance and conduct",
+      "f3": "Timetable and exam generators",
+      "f4": "Parent accounts, unlimited"
+    },
+    "basic": {
+      "name": "Basic",
+      "for": "Established secondary schools running a full O-Level or A-Level roster.",
+      "cta": "Sign up your school",
+      "badge": "Most schools",
+      "f1": "Everything in Free",
+      "f2": "Boarding, dining and duty rosters",
+      "f3": "Bulk import of classes and timetables",
+      "f4": "Automated backups",
+      "f5": "Email and SMS invitations"
+    },
+    "premium": {
+      "name": "Premium",
+      "for": "Large schools and groups running several campuses or streams.",
+      "cta": "Talk to us",
+      "f1": "Everything in Basic",
+      "f2": "Unlimited students and staff",
+      "f3": "Priority support",
+      "f4": "Onboarding assistance"
+    },
+    "faqTitle": "Common questions",
+    "q1": "Do parents pay?",
+    "a1": "No. Parent accounts are free on every plan and are not counted towards your staff or student limit. Only students and staff consume places.",
+    "q2": "What counts as a staff place?",
+    "a2": "Teachers, the Director of Studies, the matron, discipline staff and administrators. Parents and students are counted separately.",
+    "q3": "What happens if we outgrow a plan?",
+    "a3": "Nothing is deleted. You are prevented from adding new students or staff beyond the limit until you move up a plan, and everything already in the system keeps working.",
+    "q4": "Can we try it with our real data first?",
+    "a4": "Yes. The Free plan is the full system, not a demo. Import a couple of classes, run a term of marks through it, and decide afterwards.",
+    "q5": "Where is our data stored?",
+    "a5": "Each school has its own isolated database schema, never a shared table. See our <privacy>privacy policy</privacy> for how student records are handled."
+  }
+}

@@ -17,6 +17,7 @@ import { disNavItems, disSecondaryItems } from './disNav'
 import { formatDateShort } from '../../utils/date'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { confirmDialog } from '../../utils/confirm'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -105,20 +106,20 @@ function AnnouncementItem({ ann, onEdit, onDelete, onPublish, onArchive }) {
                     {isDraft ? t('common.draft') : t('common.published')}
                 </span>
                 <div className="ann-item-actions">
-                    <button className="ann-icon-btn" title={t('common.edit')} onClick={() => onEdit(ann)}>
+                    <button className="ann-icon-btn" title={t('common.edit')} onClick={() => onEdit(ann)} aria-label={t('common.edit')}>
                         <span className="material-symbols-rounded" aria-hidden="true">edit</span>
                     </button>
                     {isDraft && (
-                        <button className="ann-icon-btn" title={t('common.publish')} onClick={() => onPublish(ann.id)}>
+                        <button className="ann-icon-btn" title={t('common.publish')} onClick={() => onPublish(ann.id)} aria-label={t('common.publish')}>
                             <span className="material-symbols-rounded" aria-hidden="true">publish</span>
                         </button>
                     )}
                     {!isArch && !isDraft && (
-                        <button className="ann-icon-btn" title={t('common.archive')} onClick={() => onArchive(ann.id)}>
+                        <button className="ann-icon-btn" title={t('common.archive')} onClick={() => onArchive(ann.id)} aria-label={t('common.archive')}>
                             <span className="material-symbols-rounded" aria-hidden="true">archive</span>
                         </button>
                     )}
-                    <button className="ann-icon-btn danger" title={t('common.delete')} onClick={() => onDelete(ann.id)}>
+                    <button className="ann-icon-btn danger" title={t('common.delete')} onClick={() => onDelete(ann.id)} aria-label={t('common.delete')}>
                         <span className="material-symbols-rounded" aria-hidden="true">delete</span>
                     </button>
                 </div>
@@ -214,7 +215,7 @@ export function DisAnnouncements() {
     }
 
     async function handleDelete(id) {
-        if (!window.confirm(t('announcements.deleteConfirm'))) return
+        if (!await confirmDialog(t('announcements.deleteConfirm'))) return
         try {
             await deleteDisAnnouncement(id)
             setAnnouncements(prev => prev.filter(a => a.id !== id))

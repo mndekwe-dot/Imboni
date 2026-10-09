@@ -9,11 +9,13 @@ import '../styles/login.css'
 import '../styles/components.css'
 import '../styles/public-pages.css'
 import { useSchoolBranding } from '../hooks/useSchoolBranding'
+import { useBrandedTab } from '../hooks/useBrandedTab'
+import { ModalOverlay } from '../components/ui/ModalOverlay'
 
 function ForgotPasswordModal({ onClose }) {
     const { t } = useTranslation()
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
@@ -47,7 +49,7 @@ function ForgotPasswordModal({ onClose }) {
                     <button className="btn btn-primary u-full" onClick={onClose}>{t('auth.gotIt')}</button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     )
 }
 
@@ -56,6 +58,7 @@ export function LogIn() {
     const { t } = useTranslation()
     const { login, completeTwoFactor } = useAuth()
     const { schoolName, logo: schoolLogo } = useSchoolBranding()
+    useBrandedTab()
     // Decorative only: null on the bare domain or if the lookup fails.
     const { school } = useSchoolIdentity()
     const [email,      setEmail]      = useState('')

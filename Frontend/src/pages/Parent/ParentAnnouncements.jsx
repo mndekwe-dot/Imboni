@@ -25,10 +25,10 @@ import { useToast } from '../../context/ToastContext'
 import { partialLoad } from '../../utils/errors'
 
 const CATEGORY_COLOR = {
-    urgent:   { bg: '#fef2f2', border: '#ef4444', badge: '#fee2e2', text: '#dc2626', icon: 'priority_high'  },
-    academic: { bg: '#eff6ff', border: '#3b82f6', badge: '#dbeafe', text: '#2563eb', icon: 'school'         },
-    event:    { bg: '#f5f3ff', border: '#8b5cf6', badge: '#ede9fe', text: '#7c3aed', icon: 'emoji_events'   },
-    general:  { bg: '#f8fafc', border: '#64748b', badge: '#e2e8f0', text: '#475569', icon: 'campaign'       },
+    urgent:   { bg: 'var(--destructive-surface)', border: 'var(--destructive)', badge: 'var(--destructive-surface)', text: 'var(--destructive-text)', icon: 'priority_high'  },
+    academic: { bg: 'var(--info-surface)', border: 'var(--info)', badge: 'var(--info-surface)', text: 'var(--info-text)', icon: 'school'         },
+    event:    { bg: 'var(--cat-violet-surface)', border: 'var(--cat-violet)', badge: 'var(--cat-violet-surface)', text: 'var(--cat-violet-text)', icon: 'emoji_events'   },
+    general:  { bg: 'var(--surface-2)', border: 'var(--muted-foreground)', badge: 'var(--muted)', text: 'var(--muted-foreground)', icon: 'campaign'       },
 }
 
 const AUDIENCE_LABEL = {
@@ -71,8 +71,8 @@ function relDate(dateStr) {
     return formatDate(d)
 }
 
-// Was a copy of the shared tile taking a raw hex per box (#3b82f6, #f59e0b,
-// #ef4444, #8b5cf6) - colour literals in JSX, disconnected from the palette
+// Was a copy of the shared tile taking a raw hex per box (var(--info), var(--warning),
+// var(--destructive), var(--cat-violet)) - colour literals in JSX, disconnected from the palette
 // and from any meaning. The boxes now name a semantic family instead, so
 // "urgent" is the same red here as everywhere else in the app.
 function StatBox({ icon, value, label, tone }) {

@@ -141,7 +141,11 @@
     "dueOn": "Itariki ntarengwa {{date}}",
     "totalOwed": "Umwenda w'iki gihembwe: {{amount}}",
     "tooMuch": "Ibi birenze umwenda w'iki gihembwe wa {{amount}}.",
-    "amountFor": "Amafaranga ya {{charge}}"
+    "amountFor": "Amafaranga ya {{charge}}",
+    "printA4": "Priinta (A4)",
+    "printRoll80": "Priinta ku rupapuro rwa 80 mm",
+    "printRoll58": "Priinta ku rupapuro rwa 58 mm",
+    "importStatement": "Injiza raporo ya banki"
   },
   "debtors": {
     "title": "Abafite imyenda",
@@ -493,5 +497,62 @@
     "fromChild": "Guhera ku mwana wa",
     "categoriesLabel": "Ku yahe mafaranga",
     "active": "Rirakora"
+  },
+  "reminders": {
+    "open": "Ohereza ibyibutsa",
+    "title": "Ibutsa imiryango ifite ibirarane",
+    "minPercent": "Ifitiye nibura iki gice (%) cy’amafaranga",
+    "minAmount": "kandi nibura aya mafaranga",
+    "message": "Ubutumwa",
+    "placeholders": "Ushobora gukoresha {student_name}, {student_code} na {balance}.",
+    "defaultMessage": "Kwibutsa amafaranga y’ishuri: {student_name} ({student_code}) afite {balance} atarishyurwa muri iki gihembwe. Mwishyure ku biro by’ishuri cyangwa kuri mobile money.",
+    "alsoSms": "Ohereza no kuri SMS (ubutumwa bwo muri porogaramu burohererezwa buri gihe)",
+    "preview": "Reba mbere",
+    "send": "Ohereza kuri {{count}}",
+    "nobody": "Nta muryango uhuye n’ibi bipimo.",
+    "sample": "Ubutumwa bwa mbere buzaba:",
+    "sent": "Ibyibutsa byoherejwe. Imiryango {{reached}} yagezeho, {{unreachable}} nta mubyeyi uhujwe.",
+    "sendFailed": "Ntibishobotse kohereza ibyibutsa.",
+    "previewFailed": "Ntibishobotse kumenya abazibutswa."
+  },
+  "statement": {
+    "title": "Huza raporo ya banki cyangwa ya mobile money n’imiryango",
+    "intro": "Shyiramo dosiye ya CSV y’iyo raporo. Buri murongo uhuzwa n’umuryango; usuzuma mbere y’uko amafaranga yandikwa.",
+    "method": "Amafaranga yaje ate?",
+    "bank": "Banki",
+    "momo": "Mobile money",
+    "file": "Dosiye ya raporo (CSV)",
+    "noAmount": "Nta nkingi y’amafaranga ibonetse. Dosiye ikeneye inkingi yitwa Amount cyangwa Credit.",
+    "noRows": "Nta mafaranga yinjiye ari muri iyi dosiye.",
+    "match": "Huza imirongo",
+    "matching": "Birahuzwa…",
+    "matchFailed": "Ntibishobotse guhuza raporo.",
+    "line": "Umurongo",
+    "amount": "Amafaranga",
+    "reference": "Nomero",
+    "family": "Umuryango",
+    "record": "Andika",
+    "choose": "Hitamo umuryango…",
+    "status": {
+      "suggested": "Byatanzwe",
+      "ambiguous": "Hitamo umwe",
+      "recorded": "Byamaze kwandikwa",
+      "unmatched": "Ntibihuye"
+    },
+    "summary": "{{ready}} byiteguye · {{review}} byo guhitamo · {{skip}} bizasimbukwa",
+    "apply": "Andika amafaranga {{count}}",
+    "applied": "Amafaranga {{taken}} yanditswe, {{skipped}} yasimbutse.",
+    "applyFailed": "Ntibishobotse kwandika amafaranga.",
+    "unmatchedHint": "Ntibihuye: shakira umuryango muri «Akira amafaranga».",
+    "discard": "Uvuye muri uku guhuza? Nta kintu cyari cyandikwa."
+  },
+  "onlineReview": {
+    "title": "Ubwishyu bwa interineti bugomba gushyirwa mu mwanya",
+    "intro": "Ubu bwishyu bwaturutse kuri telefone y’umubyeyi ariko ntibwashyizwe ku madeni. Bishyire ku mwenda, usubize cyangwa ukore inyemezabwishyu, hanyuma ubifunge.",
+    "note": "Icyakozwe ku mafaranga",
+    "close": "Funga",
+    "closed": "Byafunzwe.",
+    "failed": "Ntibishobotse kubifunga.",
+    "loadFailed": "Ntibishobotse gukura ubwishyu bwa interineti."
   }
 }

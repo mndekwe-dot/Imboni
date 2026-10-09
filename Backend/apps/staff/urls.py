@@ -8,4 +8,5 @@ urlpatterns = [
          name='staff-department'),
     path('staff/members/', views.StaffMemberListView.as_view(), name='staff-members'),
     path('staff/members/<uuid:pk>/', views.StaffMemberDetailView.as_view(), name='staff-member'),
+    path('staff/members/<uuid:pk>/roles/', views.StaffExtraRolesView.as_view(), name='staff-member-roles'),
 ]

@@ -27,6 +27,8 @@ import { PRINT_FONT_STACK, printFontFace } from '../../utils/printFont'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { saveWithClashCheck } from '../../utils/examClash'
+import { confirmDialog } from '../../utils/confirm'
+import { asButton } from '../../utils/a11y'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -39,11 +41,11 @@ const EXAM_TYPES = [
 ]
 
 const TYPE_COLORS = {
-    midterm: '#3b82f6',
-    final:   '#7c3aed',
-    quiz:    '#d97706',
-    mock:    '#0891b2',
-    other:   '#6b7280',
+    midterm: 'var(--info)',
+    final:   'var(--cat-violet)',
+    quiz:    'var(--warning)',
+    mock:    'var(--cat-indigo)',
+    other:   'var(--muted-foreground)',
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -203,7 +205,7 @@ function ExamDetailModal({ exam, onClose, onEdit, onDelete, onReschedule }) {
                     ) : (
                         <>
                             <button className="btn btn-outline btn-destructive-outline"
-                                onClick={() => { if(window.confirm(t('dos.scheduling.deleteExamConfirm'))){ onDelete(exam.id); onClose() } }}>
+                                onClick={async () => { if(await confirmDialog(t('dos.scheduling.deleteExamConfirm'))){ onDelete(exam.id); onClose() } }}>
                                 <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span> {t('common.delete')}
                             </button>
                             <button className="btn btn-outline" onClick={() => setRescheduling(true)}>
@@ -249,7 +251,7 @@ function ExamForm({ editing, defaultSession, defaultDate, sessions, subjects, cl
             <div className="tt-form">
                 <div className="form-group u-mb-sm">
                     <label className="form-label"><span className="material-symbols-rounded icon-sm" aria-hidden="true">folder_open</span> {t('dos.scheduling.sessionGroupName')}</label>
-                    <input className="form-input" list="es-session-list" value={form.session} onChange={set('session')} placeholder={t('dos.scheduling.egSessionName')} />
+                    <input className="form-input" list="es-session-list" value={form.session} onChange={set('session')} placeholder={t('dos.scheduling.egSessionName')}  aria-label={t('dos.scheduling.egSessionName')}/>
                     <datalist id="es-session-list">{sessions.map(s => <option key={s} value={s}/>)}</datalist>
                 </div>
                 <div className="tt-form-row">
@@ -306,7 +308,7 @@ function ExamForm({ editing, defaultSession, defaultDate, sessions, subjects, cl
                 </div>
                 <div className="form-group">
                     <label className="form-label">{t('common.notes')}</label>
-                    <textarea className="form-input es-textarea-v" rows={2} value={form.notes} onChange={set('notes')} placeholder={t('dos.scheduling.notesPlaceholder')}/>
+                    <textarea className="form-input es-textarea-v" rows={2} value={form.notes} onChange={set('notes')} placeholder={t('dos.scheduling.notesPlaceholder')} aria-label={t('dos.scheduling.notesPlaceholder')}/>
                 </div>
                 <div className="tt-form-actions">
                     <button className="btn btn-outline" onClick={onCancel}>{t('common.cancel')}</button>
@@ -451,7 +453,7 @@ export function DosScheduling() {
     }
 
     async function handleDeleteSession(name) {
-        if (!window.confirm(t('dos.scheduling.deleteSessionConfirm', {
+        if (!await confirmDialog(t('dos.scheduling.deleteSessionConfirm', {
             name, count: exams.filter(e=>e.title===name).length }))) return
         const toDelete = exams.filter(e => e.title === name)
         const results = await Promise.allSettled(toDelete.map(e => deleteDosExamSchedule(e.id)))
@@ -685,7 +687,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                                             {s} <span className="es-chip-count">{exams.filter(e=>e.title===s).length}</span>
                                                         </button>
                                                         <button className="es-session-chip-del" title={t('dos.scheduling.deleteSession')}
-                                                            onClick={e => {e.stopPropagation();handleDeleteSession(s)}}>
+                                                            onClick={e => {e.stopPropagation();handleDeleteSession(s)}} aria-label={t('dos.scheduling.deleteSession')}>
                                                             <span className="material-symbols-rounded" aria-hidden="true">close</span>
                                                         </button>
                                                     </span>
@@ -696,7 +698,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                                             placeholder={t('dos.scheduling.sessionNamePlaceholder')} value={newSessionName}
                                                             onChange={e => setNewSessionName(e.target.value)}
                                                             onKeyDown={e => { if (e.key==='Enter') handleAddSession(); if (e.key==='Escape') {setAddingSession(false);setNewSessionName('')} }}
-                                                        />
+                                                         aria-label={t('dos.scheduling.sessionNamePlaceholder')}/>
                                                         <button className="btn btn-primary btn-sm es-session-btn" onClick={handleAddSession}>{t('common.add')}</button>
                                                         <button className="btn btn-outline btn-sm es-session-btn-x" onClick={() => {setAddingSession(false);setNewSessionName('')}}>✕</button>
                                                     </span>
@@ -767,17 +769,17 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                                                     day.isToday ? 'is-today' : '',
                                                                     day.isSunday ? 'is-sunday' : '',
                                                                 ].filter(Boolean).join(' ')}
-                                                                onClick={() => {
+                                                                {...asButton(() => {
                                                                     setDefaultDate(day.date)
                                                                     setDefaultSession(selectedSession!=='all'?selectedSession:'')
                                                                     setEditingExam(null)
                                                                     setShowExamForm(true)
-                                                                }}>
+                                                                })}>
                                                                 <span className={`es-cal-month-num${day.isToday?' today':''}`}>{day.day}</span>
                                                                 <div className="es-cal-month-events">
                                                                     {dayExams.slice(0,2).map(exam => {
                                                                         const done  = examStatus(exam.exam_date).done
-                                                                        const color = done ? '#9ca3af' : (TYPE_COLORS[exam.exam_type]||TYPE_COLORS.other)
+                                                                        const color = done ? 'var(--subtle-foreground)' : (TYPE_COLORS[exam.exam_type]||TYPE_COLORS.other)
                                                                         return (
                                                                             <div key={exam.id} className="es-cal-month-event"
                                                                                 style={{borderLeftColor:color}}

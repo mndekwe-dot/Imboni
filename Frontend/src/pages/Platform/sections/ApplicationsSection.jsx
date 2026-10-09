@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { Trans, useTranslation } from 'react-i18next'
 import { Modal } from '../../../components/ui/Modal'
 import {
     getApplications, approveApplication, rejectApplication, provisionApplication,
@@ -7,10 +8,10 @@ import {
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
 import { formatDate } from '../../../utils/date'
+import { SkeletonList } from '../../../components/ui/Skeleton'
 
 const STATUS_CLS = { pending: 'warn', approved: 'info', rejected: 'bad', provisioned: 'ok' }
-const FILTERS = [['', 'All'], ['pending', 'Pending'], ['approved', 'Approved'], ['provisioned', 'Provisioned'], ['rejected', 'Rejected']]
-const label = s => s.charAt(0).toUpperCase() + s.slice(1)
+const FILTERS = ['', 'pending', 'approved', 'provisioned', 'rejected']
 
 function Field({ label, value }) {
     return value ? (
@@ -22,6 +23,7 @@ function Field({ label, value }) {
 }
 
 function ReviewModal({ app, onClose, onChanged }) {
+    const { t } = useTranslation()
     const toast = useToast()
     const [notes, setNotes] = useState(app.review_notes || '')
     const [busy, setBusy]   = useState(false)
@@ -30,6 +32,7 @@ function ReviewModal({ app, onClose, onChanged }) {
     // an operator to copy into an email, and nothing to leak.
     const [result, setResult] = useState(null)
     const canOperate = operatorCan('operations')
+    const a = key => t(`platform.applications.${key}`)
 
     async function run(fn, okMsg) {
         setBusy(true)
@@ -39,7 +42,7 @@ function ReviewModal({ app, onClose, onChanged }) {
             toast.success(okMsg)
             onChanged(updated)
             if (!updated.provisioned) onClose()
-        } catch (e) { toast.error(errorMessage(e, 'Action failed.')) }
+        } catch (e) { toast.error(errorMessage(e, t('platform.common.actionFailed'))) }
         finally { setBusy(false) }
     }
 
@@ -48,14 +51,14 @@ function ReviewModal({ app, onClose, onChanged }) {
         if (app.status === 'pending') {
             footer = (
                 <>
-                    <button className="btn btn-outline platform-danger" disabled={busy} onClick={() => run(() => rejectApplication(app.id, notes), 'Application rejected.')}>Reject</button>
-                    <button className="btn btn-primary" disabled={busy} onClick={() => run(() => approveApplication(app.id, notes), 'Application approved.')}>Approve</button>
+                    <button className="btn btn-outline platform-danger" disabled={busy} onClick={() => run(() => rejectApplication(app.id, notes), a('rejected'))}>{a('reject')}</button>
+                    <button className="btn btn-primary" disabled={busy} onClick={() => run(() => approveApplication(app.id, notes), a('approved'))}>{a('approve')}</button>
                 </>
             )
         } else if (app.status === 'approved' && canOperate) {
             footer = (
-                <button className="btn btn-primary" disabled={busy} onClick={() => run(() => provisionApplication(app.id), 'School provisioned. Invitation sent.')}>
-                    {busy ? 'Provisioning…' : 'Provision school'}
+                <button className="btn btn-primary" disabled={busy} onClick={() => run(() => provisionApplication(app.id), a('provisioned'))}>
+                    {busy ? a('provisioning') : a('provision')}
                 </button>
             )
         } else if (app.status === 'provisioned' && canOperate) {
@@ -66,8 +69,8 @@ function ReviewModal({ app, onClose, onChanged }) {
                         onClick={() => run(async () => {
                             await resendInvitation(app.id)
                             return app
-                        }, 'A fresh invitation is on its way.')}>
-                    {busy ? 'Sending…' : 'Re-send invitation'}
+                        }, a('resent'))}>
+                    {busy ? a('sending') : a('resend')}
                 </button>
             )
         }
@@ -75,53 +78,49 @@ function ReviewModal({ app, onClose, onChanged }) {
 
     return (
         <Modal title={app.school_name} icon="domain_add" onClose={onClose} footer={footer}>
-            <span className={`platform-chip platform-chip-${STATUS_CLS[app.status]}`}>{label(app.status)}</span>
+            <span className={`platform-chip platform-chip-${STATUS_CLS[app.status]}`}>{t(`platform.applications.status.${app.status}`, { defaultValue: app.status })}</span>
 
             <div className="pf-grid pf-mt pf-mb">
-                <Field label="Desired address" value={app.desired_subdomain} />
-                <Field label="Contact" value={app.contact_name} />
-                <Field label="Email" value={app.contact_email} />
-                <Field label="Phone" value={app.contact_phone} />
-                <Field label="Location" value={[app.city, app.country].filter(Boolean).join(', ')} />
-                <Field label="Est. students" value={app.student_estimate} />
-                <Field label="Plan interest" value={app.plan_interest && label(app.plan_interest)} />
+                <Field label={a('fields.address')} value={app.desired_subdomain} />
+                <Field label={a('fields.contact')} value={app.contact_name} />
+                <Field label={a('fields.email')} value={app.contact_email} />
+                <Field label={a('fields.phone')} value={app.contact_phone} />
+                <Field label={a('fields.location')} value={[app.city, app.country].filter(Boolean).join(', ')} />
+                <Field label={a('fields.students')} value={app.student_estimate} />
+                <Field label={a('fields.plan')} value={app.plan_interest && t(`platform.common.plan.${app.plan_interest}`, { defaultValue: app.plan_interest })} />
             </div>
             {app.message && <p className="pf-pre">{app.message}</p>}
 
             {result ? (
                 <div className="pf-callout pf-mt">
                     <p className="pf-field-value pf-mb">
-                        {result.invitation?.delivered
-                            ? 'School provisioned. We have emailed them a link to set their own password.'
-                            : 'School provisioned, but the invitation email could not be sent.'}
+                        {result.invitation?.delivered ? a('deliveredNote') : a('undeliveredNote')}
                     </p>
-                    <Field label="Login URL" value={result.login_url} />
-                    <Field label="Invitation sent to" value={result.admin_email} />
+                    <Field label={a('fields.loginUrl')} value={result.login_url} />
+                    <Field label={a('fields.sentTo')} value={result.admin_email} />
                     {result.invitation?.delivered ? (
-                        <p className="pf-hint">
-                            The link works once and expires. Nobody can sign in until
-                            they open it, so there is nothing for you to pass on.
-                        </p>
+                        <p className="pf-hint">{a('linkHint')}</p>
                     ) : (
                         <p className="pf-hint platform-danger">
-                            {result.invitation?.delivery_error || 'The mail server refused it.'}
-                            {' '}Use Re-send invitation once it is working.
+                            {result.invitation?.delivery_error || a('mailRefused')}
+                            {' '}{a('resendHint')}
                         </p>
                     )}
                 </div>
             ) : app.status === 'pending' || app.status === 'approved' ? (
                 <label className="pf-field pf-mt">
-                    <span className="pf-field-label">Review notes</span>
-                    <textarea className="form-input" rows={2} value={notes} onChange={e => setNotes(e.target.value)} placeholder="Optional notes…" />
+                    <span className="pf-field-label">{a('notes')}</span>
+                    <textarea className="form-input" rows={2} value={notes} onChange={e => setNotes(e.target.value)} placeholder={a('notesPlaceholder')} />
                 </label>
             ) : app.status === 'rejected' ? (
-                <p className="platform-muted pf-mt">This application was rejected.</p>
+                <p className="platform-muted pf-mt">{a('wasRejected')}</p>
             ) : null}
         </Modal>
     )
 }
 
 export function ApplicationsSection() {
+    const { t } = useTranslation()
     const toast = useToast()
     const [apps, setApps]     = useState([])
     const [filter, setFilter] = useState('')
@@ -131,9 +130,9 @@ export function ApplicationsSection() {
     const load = useCallback(async () => {
         setLoading(true)
         try { setApps(await getApplications(filter)) }
-        catch (e) { toast.error(errorMessage(e, 'Could not load applications.')) }
+        catch (e) { toast.error(errorMessage(e, t('platform.applications.loadFailed'))) }
         finally { setLoading(false) }
-    }, [toast, filter])
+    }, [toast, filter, t])
     useEffect(() => { load() }, [load])
 
     function onChanged(updated) {
@@ -141,25 +140,33 @@ export function ApplicationsSection() {
         setActive(a => (a && a.id === updated.id ? { ...a, ...updated } : a))
     }
 
+    const statusLabel = s => t(`platform.applications.status.${s}`, { defaultValue: s })
+
     return (
         <div className="card">
             <div className="card-content">
                 <div className="platform-panel-head">
-                    <h2>School applications</h2>
-                    <select className="form-input platform-input-sm" value={filter} onChange={e => setFilter(e.target.value)}>
-                        {FILTERS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                    <h2>{t('platform.applications.title')}</h2>
+                    <select className="form-input platform-input-sm" value={filter} onChange={e => setFilter(e.target.value)}
+                            aria-label={t('platform.applications.filterLabel')}>
+                        {FILTERS.map(v => <option key={v} value={v}>{statusLabel(v || 'all')}</option>)}
                     </select>
                 </div>
 
                 {loading ? (
-                    <p className="platform-muted">Loading…</p>
+                    <SkeletonList items={3} />
                 ) : apps.length === 0 ? (
-                    <p className="platform-muted">No applications. Prospective schools apply at <code>/apply</code>.</p>
+                    <p className="platform-muted"><Trans i18nKey="platform.applications.empty" components={{ code: <code /> }} /></p>
                 ) : (
                     <div className="data-table-wrap">
                         <table className="data-table">
                             <thead>
-                                <tr><th>School</th><th>Address</th><th>Contact</th><th>Received</th><th>Status</th><th className="platform-col-action">Review</th></tr>
+                                <tr>
+                                    <th>{t('platform.applications.cols.school')}</th><th>{t('platform.applications.cols.address')}</th>
+                                    <th>{t('platform.applications.cols.contact')}</th><th>{t('platform.applications.cols.received')}</th>
+                                    <th>{t('platform.applications.cols.status')}</th>
+                                    <th className="platform-col-action">{t('platform.applications.cols.review')}</th>
+                                </tr>
                             </thead>
                             <tbody>
                                 {apps.map(a => (
@@ -168,9 +175,9 @@ export function ApplicationsSection() {
                                         <td className="platform-muted">{a.desired_subdomain}</td>
                                         <td>{a.contact_name}<div className="platform-muted pf-subtle">{a.contact_email}</div></td>
                                         <td className="platform-muted">{formatDate(a.created_at)}</td>
-                                        <td><span className={`platform-chip platform-chip-${STATUS_CLS[a.status]}`}>{label(a.status)}</span></td>
+                                        <td><span className={`platform-chip platform-chip-${STATUS_CLS[a.status]}`}>{statusLabel(a.status)}</span></td>
                                         <td className="platform-col-action">
-                                            <button className="btn btn-outline btn-sm" onClick={() => setActive(a)}>Open</button>
+                                            <button className="btn btn-outline btn-sm" onClick={() => setActive(a)}>{t('platform.applications.open')}</button>
                                         </td>
                                     </tr>
                                 ))}

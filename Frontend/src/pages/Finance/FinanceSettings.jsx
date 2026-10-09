@@ -6,6 +6,7 @@ import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { getFinanceSettings, saveFinanceSettings } from '../../api/finance'
 import { FinanceShell } from './FinanceShell'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 const FIELDS = [
     { key: 'currency',         type: 'text'   },
@@ -124,7 +125,7 @@ export function FinanceSettings() {
         <FinanceShell title={t('finance.settings.title')} subtitle={t('finance.settings.subtitle')}>
             <ListSection icon="settings" title={t('finance.settings.office')}>
                 {loading || !form ? (
-                    <p className="u-muted">{t('common.loading')}</p>
+                    <SkeletonList items={3} />
                 ) : (
                     <>
                         <div className="form-grid">

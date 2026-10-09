@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import '../../styles/components.css'
+import { ModalOverlay } from '../ui/ModalOverlay'
 
 export function NewActivityModal({ onClose, onSave }) {
     const { t } = useTranslation()
@@ -38,7 +39,7 @@ export function NewActivityModal({ onClose, onSave }) {
     }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-lg" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
@@ -52,7 +53,7 @@ export function NewActivityModal({ onClose, onSave }) {
                     <div className="form-row-2">
                         <div className="form-group">
                             <label className="form-label">{t('modals.activity.nameRequired')}</label>
-                            <input className="form-input" name="name" value={form.name} onChange={handleChange} placeholder={t('modals.activity.egName')} />
+                            <input className="form-input" name="name" value={form.name} onChange={handleChange} placeholder={t('modals.activity.egName')}  aria-label={t('modals.activity.egName')}/>
                         </div>
                         <div className="form-group">
                             <label className="form-label">{t('common.category')}</label>
@@ -71,11 +72,11 @@ export function NewActivityModal({ onClose, onSave }) {
                     <div className="form-row-2">
                         <div className="form-group">
                             <label className="form-label">{t('modals.activity.meetingSchedule')}</label>
-                            <input className="form-input" name="schedule" value={form.schedule} onChange={handleChange} placeholder={t('modals.activity.egSchedule')} />
+                            <input className="form-input" name="schedule" value={form.schedule} onChange={handleChange} placeholder={t('modals.activity.egSchedule')}  aria-label={t('modals.activity.egSchedule')}/>
                         </div>
                         <div className="form-group">
                             <label className="form-label">{t('modals.activity.venueLocation')}</label>
-                            <input className="form-input" name="venue" value={form.venue} onChange={handleChange} placeholder={t('modals.activity.egVenue')} />
+                            <input className="form-input" name="venue" value={form.venue} onChange={handleChange} placeholder={t('modals.activity.egVenue')}  aria-label={t('modals.activity.egVenue')}/>
                         </div>
                     </div>
                     <div className="form-row-2">
@@ -86,7 +87,7 @@ export function NewActivityModal({ onClose, onSave }) {
                     </div>
                     <div className="form-group">
                         <label className="form-label">{t('common.description')}</label>
-                        <textarea className="form-input form-textarea" name="description" value={form.description} onChange={handleChange} rows="3" placeholder={t('modals.activity.descPlaceholder')} />
+                        <textarea className="form-input form-textarea" name="description" value={form.description} onChange={handleChange} rows="3" placeholder={t('modals.activity.descPlaceholder')}  aria-label={t('modals.activity.descPlaceholder')}/>
                     </div>
                     {error && <p className="dmod-error">{error}</p>}
                 </div>
@@ -99,6 +100,6 @@ export function NewActivityModal({ onClose, onSave }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     )
 }

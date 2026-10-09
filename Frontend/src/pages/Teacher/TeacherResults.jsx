@@ -27,6 +27,7 @@ import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { downloadCsv } from '../../utils/exportTable'
 import { matchScores, scoreTemplate } from '../../utils/scoreImport'
+import { confirmDialog } from '../../utils/confirm'
 
 const ASSESSMENT_TYPES = [
     { value: 'quiz',         label: 'Quiz'         },
@@ -115,8 +116,8 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
         Object.values(scores).some(v => v !== '') || Object.values(notes).some(v => v.trim() !== '')
     )
 
-    function cancel() {
-        if (!dirty || window.confirm(t('teacher.results.discardConfirm'))) onClose()
+    async function cancel() {
+        if (!dirty || await confirmDialog(t('teacher.results.discardConfirm'))) onClose()
     }
 
     function downloadTemplate() {
@@ -215,7 +216,7 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
                         placeholder="e.g. Pop Quiz 1 (Algebra)"
                         value={form.title}
                         onChange={e => handle('title', e.target.value)}
-                    />
+                     aria-label="e.g. Pop Quiz 1 (Algebra)"/>
                 </div>
                 <div className="form-group">
                     <label className="form-label">Type *</label>
@@ -244,7 +245,7 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
                         placeholder="e.g. 30"
                         value={form.max_score}
                         onChange={e => handle('max_score', e.target.value)}
-                    />
+                     aria-label="e.g. 30"/>
                 </div>
             </div>
 
@@ -307,7 +308,7 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
                                             value={scores[s.student_id] ?? ''}
                                             disabled={skipped[s.student_id]}
                                             onChange={e => setScore(s.student_id, e.target.value)}
-                                        />
+                                         aria-label="-"/>
                                     </td>
                                     <td>
                                         <input
@@ -317,7 +318,7 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
                                             value={notes[s.student_id] ?? ''}
                                             disabled={skipped[s.student_id]}
                                             onChange={e => setNotes(prev => ({ ...prev, [s.student_id]: e.target.value }))}
-                                        />
+                                         aria-label={t('teacher.results.commentPlaceholder')}/>
                                     </td>
                                     <td className="u-center-text">
                                         <input
@@ -569,8 +570,8 @@ export function TeacherResults() {
                                                                 cursor={{ stroke: 'var(--border)', strokeWidth: 1 }}
                                                             />
                                                             <Line type="monotone" dataKey="avg_score" name="Class average"
-                                                                stroke="#003d7a" strokeWidth={2}
-                                                                dot={{ r: 4, fill: '#003d7a', strokeWidth: 2, stroke: 'var(--card, #fff)' }} />
+                                                                stroke="var(--primary)" strokeWidth={2}
+                                                                dot={{ r: 4, fill: 'var(--primary)', strokeWidth: 2, stroke: 'var(--card, #fff)' }} />
                                                         </LineChart>
                                                     </ResponsiveContainer>
                                                 </div>

@@ -45,7 +45,7 @@ export function QuestionExtras({ q, onChange }) {
                     <textarea className="form-control code-input" rows={5} spellCheck={false}
                         value={q.code || ''}
                         onChange={e => set('code', e.target.value)}
-                        placeholder={t('teacher.exams.codePlaceholder')} />
+                        placeholder={t('teacher.exams.codePlaceholder')}  aria-label={t('teacher.exams.codePlaceholder')}/>
                 </div>
             )}
 
@@ -57,14 +57,14 @@ export function QuestionExtras({ q, onChange }) {
                         <div key={i} className="flex-row-gap-sm u-mb-xs">
                             <input className="form-control" value={pair.left}
                                 onChange={e => setPair(i, 'left', e.target.value)}
-                                placeholder={t('teacher.exams.columnA')} />
+                                placeholder={t('teacher.exams.columnA')}  aria-label={t('teacher.exams.columnA')}/>
                             <span className="material-symbols-rounded icon-sm" aria-hidden="true">arrow_forward</span>
                             <input className="form-control" value={pair.right}
                                 onChange={e => setPair(i, 'right', e.target.value)}
-                                placeholder={t('teacher.exams.columnB')} />
+                                placeholder={t('teacher.exams.columnB')}  aria-label={t('teacher.exams.columnB')}/>
                             <button type="button" className="btn btn-outline btn-sm"
                                 onClick={() => set('pairs', pairs.filter((_, x) => x !== i))}
-                                title={t('common.remove')}>
+                                title={t('common.remove')} aria-label={t('common.remove')}>
                                 <span className="material-symbols-rounded icon-sm" aria-hidden="true">close</span>
                             </button>
                         </div>
@@ -124,14 +124,14 @@ export function QuestionExtras({ q, onChange }) {
                             </span>
                             <input className="form-control" value={part.text}
                                 onChange={e => setPart(i, { ...part, text: e.target.value })}
-                                placeholder={t('teacher.exams.partPlaceholder')} />
+                                placeholder={t('teacher.exams.partPlaceholder')}  aria-label={t('teacher.exams.partPlaceholder')}/>
                             <input type="number" min="0" className="form-control u-w-auto"
                                 value={part.points}
                                 onChange={e => setPart(i, { ...part, points: e.target.value })}
                                 aria-label={t('teacher.exams.partMarks')} />
                             <button type="button" className="btn btn-outline btn-sm"
                                 onClick={() => set('parts', parts.filter((_, x) => x !== i))}
-                                title={t('common.remove')}>
+                                title={t('common.remove')} aria-label={t('common.remove')}>
                                 <span className="material-symbols-rounded icon-sm" aria-hidden="true">close</span>
                             </button>
                         </div>
@@ -141,7 +141,7 @@ export function QuestionExtras({ q, onChange }) {
                                 <button key={space.value} type="button"
                                     className={`btn btn-sm ${part.answer_space === space.value ? 'btn-primary' : 'btn-outline'}`}
                                     onClick={() => setPart(i, { ...part, answer_space: space.value })}
-                                    title={t(space.labelKey)}>
+                                    title={t(space.labelKey)} aria-label={t(space.labelKey)}>
                                     <span className="material-symbols-rounded icon-sm" aria-hidden="true">{space.icon}</span>
                                 </button>
                             ))}
@@ -149,7 +149,7 @@ export function QuestionExtras({ q, onChange }) {
                                 marking scheme and never on the paper. */}
                             <input className="form-control" value={part.answer || ''}
                                 onChange={e => setPart(i, { ...part, answer: e.target.value })}
-                                placeholder={t('teacher.exams.partAnswerPlaceholder')} />
+                                placeholder={t('teacher.exams.partAnswerPlaceholder')}  aria-label={t('teacher.exams.partAnswerPlaceholder')}/>
                         </div>
                     </div>
                 ))}

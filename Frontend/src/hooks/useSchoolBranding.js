@@ -12,29 +12,46 @@ import { getSchoolBranding } from '../api/branding'
  *
  * Cached at module scope rather than fetched per mount: every page renders a
  * Sidebar, and branding changes about once in a school's lifetime. Without
- * this the app would re-request it on every navigation.
+ * this the app would re-request it on every navigation. When it does change,
+ * `refreshSchoolBranding()` re-reads it and every mounted consumer follows, so
+ * a new logo shows in the sidebar the moment it is saved rather than at the
+ * next reload.
  */
 let cache = null
 let inFlight = null
+const listeners = new Set()
+
+function load() {
+    /* client.js unwraps every response to `response.data` in an
+       interceptor, so this resolves to the payload itself - not an axios
+       response with a .data on it. Reading res.data here silently gave
+       undefined and the sidebar quietly kept the Imboni name. */
+    inFlight ??= getSchoolBranding()
+        .then(data => { cache = data; return cache })
+        /* A school with no branding set is the normal case, and the sign-in
+           screen must render either way — so a failure here resolves to
+           empty rather than rejecting and taking the page down with it. */
+        .catch(() => { cache = cache || { school_name: '', logo: null }; return cache })
+        .finally(() => { inFlight = null })
+    return inFlight
+}
+
+/** Re-read the branding and tell everything showing it. */
+export function refreshSchoolBranding() {
+    cache = null
+    inFlight = null
+    return load().then(data => { listeners.forEach(fn => fn(data)); return data })
+}
 
 export function useSchoolBranding() {
     const [branding, setBranding] = useState(cache)
 
     useEffect(() => {
-        if (cache) return
         let alive = true
-        /* client.js unwraps every response to `response.data` in an
-           interceptor, so this resolves to the payload itself - not an axios
-           response with a .data on it. Reading res.data here silently gave
-           undefined and the sidebar quietly kept the Imboni name. */
-        inFlight ??= getSchoolBranding()
-            .then(data => { cache = data; return cache })
-            /* A school with no branding set is the normal case, and the sign-in
-               screen must render either way — so a failure here resolves to
-               empty rather than rejecting and taking the page down with it. */
-            .catch(() => { cache = { school_name: '', logo: null }; return cache })
-        inFlight.then(data => { if (alive) setBranding(data) })
-        return () => { alive = false }
+        const follow = data => { if (alive) setBranding(data) }
+        listeners.add(follow)
+        if (!cache) load().then(follow)
+        return () => { alive = false; listeners.delete(follow) }
     }, [])
 
     return {
@@ -48,4 +65,5 @@ export function useSchoolBranding() {
 export function __resetBrandingCache() {
     cache = null
     inFlight = null
+    listeners.clear()
 }

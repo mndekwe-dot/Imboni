@@ -12,6 +12,7 @@ import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { formatDate } from '../../utils/date'
 import { LibraryShell } from './LibraryShell'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 /**
  * Chasing what is late.
@@ -141,7 +142,7 @@ function BorrowerModal({ id, onClose }) {
     return (
         <Modal onClose={onClose} title={data?.borrower?.name || t('library.fields.borrower')}
             size="lg">
-            {!data ? <p className="u-muted">{t('common.loading')}</p> : (
+            {!data ? <SkeletonList items={3} /> : (
                 <>
                     <div className="figure-strip">
                         <div>

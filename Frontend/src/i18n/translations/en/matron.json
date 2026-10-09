@@ -126,5 +126,71 @@
     "subtitle": "{{house}}, {{count}} students",
     "subtitleNoHouse": "{{count}} students",
     "title": "My Students"
+  },
+  "medical": {
+    "title": "Health alerts",
+    "hint": "Conditions staff must see at a glance. Shown on the roll, the dining list and the sick bay.",
+    "save": "Save alerts",
+    "saved": "Health alerts saved.",
+    "saveFailed": "Could not save the health alerts.",
+    "allergies": "Allergies",
+    "alert": "Health alert",
+    "flags": {
+      "asthma": "Asthma (inhaler)",
+      "epilepsy": "Epilepsy",
+      "diabetes_insulin": "Diabetes (insulin)",
+      "severe_allergy": "Severe allergy",
+      "sickle_cell": "Sickle cell",
+      "heart_condition": "Heart condition",
+      "other": "Other condition"
+    }
+  },
+  "pharmacy": {
+    "title": "Medicine cupboard",
+    "subtitle": "What the sick bay has in stock, what is running low, and what is about to expire",
+    "add": "Add an item",
+    "name": "Item",
+    "unit": "Unit",
+    "quantity": "In stock",
+    "reorder": "Warn at or below",
+    "expiry": "Soonest expiry",
+    "notes": "Notes",
+    "save": "Save item",
+    "saved": "Item added.",
+    "saveFailed": "Could not save the item.",
+    "loadFailed": "Could not load the cupboard.",
+    "empty": "Nothing in the cupboard yet.",
+    "emptyDesc": "Add paracetamol, ORS, bandages and the rest to start tracking them.",
+    "stock": "Change stock",
+    "apply": "Update stock",
+    "moved": "Stock updated.",
+    "moveFailed": "Could not update the stock.",
+    "howMany": "How many",
+    "why": "Why",
+    "note": "Note (optional)",
+    "history": "Logbook",
+    "noHistory": "No movements yet.",
+    "by": "by {{name}}",
+    "expires": "Expires {{date}}",
+    "status": {
+      "ok": "In stock",
+      "low": "Running low",
+      "out": "Out of stock",
+      "expiring": "Expiring soon",
+      "expired": "Expired"
+    },
+    "reasons": {
+      "received": "Received",
+      "dispensed": "Dispensed to a student",
+      "expired": "Discarded: expired",
+      "correction": "Stock-take correction"
+    },
+    "stats": {
+      "items": "Items",
+      "attention": "Need attention",
+      "low": "Low or out",
+      "expiring": "Expiring or expired"
+    },
+    "correctionHint": "For a correction use a negative number to take stock away."
   }
 }

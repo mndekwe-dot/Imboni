@@ -8,3 +8,17 @@ import client from './client'
  * do not start reading operational settings from here.
  */
 export const getSchoolBranding = () => client.get('/imboni/dos/branding/')
+
+/** Set the school's logo. `file` is a JPG or PNG under 2 MB. */
+export const setSchoolLogo = file => {
+    const form = new FormData()
+    form.append('logo', file)
+    return client.patch('/imboni/dos/school-settings/', form)
+}
+
+/** Take the logo off; the sidebar goes back to the product's own mark. */
+export const removeSchoolLogo = () => {
+    const form = new FormData()
+    form.append('logo', '')
+    return client.patch('/imboni/dos/school-settings/', form)
+}

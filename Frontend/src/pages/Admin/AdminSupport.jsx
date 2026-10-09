@@ -15,6 +15,7 @@ import '../../styles/admin.css'
 import '../../styles/support.css'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { asButton } from '../../utils/a11y'
 
 const STATUS_LABEL = { open: 'Open', in_progress: 'In progress', resolved: 'Resolved', closed: 'Closed' }
 
@@ -67,7 +68,7 @@ function TicketModal({ ticket, onClose, onReplied }) {
 
             {ticket.status !== 'closed' && (
                 <div className="support-reply">
-                    <textarea className="form-input" rows={3} placeholder="Add a reply…" value={reply} onChange={e => setReply(e.target.value)} />
+                    <textarea className="form-input" rows={3} placeholder="Add a reply…" value={reply} onChange={e => setReply(e.target.value)}  aria-label="Add a reply…"/>
                 </div>
             )}
         </Modal>
@@ -165,7 +166,7 @@ export function AdminSupport() {
                         ) : (
                             <div className="support-stack">
                                 {tickets.map(t => (
-                                    <div key={t.id} className="card support-ticket" onClick={() => setActive(t)}>
+                                    <div key={t.id} className="card support-ticket" {...asButton(() => setActive(t))}>
                                         <div className="card-content">
                                             <div>
                                                 <p className="support-ticket-title">{t.subject}</p>

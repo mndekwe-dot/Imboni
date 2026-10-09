@@ -1,5 +1,25 @@
 from rest_framework.permissions import BasePermission
 
+# The roles a person can hold IN ADDITION to their own. Never admin (it is the
+# key to everything and is given deliberately, as a role), and never student or
+# parent (those are who someone IS to the school, not a duty they take on).
+SECONDARY_ROLES = ('teacher', 'dos', 'discipline', 'matron', 'librarian', 'bursar')
+
+
+def has_role(user, *roles):
+    """
+    True if the user's own role, or one of their secondary roles, is in ``roles``.
+
+    The one place that says what "a DOS" means for access, so the permission
+    classes below cannot disagree about it. A secondary role is only honoured
+    if it is one a person may hold at all: a stray 'admin' written into
+    ``extra_roles`` by anything other than the admin screen grants nothing.
+    """
+    if user.role in roles:
+        return True
+    extras = getattr(user, 'extra_roles', None) or []
+    return any(r in roles and r in SECONDARY_ROLES for r in extras)
+
 
 class IsDOS(BasePermission):
     """Allow access only to users with role='dos'."""
@@ -9,7 +29,7 @@ class IsDOS(BasePermission):
         return bool(
             request.user and
             request.user.is_authenticated and
-            request.user.role == 'dos'
+            has_role(request.user, 'dos')
         )
 
 
@@ -21,7 +41,7 @@ class IsTeacher(BasePermission):
         return bool(
             request.user and
             request.user.is_authenticated and
-            request.user.role == 'teacher'
+            has_role(request.user, 'teacher')
         )
 
 
@@ -33,7 +53,7 @@ class IsParent(BasePermission):
         return bool(
             request.user and
             request.user.is_authenticated and
-            request.user.role == 'parent'
+            has_role(request.user, 'parent')
         )
 
 
@@ -45,7 +65,7 @@ class IsStudent(BasePermission):
         return bool(
             request.user and
             request.user.is_authenticated and
-            request.user.role == 'student'
+            has_role(request.user, 'student')
         )
 
 
@@ -57,7 +77,7 @@ class IsAdminRole(BasePermission):
         return bool(
             request.user and
             request.user.is_authenticated and
-            request.user.role == 'admin'
+            has_role(request.user, 'admin')
         )
 
 
@@ -69,7 +89,7 @@ class IsDOSOrAdmin(BasePermission):
         return bool(
             request.user and
             request.user.is_authenticated and
-            request.user.role in ('dos', 'admin')
+            has_role(request.user, 'dos', 'admin')
         )
 
 
@@ -81,7 +101,7 @@ class IsTeacherOrDOS(BasePermission):
         return bool(
             request.user and
             request.user.is_authenticated and
-            request.user.role in ('teacher', 'dos', 'admin')
+            has_role(request.user, 'teacher', 'dos', 'admin')
         )
 
 
@@ -93,7 +113,7 @@ class IsMatron(BasePermission):
         return bool(
             request.user and
             request.user.is_authenticated and
-            request.user.role == 'matron'
+            has_role(request.user, 'matron')
         )
 
 
@@ -105,7 +125,7 @@ class IsDiscipline(BasePermission):
         return bool(
             request.user and
             request.user.is_authenticated and
-            request.user.role == 'discipline'
+            has_role(request.user, 'discipline')
         )
 class IsDisciplineOrMatron(BasePermission):
     """Allow access to the Director of Discipline or any matron/patron."""
@@ -115,7 +135,7 @@ class IsDisciplineOrMatron(BasePermission):
         return bool(
             request.user and
             request.user.is_authenticated and
-            request.user.role in ('discipline', 'matron')
+            has_role(request.user, 'discipline', 'matron')
         )
 
 
@@ -127,7 +147,7 @@ class IsDOSOrAdminOrDiscipline(BasePermission):
         return bool(
             request.user and
             request.user.is_authenticated and
-            request.user.role in('discipline','dos','admin')
+            has_role(request.user, 'discipline','dos','admin')
         )
 
 class IsParentOrTeacherOrDOS(BasePermission):
@@ -138,7 +158,7 @@ class IsParentOrTeacherOrDOS(BasePermission):
         return bool(
             request.user and
             request.user.is_authenticated and
-            request.user.role in ('parent', 'student', 'teacher', 'dos', 'admin')
+            has_role(request.user, 'parent', 'student', 'teacher', 'dos', 'admin')
         )
 
 
@@ -173,7 +193,7 @@ class IsLibrarian(BasePermission):
         return bool(
             request.user and
             request.user.is_authenticated and
-            request.user.role == 'librarian'
+            has_role(request.user, 'librarian')
         )
 
 
@@ -191,7 +211,7 @@ class IsLibrarianOrAdmin(BasePermission):
         return bool(
             request.user and
             request.user.is_authenticated and
-            request.user.role in ('librarian', 'admin')
+            has_role(request.user, 'librarian', 'admin')
         )
 
 
@@ -203,7 +223,7 @@ class IsBursar(BasePermission):
         return bool(
             request.user and
             request.user.is_authenticated and
-            request.user.role == 'bursar'
+            has_role(request.user, 'bursar')
         )
 
 
@@ -221,5 +241,5 @@ class IsBursarOrAdmin(BasePermission):
         return bool(
             request.user and
             request.user.is_authenticated and
-            request.user.role in ('bursar', 'admin')
+            has_role(request.user, 'bursar', 'admin')
         )

@@ -12,7 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name', 'full_name',
-            'role', 'phone_number', 'avatar', 'date_of_birth', 'address',
+            'role', 'extra_roles', 'phone_number', 'avatar', 'date_of_birth', 'address',
             'emergency_contact', 'is_active', 'email_verified', 'created_at'
         ]
         # role / is_active / email are privilege- and identity-bearing: a user
@@ -20,7 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
         # admin or reactivate a disabled account. Role is assigned at invitation
         # time and changed only through admin staff management, never here.
         read_only_fields = ['id', 'created_at', 'email_verified',
-                            'role', 'is_active', 'email']
+                            'role', 'extra_roles', 'is_active', 'email']
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer):

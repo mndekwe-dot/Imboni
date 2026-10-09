@@ -9,15 +9,17 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 import { parentNavItems, parentSecondaryItems } from './parentNav'
 import { formatDate, formatDateShort } from '../../utils/date'
 import {
-    getMyChildren, getChildAssessments, getChildSummative, getChildReviews,
+    getMyChildren, getChildAssessments, getChildSummative, getChildReviews, downloadChildReportCard,
 } from '../../api/parent'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage, partialLoad } from '../../utils/errors'
+import { saveBlob } from '../../utils/download'
 
 const toList = d => Array.isArray(d) ? d : (d?.results ?? [])
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 function initials(name = '') {
     return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
@@ -126,6 +128,7 @@ export function ParentResults() {
     const [summative,   setSummative]   = useState([])
     const [reviews,     setReviews]     = useState([])
     const [loadingData, setLoadingData] = useState(false)
+    const [downloading, setDownloading] = useState(false)
 
     /* `?child=<id>` picks the child up front, so the "View results" button on a
        card in My Children lands on THAT child rather than on whoever happens to
@@ -169,6 +172,21 @@ export function ParentResults() {
 
     const child = children[activeIdx]
 
+    async function downloadReportCard() {
+        setDownloading(true)
+        try {
+            const blob = await downloadChildReportCard(child.id)
+            saveBlob(blob, `report-card-${child.student_name.replace(/\s+/g, '-')}.pdf`)
+        } catch (e) {
+            // A blob body cannot be read as JSON, so the one expected failure is told by its status.
+            toast.error(e?.response?.status === 404
+                ? t('parent.results.noReportCard')
+                : errorMessage(e, t('parent.results.reportCardFailed')))
+        } finally {
+            setDownloading(false)
+        }
+    }
+
     return (
         <>
             <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
@@ -202,7 +220,7 @@ export function ParentResults() {
 
                     <DashboardContent>
                         {loading ? (
-                            <p className="u-pad u-muted">{t('common.loading')}</p>
+                            <SkeletonList items={3} />
                         ) : !child ? (
                             <p className="u-pad u-muted">{t('parent.results.noChildren')}</p>
                         ) : (
@@ -211,10 +229,14 @@ export function ParentResults() {
                                 <div className="card">
                                     <div className="card-header">
                                         <h3 className="card-title">{t('parent.results.recentFor', { name: child.student_name })}</h3>
+                                        <button className="btn btn-outline btn-sm" onClick={downloadReportCard} disabled={downloading}>
+                                            <span className="material-symbols-rounded" aria-hidden="true">download</span>
+                                            {downloading ? t('parent.results.generating') : t('parent.results.reportCard')}
+                                        </button>
                                     </div>
                                     <div className="card-content">
                                         {loadingData ? (
-                                            <p className="u-muted">{t('common.loading')}</p>
+                                            <SkeletonList items={3} />
                                         ) : assessments.length === 0 ? (
                                             <p className="u-muted">{t('parent.results.noAssessments')}</p>
                                         ) : (

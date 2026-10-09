@@ -3,10 +3,13 @@ import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 
 import { Modal } from '../ui/Modal'
-import { getMatronStudent } from '../../api/matron'
+import { getMatronStudent, updateMatronMedical } from '../../api/matron'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 import { classLabel } from '../../utils/classes'
 import '../../styles/components.css'
 import '../../styles/matron.css'
+import { SkeletonList } from '../ui/Skeleton'
 
 /**
  * One boarder, opened from the roll.
@@ -25,6 +28,9 @@ import '../../styles/matron.css'
  * form opens with them already selected — and survives a reload, which passing
  * the object through router state would not.
  */
+
+// Mirrors apps.student.medical.MEDICAL_FLAGS; the server drops any other code.
+const MEDICAL_FLAGS = ['asthma', 'epilepsy', 'diabetes_insulin', 'severe_allergy', 'sickle_cell', 'heart_condition', 'other']
 
 const REPORT_TONE = {
     incident:    'warning',
@@ -49,17 +55,20 @@ function Field({ label, value }) {
     )
 }
 
-export function MatronStudentModal({ student, onClose }) {
+export function MatronStudentModal({ student, onClose, onMedicalChange }) {
     const { t } = useTranslation()
+    const toast = useToast()
     const [detail, setDetail] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [flags, setFlags] = useState(student?.medicalFlags || [])
+    const [savingFlags, setSavingFlags] = useState(false)
 
     useEffect(() => {
         if (!student?.id) { setLoading(false); return }
         let cancelled = false
         setLoading(true)
         getMatronStudent(student.id)
-            .then(data => { if (!cancelled) setDetail(data) })
+            .then(data => { if (!cancelled) { setDetail(data); if (data.medical_flags) setFlags(data.medical_flags) } })
             // The summary above is already rendered from the row; losing the
             // record below is not worth blanking the dialog for.
             .catch(() => {})
@@ -68,6 +77,24 @@ export function MatronStudentModal({ student, onClose }) {
     }, [student?.id])
 
     if (!student) return null
+
+    function toggleFlag(code) {
+        setFlags(f => (f.includes(code) ? f.filter(x => x !== code) : [...f, code]))
+    }
+
+    async function saveFlags() {
+        setSavingFlags(true)
+        try {
+            const saved = await updateMatronMedical(student.id, { medical_flags: flags })
+            setFlags(saved.medical_flags)
+            onMedicalChange?.(student.id, saved.medical_flags)
+            toast.success(t('matron.medical.saved'))
+        } catch (e) {
+            toast.error(errorMessage(e, t('matron.medical.saveFailed')))
+        } finally {
+            setSavingFlags(false)
+        }
+    }
 
     const conduct = detail?.conduct_grade
     const conductTone = CONDUCT_TONE[String(conduct || '').toLowerCase()] || ''
@@ -115,9 +142,23 @@ export function MatronStudentModal({ student, onClose }) {
                 <Field label={t('common.admissionNo')}  value={student.studentCode} />
             </div>
 
+            <h3 className="stu-modal-section">{t('matron.medical.title')}</h3>
+            <p className="empty-note">{t('matron.medical.hint')}</p>
+            <div className="u-row u-wrap">
+                {MEDICAL_FLAGS.map(code => (
+                    <label key={code} className="form-check">
+                        <input type="checkbox" checked={flags.includes(code)} onChange={() => toggleFlag(code)} />
+                        <span>{t(`matron.medical.flags.${code}`)}</span>
+                    </label>
+                ))}
+            </div>
+            <button className="btn btn-outline btn-sm" onClick={saveFlags} disabled={savingFlags}>
+                {t('matron.medical.save')}
+            </button>
+
             <h3 className="stu-modal-section">{t('matron.students.recentRecord')}</h3>
             {loading ? (
-                <p className="empty-note">{t('common.loading')}</p>
+                <SkeletonList items={3} />
             ) : incidents.length === 0 ? (
                 <p className="empty-note">{t('matron.students.noRecord')}</p>
             ) : (

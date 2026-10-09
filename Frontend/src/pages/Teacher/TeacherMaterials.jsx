@@ -18,6 +18,8 @@ import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
+import { confirmDialog } from '../../utils/confirm'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 /**
  * Notes, slides, past papers and video links a teacher shares with a class.
@@ -82,7 +84,7 @@ export function TeacherMaterials() {
     }
 
     async function remove(material) {
-        if (!window.confirm(t('materials.confirmDelete', { title: material.title }))) return
+        if (!await confirmDialog(t('materials.confirmDelete', { title: material.title }))) return
         setBusyId(material.id)
         try {
             await deleteTeacherMaterial(material.id)
@@ -119,7 +121,7 @@ export function TeacherMaterials() {
                     />
                     <DashboardContent>
                         {loading ? (
-                            <p className="u-muted">{t('common.loading')}</p>
+                            <SkeletonList items={3} />
                         ) : loadError ? (
                             <p className="form-error">{loadError}</p>
                         ) : noClasses ? (

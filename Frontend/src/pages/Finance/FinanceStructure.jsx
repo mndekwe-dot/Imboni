@@ -16,6 +16,7 @@ import {
     previewStructure, searchStudents, updateFeeCategory, updateFeeDiscount, updateFeeStructure,
 } from '../../api/finance'
 import { Money, categoryName, formatAmount } from './FinanceShell'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 const BOARDING = ['all', 'boarders', 'day']
 const INTAKE = ['all', 'new', 'returning']
@@ -155,7 +156,7 @@ export function FeeSetupPanel() {
                 title={current ? t('finance.structure.linesFor', { term: current.name }) : t('finance.structure.title')}
                 count={loading ? null : t('finance.structureCount', { count: lines.length })}>
                 {loading ? (
-                    <p className="u-muted">{t('common.loading')}</p>
+                    <SkeletonList items={3} />
                 ) : lines.length === 0 ? (
                     <EmptyState icon="price_change" title={t('finance.structure.empty')}
                         description={t('finance.structure.emptyDesc')}
@@ -484,7 +485,7 @@ function LinePreviewModal({ line, onClose }) {
         <Modal title={line.name || categoryName(t, line.category, line.category_name)} icon="groups" size="wide" onClose={onClose}
             footer={<button className="btn btn-outline" onClick={onClose}>{t('common.close')}</button>}>
             {!data ? (
-                <p className="u-muted">{t('common.loading')}</p>
+                <SkeletonList items={3} />
             ) : (
                 <>
                     <p className="u-sm mb-1">

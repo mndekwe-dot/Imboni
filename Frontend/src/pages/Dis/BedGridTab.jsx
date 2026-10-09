@@ -4,6 +4,7 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { getBedLayout } from '../../api/discipline'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 function initials(name = '') {
     return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
@@ -54,7 +55,7 @@ export function BedGridTab() {
             .catch(e => { toast.error(errorMessage(e, t('dis.beds.loadFailed'))); setDorms([]) })
     }, [toast, t])
 
-    if (dorms === null) return <p className="u-pad u-muted">{t('common.loading')}</p>
+    if (dorms === null) return <SkeletonList items={3} />
     if (dorms.length === 0) return <EmptyState icon="bed" title={t('dis.beds.loadFailed')} description={t('dis.beds.empty')} />
 
     return (

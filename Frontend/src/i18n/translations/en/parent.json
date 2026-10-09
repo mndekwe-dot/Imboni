@@ -65,11 +65,15 @@
   },
   "noChildren": "No children linked to your account yet.",
   "results": {
+    "generating": "Preparing…",
     "noAssessments": "No assessments recorded yet.",
     "noChildren": "No children linked to your account yet.",
+    "noReportCard": "No approved results for this term yet, so there is no report card to download.",
     "noReviews": "No reviews yet.",
     "recentAssessments": "Recent Assessments & Projects",
     "recentFor": "Recent Results for {{name}}",
+    "reportCard": "Report card (PDF)",
+    "reportCardFailed": "Could not prepare the report card.",
     "subtitle": "Performance tracking and term reports",
     "summative": "Summative Performance",
     "teacherReviews": "Teacher Reviews",
@@ -79,5 +83,40 @@
   "timetable": {
     "subtitle": "View your child's weekly academic schedule",
     "title": "Class Timetable"
+  },
+  "exeat": {
+    "title": "Leave from school (exéat)",
+    "request": "Request leave",
+    "intro": "Ask for your child to be let out of the boarding school. The school office still has to approve it.",
+    "none": "No leave requests yet.",
+    "reason": "Why does {{name}} need to leave?",
+    "send": "Send request",
+    "sent": "Request sent to the school office.",
+    "sendFailed": "Could not send the request.",
+    "leaves": "Leaves",
+    "back": "Back by",
+    "cancel": "Cancel"
+  },
+  "pay": {
+    "owing": "Owing this term: {{amount}}",
+    "button": "Pay with mobile money",
+    "title": "Pay school fees",
+    "intro": "You will get a prompt on your phone to approve the payment. Imboni never sees your PIN.",
+    "amount": "Amount to pay",
+    "phone": "Mobile money number",
+    "send": "Send the prompt to my phone",
+    "waiting": "Check your phone and approve the payment with your PIN…",
+    "success": "Paid. Receipt {{receipt}}. Thank you.",
+    "failed": "The payment did not go through: {{reason}}",
+    "close": "Close",
+    "failedStart": "Could not start the payment.",
+    "review": "Your money has arrived and the school office will confirm it shortly.",
+    "recent": "Recent online payments",
+    "status": {
+      "pending": "Waiting for approval",
+      "successful": "Paid",
+      "failed": "Not paid",
+      "needs_review": "Received: office confirming"
+    }
   }
 }

@@ -5,6 +5,8 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { SchoolStructureEditor } from '../../components/settings/SchoolStructureEditor'
+import { SchoolBrandingBlock } from '../../components/settings/SchoolBrandingBlock'
+import { refreshSchoolBranding } from '../../hooks/useSchoolBranding'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { yearsFromConfig } from '../../utils/classes'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
@@ -18,6 +20,7 @@ import {
     getCurrentTerm,
 } from '../../api/dos'
 import { runTermRollover } from '../../api/admin'
+import { SearchBar } from '../../components/ui/SearchBar'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import '../../styles/layout.css'
 import '../../styles/components.css'
@@ -91,11 +94,11 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                     <>
                         <span className="adm-type-title">{typeName}</span>
                         <span className="adm-set-count u-fs-075">{t('settings.lessonCount', { count: subjects.length })}</span>
-                        <button className="btn-icon-clean adm-icon-muted" onClick={() => setEditingType(true)} title={t('settings.renameType')}>
+                        <button className="btn-icon-clean adm-icon-muted" onClick={() => setEditingType(true)} title={t('settings.renameType')} aria-label={t('settings.renameType')}>
                             <span className="material-symbols-rounded u-fs-1" aria-hidden="true">edit</span>
                         </button>
                         <div className="adm-spacer" />
-                        <button className="btn-icon-clean adm-icon-danger" onClick={() => onDeleteType(typeName)} title={t('settings.deleteType')}>
+                        <button className="btn-icon-clean adm-icon-danger" onClick={() => onDeleteType(typeName)} title={t('settings.deleteType')} aria-label={t('settings.deleteType')}>
                             <span className="material-symbols-rounded u-fs-1" aria-hidden="true">delete</span>
                         </button>
                     </>
@@ -117,10 +120,10 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                         <>
                             <span className="adm-lesson-name">{s.name}</span>
                             <span className="adm-lesson-code">{s.code}</span>
-                            <button className="btn-icon-clean adm-icon-muted" onClick={() => { setEditingLesson(s.id); setLessonDraft(s.name) }} title={t('common.rename')}>
+                            <button className="btn-icon-clean adm-icon-muted" onClick={() => { setEditingLesson(s.id); setLessonDraft(s.name) }} title={t('common.rename')} aria-label={t('common.rename')}>
                                 <span className="material-symbols-rounded u-fs-095" aria-hidden="true">edit</span>
                             </button>
-                            <button className="btn-icon-clean adm-icon-danger" onClick={() => onDeleteLesson(s.id)} title={t('common.delete')}>
+                            <button className="btn-icon-clean adm-icon-danger" onClick={() => onDeleteLesson(s.id)} title={t('common.delete')} aria-label={t('common.delete')}>
                                 <span className="material-symbols-rounded u-fs-095" aria-hidden="true">delete</span>
                             </button>
                         </>
@@ -134,11 +137,11 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                 <input className="form-input adm-input-lesson"
                     value={lessonName} onChange={e => setLessonName(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAddLesson()}
-                    placeholder={t('settings.lessonNamePlaceholder')} />
+                    placeholder={t('settings.lessonNamePlaceholder')}  aria-label={t('settings.lessonNamePlaceholder')}/>
                 <input className="form-input adm-input-code"
                     value={lessonCode} onChange={e => setLessonCode(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAddLesson()}
-                    placeholder={t('settings.lessonCodePlaceholder')} />
+                    placeholder={t('settings.lessonCodePlaceholder')}  aria-label={t('settings.lessonCodePlaceholder')}/>
                 <button className="btn btn-outline btn-sm" onClick={handleAddLesson}>
                     <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('settings.lesson')}
                 </button>
@@ -157,6 +160,8 @@ function SchoolInfoSection() {
     const [schoolName, setSchoolName] = useState('')
     const [timezone,   setTimezone]   = useState('Africa/Kigali')
     const [currency,   setCurrency]   = useState('RWF')
+    const [contactEmail, setContactEmail] = useState('')
+    const [contactPhone, setContactPhone] = useState('')
     const [saving,     setSaving]     = useState(false)
     const [saved,      setSaved]      = useState(false)
 
@@ -165,13 +170,16 @@ function SchoolInfoSection() {
             setSchoolName(setting.school_name || '')
             setTimezone(setting.timezone || 'Africa/Kigali')
             setCurrency(setting.currency || 'RWF')
+            setContactEmail(setting.contact_email || '')
+            setContactPhone(setting.contact_phone || '')
         }
     }, [settingsLoading, setting])
 
     async function handleSave() {
         setSaving(true)
         try {
-            await updateSchoolSettings({ school_name: schoolName, timezone, currency })
+            await updateSchoolSettings({ school_name: schoolName, timezone, currency, contact_email: contactEmail, contact_phone: contactPhone })
+            refreshSchoolBranding()
             setSaved(true)
             setTimeout(() => setSaved(false), 3000)
         } catch (e) {
@@ -195,7 +203,35 @@ function SchoolInfoSection() {
                         value={schoolName}
                         onChange={e => { setSchoolName(e.target.value); setSaved(false) }}
                         placeholder={t('admin.settings.schoolNamePlaceholder')}
-                    />
+                     aria-label={t('admin.settings.schoolNamePlaceholder')}/>
+                </div>
+            </div>
+
+            <SchoolBrandingBlock />
+
+            <div className="settings-block">
+                <div className="settings-block-label">
+                    <p className="settings-block-title">{t('admin.settings.contactEmail')}</p>
+                    <p className="settings-block-desc">{t('admin.settings.contactEmailDesc')}</p>
+                </div>
+                <div className="settings-block-input-row">
+                    <input className="form-input flex-1" type="email" value={contactEmail}
+                        onChange={e => { setContactEmail(e.target.value); setSaved(false) }}
+                        placeholder={t('admin.settings.contactEmailPlaceholder')}
+                        aria-label={t('admin.settings.contactEmail')} />
+                </div>
+            </div>
+
+            <div className="settings-block">
+                <div className="settings-block-label">
+                    <p className="settings-block-title">{t('admin.settings.contactPhone')}</p>
+                    <p className="settings-block-desc">{t('admin.settings.contactPhoneDesc')}</p>
+                </div>
+                <div className="settings-block-input-row">
+                    <input className="form-input flex-1" type="tel" value={contactPhone}
+                        onChange={e => { setContactPhone(e.target.value); setSaved(false) }}
+                        placeholder={t('admin.settings.contactPhonePlaceholder')}
+                        aria-label={t('admin.settings.contactPhone')} />
                 </div>
             </div>
 
@@ -351,7 +387,7 @@ function SubjectsSection() {
                         onChange={e => setNewTypeName(e.target.value)}
                         onKeyDown={e => e.key === 'Enter' && handleAddType()}
                         placeholder={t('settings.egSciences')}
-                    />
+                     aria-label={t('settings.egSciences')}/>
                     <button className="btn btn-primary btn-sm" onClick={handleAddType}>
                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('settings.addType')}
                     </button>
@@ -428,7 +464,7 @@ function RoomsSection() {
                         onChange={e => { setRoomInput(e.target.value); setRoomErr('') }}
                         onKeyDown={e => e.key === 'Enter' && handleAddRoom()}
                         placeholder={t('settings.roomPlaceholder')}
-                    />
+                     aria-label={t('settings.roomPlaceholder')}/>
                     <button className="btn btn-primary btn-sm" onClick={handleAddRoom}>
                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('common.add')}
                     </button>
@@ -458,6 +494,43 @@ function RoomsSection() {
 
 // ── Term Rollover ─────────────────────────────────────────────────────────────
 
+/** Tick the pupils who repeat; everyone else moves up (or graduates) as the school's years dictate. */
+function RepeaterPicker({ students, retain, onToggle }) {
+    const { t } = useTranslation()
+    const [search, setSearch] = useState('')
+    const q = search.trim().toLowerCase()
+    const shown = students.filter(s => !q
+        || s.name.toLowerCase().includes(q)
+        || s.student_id.toLowerCase().includes(q)
+        || s.class_label.toLowerCase().includes(q))
+    return (
+        <div className="adm-ro-panel">
+            <p className="u-strong u-mb-sm">{t('admin.settings.repeatersTitle')}</p>
+            <p className="u-muted u-sm">{t('admin.settings.repeatersHint')}</p>
+            <SearchBar value={search} onChange={setSearch} placeholder={t('admin.settings.findPupil')} />
+            <ul className="row-list adm-ro-list">
+                {shown.map(s => (
+                    <li key={s.id} className="row-item">
+                        <label className="form-check">
+                            <input type="checkbox" checked={retain.has(s.id)} onChange={() => onToggle(s.id)}
+                                aria-label={`${t('admin.settings.repeatsLabel')}: ${s.name}`} />
+                            <span className="row-main">
+                                <span className="u-strong u-sm">{s.name}</span>
+                                <span className="text-xs-muted">{s.class_label} · {s.student_id}</span>
+                            </span>
+                        </label>
+                        <span className="badge badge-secondary">
+                            {retain.has(s.id) ? t('admin.settings.outcomeRepeats')
+                                : s.outcome === 'graduates' ? t('admin.settings.outcomeGraduates')
+                                    : t('admin.settings.outcomePromoted')}
+                        </span>
+                    </li>
+                ))}
+            </ul>
+        </div>
+    )
+}
+
 function TermRolloverSection() {
     const { t } = useTranslation()
     // The school's own terms, not a hard-coded term1/2/3 — a semester system has
@@ -475,6 +548,7 @@ function TermRolloverSection() {
     const [result, setResult]   = useState(null)
     const [busy, setBusy]       = useState(false)
     const [error, setError]     = useState(null)
+    const [retain, setRetain]   = useState(() => new Set())
 
     useEffect(() => {
         getCurrentTerm().then(setCurrentTerm).catch(() => setCurrentTerm(null))
@@ -494,8 +568,11 @@ function TermRolloverSection() {
     async function handlePreview() {
         setBusy(true); setError(null)
         try {
-            const data = await runTermRollover({ ...form, name: form.name.trim(), dry_run: true })
+            // Always asked with nobody held back: the server says what would happen by default,
+            // and the ticks are applied on top of that here, so toggling is instant.
+            const data = await runTermRollover({ ...form, name: form.name.trim(), dry_run: true, include_students: true })
             setPreview(data)
+            setRetain(new Set())
             setStep(2)
         } catch (err) {
             setError(err?.response?.data?.error || t('admin.settings.previewFailed'))
@@ -507,7 +584,9 @@ function TermRolloverSection() {
     async function handleExecute() {
         setBusy(true); setError(null)
         try {
-            const data = await runTermRollover({ ...form, name: form.name.trim(), dry_run: false })
+            const data = await runTermRollover({
+                ...form, name: form.name.trim(), dry_run: false, retain: [...retain],
+            })
             setResult(data)
             setStep(3)
         } catch (err) {
@@ -515,6 +594,22 @@ function TermRolloverSection() {
         } finally {
             setBusy(false)
         }
+    }
+
+    function toggleRetain(id) {
+        setRetain(prev => {
+            const next = new Set(prev)
+            if (next.has(id)) next.delete(id); else next.add(id)
+            return next
+        })
+    }
+
+    // The preview counts with the ticks applied.
+    const students = preview?.students ?? []
+    const withTicks = data => {
+        if (!students.length || data !== preview) return data
+        const count = outcome => students.filter(s => (retain.has(s.id) ? 'repeats' : s.outcome) === outcome).length
+        return { ...data, students_promoted: count('promoted'), students_graduated: count('graduates'), students_retained: count('repeats') }
     }
 
     const summaryRows = (data) => [
@@ -529,6 +624,9 @@ function TermRolloverSection() {
                 : t('admin.settings.studentsGraduating'),
             value: data.students_graduated,
         },
+        ...(data.students_retained > 0
+            ? [{ label: t('admin.settings.studentsRepeating'), value: data.students_retained }]
+            : []),
         { label: t('admin.settings.rostersCreated'), value: data.rosters_created },
     ]
 
@@ -585,7 +683,7 @@ function TermRolloverSection() {
                         <p className="u-strong u-mb-sm">
                             {preview.current_term} → {preview.new_term}
                         </p>
-                        {summaryRows(preview).map(row => (
+                        {summaryRows(withTicks(preview)).map(row => (
                             <div key={row.label} className="adm-ro-sumrow">
                                 <span className="u-muted">{row.label}</span>
                                 <strong>{row.value}</strong>
@@ -598,6 +696,9 @@ function TermRolloverSection() {
                             </p>
                         )}
                     </div>
+                    {preview.mode === 'promotion' && students.length > 0 && (
+                        <RepeaterPicker students={students} retain={retain} onToggle={toggleRetain} />
+                    )}
                     <p className="adm-ro-danger">
                         {t('admin.settings.rolloverDanger', { term: preview.current_term })}
                     </p>
@@ -619,8 +720,10 @@ function TermRolloverSection() {
                         {t('admin.settings.rolloverDone', { term: result.new_term })}
                     </p>
                     <p className="u-muted u-fs-085">
-                        {t('admin.settings.rolloverSummary', {
+                        {t(result.students_retained > 0
+                            ? 'admin.settings.rolloverSummaryRepeat' : 'admin.settings.rolloverSummary', {
                             promoted: result.students_promoted,
+                            repeating: result.students_retained,
                             graduated: result.students_graduated,
                             rosters: result.rosters_created,
                         })}

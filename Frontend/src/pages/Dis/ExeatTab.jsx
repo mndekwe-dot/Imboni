@@ -8,6 +8,7 @@ import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { formatDateTime } from '../../utils/date'
 import { getExeats, createExeat, actOnExeat, searchDisStudents } from '../../api/discipline'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 const REASONS = ['weekend', 'medical', 'family', 'event', 'other']
 
@@ -170,7 +171,7 @@ export function ExeatTab() {
             </div>
 
             {loading ? (
-                <p className="u-pad u-muted">{t('common.loading')}</p>
+                <SkeletonList items={3} />
             ) : shown.length === 0 ? (
                 <EmptyState icon="badge" title={t('dis.exeat.emptyTitle')} description={t('dis.exeat.emptyDesc')} />
             ) : (

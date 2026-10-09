@@ -79,6 +79,11 @@ it needs.
 
 <table class="lh">
     <tr>
+        {% if school_logo %}
+        <td style="width: 54pt; vertical-align: middle;">
+            <img src="{{ school_logo }}" alt="" style="height: 44pt;">
+        </td>
+        {% endif %}
         <td>
             <div class="lh-school">{{ school_name }}</div>
             {% if school_email or school_phone %}

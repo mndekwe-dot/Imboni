@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import '../../styles/components.css'
+import { ModalOverlay } from '../ui/ModalOverlay'
 
 export function StaffModal({ staff, onClose, onSave }) {
     const { t } = useTranslation()
@@ -30,7 +31,7 @@ export function StaffModal({ staff, onClose, onSave }) {
     }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
 
                 <div className="modal-header">
@@ -51,26 +52,26 @@ export function StaffModal({ staff, onClose, onSave }) {
                     <div className="form-row-2">
                         <div className="form-group">
                             <label className="form-label">{t('modals.disStaff.fullName')}</label>
-                            <input className="form-input" name="name" value={form.name} onChange={handleChange} placeholder={t('modals.disStaff.egName')} />
+                            <input className="form-input" name="name" value={form.name} onChange={handleChange} placeholder={t('modals.disStaff.egName')}  aria-label={t('modals.disStaff.egName')}/>
                         </div>
                         <div className="form-group">
                             <label className="form-label">{t('modals.disStaff.roleDormitory')}</label>
-                            <input className="form-input" name="role" value={form.role} onChange={handleChange} placeholder={t('modals.disStaff.egRole')} />
+                            <input className="form-input" name="role" value={form.role} onChange={handleChange} placeholder={t('modals.disStaff.egRole')}  aria-label={t('modals.disStaff.egRole')}/>
                         </div>
                     </div>
                     <div className="form-row-2">
                         <div className="form-group">
                             <label className="form-label">{t('common.email')}</label>
-                            <input className="form-input" name="email" value={form.email} onChange={handleChange} placeholder={t('modals.disStaff.egEmail')} />
+                            <input className="form-input" name="email" value={form.email} onChange={handleChange} placeholder={t('modals.disStaff.egEmail')}  aria-label={t('modals.disStaff.egEmail')}/>
                         </div>
                         <div className="form-group">
                             <label className="form-label">{t('modals.disStaff.extension')}</label>
-                            <input className="form-input" name="ext" value={form.ext} onChange={handleChange} placeholder={t('modals.disStaff.egExt')} />
+                            <input className="form-input" name="ext" value={form.ext} onChange={handleChange} placeholder={t('modals.disStaff.egExt')}  aria-label={t('modals.disStaff.egExt')}/>
                         </div>
                     </div>
                     <div className="form-group">
                         <label className="form-label">{t('modals.disStaff.dutyHours')}</label>
-                        <input className="form-input" name="duty" value={form.duty} onChange={handleChange} placeholder={t('modals.disStaff.egDuty')} />
+                        <input className="form-input" name="duty" value={form.duty} onChange={handleChange} placeholder={t('modals.disStaff.egDuty')}  aria-label={t('modals.disStaff.egDuty')}/>
                     </div>
                 </div>
 
@@ -83,6 +84,6 @@ export function StaffModal({ staff, onClose, onSave }) {
                 </div>
 
             </div>
-        </div>
+        </ModalOverlay>
     )
 }

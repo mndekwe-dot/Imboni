@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import '../../styles/components.css'
+import { ModalOverlay } from '../ui/ModalOverlay'
 
 function slugify(name) {
     return name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
@@ -69,7 +70,7 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
     const canSave = form.name.trim() && form.staff.trim() && Number(form.totalRooms) > 0 && Number(form.bedsPerRoom) > 0
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm dmod-box" onClick={e => e.stopPropagation()}>
 
                 <div className="modal-header">
@@ -99,7 +100,7 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
                                 onChange={handleChange}
                                 placeholder={t('modals.dormitory.egName')}
                                 disabled={isEditing}
-                            />
+                             aria-label={t('modals.dormitory.egName')}/>
                             {isEditing && (
                                 <span className="dmod-hint">{t('modals.dormitory.nameLocked')}</span>
                             )}
@@ -121,7 +122,7 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
                             value={form.staff}
                             onChange={handleChange}
                             placeholder={t('modals.dormitory.egMatron')}
-                        />
+                         aria-label={t('modals.dormitory.egMatron')}/>
                     </div>
 
                     <div className="form-row-2">
@@ -173,7 +174,7 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
                                             className="btn-icon-clean"
                                             onClick={() => removeChamber(ch.id)}
                                             title={t('modals.dormitory.removeChamber')}
-                                        >
+                                         aria-label={t('modals.dormitory.removeChamber')}>
                                             <span className="material-symbols-rounded dmod-row-delete" aria-hidden="true">delete</span>
                                         </button>
                                     </div>
@@ -191,7 +192,7 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
                                         placeholder={t('modals.dormitory.chamberNamePlaceholder')}
                                         value={newChamber.name}
                                         onChange={e => setNewChamber(p => ({ ...p, name: e.target.value }))}
-                                    />
+                                     aria-label={t('modals.dormitory.chamberNamePlaceholder')}/>
                                 </div>
                                 <div className="form-group">
                                     <input
@@ -201,7 +202,7 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
                                         min={1}
                                         value={newChamber.roomStart}
                                         onChange={e => setNewChamber(p => ({ ...p, roomStart: e.target.value }))}
-                                    />
+                                     aria-label={t('modals.dormitory.roomFrom')}/>
                                 </div>
                                 <div className="form-group">
                                     <input
@@ -211,7 +212,7 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
                                         min={1}
                                         value={newChamber.roomEnd}
                                         onChange={e => setNewChamber(p => ({ ...p, roomEnd: e.target.value }))}
-                                    />
+                                     aria-label={t('modals.dormitory.roomTo')}/>
                                 </div>
                             </div>
                             {chamberError && (
@@ -237,6 +238,6 @@ export function DormitoryModal({ dormitory, onClose, onSave }) {
                 </div>
 
             </div>
-        </div>
+        </ModalOverlay>
     )
 }

@@ -26,6 +26,14 @@ class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
 
+    def perform_destroy(self, instance):
+        # Deleting a student takes their results and attendance with them; the audit trail is
+        # the only place that remembers there was one.
+        label = f"{instance.user.get_full_name()} ({instance.student_id})"
+        detail = {'grade': instance.grade, 'section': instance.section}
+        super().perform_destroy(instance)
+        audit(self.request.user, 'student.deleted', label, detail)
+
 
 def _verify_parent_owns_student(request, student_pk):
     """
@@ -798,3 +806,120 @@ class ParentConsentRespondView(generics.GenericAPIView):
             'student_id': str(rel.student.id),
             'status':     resp.status,
         })
+
+
+class ChildReportCardView(_APIView):
+    """
+    GET /imboni/parents/<pk>/report-card/?term_id=<uuid>
+
+    The same PDF the DOS prints, for a parent's own child. Only approved
+    results appear in it, so a parent never sees marks a teacher has not
+    had signed off.
+    """
+    permission_classes = [IsParent]
+
+    def get(self, request, pk):
+        from apps.dos.report_views import StudentReportCardView
+        if _verify_parent_owns_student(request, pk) is None:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        # Reuse the DOS generator as is; it only reads query params and the pk.
+        return StudentReportCardView().get(request, pk)
+
+
+class ChildExeatView(_APIView):
+    """
+    GET|POST /imboni/parents/<pk>/exeat/
+
+    A parent asks for their boarder to be let out (a hospital appointment, a
+    family emergency), instead of phoning the school. The request lands on the
+    discipline office's register already marked "parent approved" - the parent
+    is the one asking - and the office still has to approve it, so a request
+    never lets a child leave by itself.
+    """
+    permission_classes = [IsParent]
+
+    def _child(self, request, pk):
+        from apps.tenants.modules import module_enabled
+        if not module_enabled('boarding'):
+            return None
+        return _verify_parent_owns_student(request, pk)
+
+    def get(self, request, pk):
+        from apps.discipline.exeat_api import ExeatSerializer
+        from apps.discipline.models import ExeatPass
+        student = self._child(request, pk)
+        if student is None:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        passes = ExeatPass.objects.filter(student=student).select_related('student__user', 'gate_verified_by')[:20]
+        return Response(ExeatSerializer(passes, many=True).data)
+
+    def post(self, request, pk):
+        from apps.discipline.exeat_api import ExeatSerializer
+        from apps.discipline.models import BoardingStudent, ExeatPass
+        from apps.notifications.services import notify_users
+        student = self._child(request, pk)
+        if student is None:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        if not BoardingStudent.objects.filter(student=student, is_active=True).exists():
+            return Response({'detail': 'Only boarders need an exeat pass.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not (request.data.get('reason') or '').strip():
+            return Response({'detail': 'Tell the school why.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = ExeatSerializer(data={**request.data, 'student': str(student.id)})
+        serializer.is_valid(raise_exception=True)
+        exeat = serializer.save(
+            created_by=request.user, parent_approval='approved',
+            parent_note=f"Requested by {request.user.get_full_name()} (parent)"[:200],
+        )
+
+        staff = User.objects.filter(role__in=['discipline', 'matron'], is_active=True)
+        notify_users(
+            staff, 'Exeat requested by a parent',
+            f"{student.user.get_full_name()}: {exeat.get_reason_type_display().lower()}, "
+            f"leaving {exeat.departure_at:%d %b %H:%M}, back {exeat.expected_return_at:%d %b %H:%M}.",
+            'attendance', path='/discipline/boarding?tab=exeat',
+        )
+        return Response(ExeatSerializer(exeat).data, status=status.HTTP_201_CREATED)
+
+
+class ChildPayView(_APIView):
+    """
+    GET  /imboni/parents/<pk>/pay/                 can they pay online, how much is owed, recent attempts
+    POST /imboni/parents/<pk>/pay/                 {amount, phone}: send the prompt to their phone
+    GET  /imboni/parents/<pk>/pay/<attempt>/       how that attempt is going (and settle it if paid)
+    """
+    permission_classes = [IsParent]
+
+    @staticmethod
+    def _row(op):
+        return {'id': str(op.id), 'amount': str(op.amount), 'status': op.status, 'detail': op.detail,
+                'receipt_no': op.receipt_no, 'created_at': op.created_at}
+
+    def get(self, request, pk, attempt=None):
+        from apps.finance import momo, online_payments
+        from apps.finance.models import OnlinePayment
+        from apps.tenants.limits import tenant_has_feature
+        student = _verify_parent_owns_student(request, pk)
+        if student is None:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+        if attempt is not None:
+            op = get_object_or_404(OnlinePayment, pk=attempt, student=student, paid_by=request.user)
+            return Response(self._row(online_payments.refresh(op)))
+
+        enabled = momo.configured() and tenant_has_feature('finance')
+        outstanding = online_payments.outstanding_for(student)[0] if enabled else 0
+        recent = OnlinePayment.objects.filter(student=student, paid_by=request.user)[:5]
+        return Response({'enabled': enabled, 'outstanding': str(max(outstanding, 0)),
+                         'attempts': [self._row(o) for o in recent]})
+
+    def post(self, request, pk):
+        from apps.finance import online_payments
+        student = _verify_parent_owns_student(request, pk)
+        if student is None:
+            return Response({'detail': 'Not found.'}, status=status.HTTP_404_NOT_FOUND)
+        try:
+            op = online_payments.initiate(student, request.user, request.data.get('amount'), request.data.get('phone'))
+        except online_payments.OnlinePaymentError as exc:
+            return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(self._row(op), status=status.HTTP_201_CREATED)

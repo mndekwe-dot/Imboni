@@ -126,5 +126,71 @@
     "subtitle": "{{house}}, abanyeshuri {{count}}",
     "subtitleNoHouse": "abanyeshuri {{count}}",
     "title": "Abanyeshuri banjye"
+  },
+  "medical": {
+    "title": "Ibimenyetso by’ubuzima",
+    "hint": "Indwara abakozi bagomba kubona ako kanya. Bigaragara ku rutonde, ku mafunguro no ku bitaro by’ishuri.",
+    "save": "Bika ibimenyetso",
+    "saved": "Ibimenyetso by’ubuzima byabitswe.",
+    "saveFailed": "Ntibishobotse kubika ibimenyetso by’ubuzima.",
+    "allergies": "Allergie",
+    "alert": "Ikimenyetso cy’ubuzima",
+    "flags": {
+      "asthma": "Asima (inhaler)",
+      "epilepsy": "Igicuri",
+      "diabetes_insulin": "Diyabete (insuline)",
+      "severe_allergy": "Allergie ikomeye",
+      "sickle_cell": "Indwara y’amaraso ya sickle cell",
+      "heart_condition": "Indwara y’umutima",
+      "other": "Indi ndwara"
+    }
+  },
+  "pharmacy": {
+    "title": "Imiti y’ibitaro by’ishuri",
+    "subtitle": "Ibyo ibitaro bifite, ibigiye gushira n’ibigiye gusaza",
+    "add": "Ongeraho igikoresho",
+    "name": "Igikoresho",
+    "unit": "Igipimo",
+    "quantity": "Bihari",
+    "reorder": "Menyesha kuri cyangwa munsi ya",
+    "expiry": "Itariki ya vuba yo gusaza",
+    "notes": "Inyandiko",
+    "save": "Bika",
+    "saved": "Igikoresho cyongewemo.",
+    "saveFailed": "Ntibishobotse kubika.",
+    "loadFailed": "Ntibishobotse gukura imiti.",
+    "empty": "Nta kintu kiri mu bubiko.",
+    "emptyDesc": "Ongeramo paracetamol, ORS, ibipfuka-bikomere n’ibindi ubikurikirane.",
+    "stock": "Hindura ibihari",
+    "apply": "Vugurura",
+    "moved": "Ibihari byavuguruwe.",
+    "moveFailed": "Ntibishobotse kuvugurura ibihari.",
+    "howMany": "Ingahe",
+    "why": "Kubera iki",
+    "note": "Inyandiko (si ngombwa)",
+    "history": "Igitabo",
+    "noHistory": "Nta cyakozwe.",
+    "by": "na {{name}}",
+    "expires": "Irangira {{date}}",
+    "status": {
+      "ok": "Birahari",
+      "low": "Birashira",
+      "out": "Byashize",
+      "expiring": "Bigiye kurangira",
+      "expired": "Byararangiye"
+    },
+    "reasons": {
+      "received": "Byakiriwe",
+      "dispensed": "Byahawe umunyeshuri",
+      "expired": "Byajugunywe: byararangiye",
+      "correction": "Gukosora ibarura"
+    },
+    "stats": {
+      "items": "Ibikoresho",
+      "attention": "Bikeneye kwitabwaho",
+      "low": "Bike cyangwa byashize",
+      "expiring": "Bigiye kurangira cyangwa byararangiye"
+    },
+    "correctionHint": "Mu gukosora, koresha umubare ufite ikimenyetso gisubira inyuma ukureho."
   }
 }

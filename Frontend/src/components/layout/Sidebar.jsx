@@ -4,7 +4,11 @@ import { useTranslation } from 'react-i18next'
 import { useAuth } from '../../hooks/useAuth'
 import logo from '../../assets/images/imboni-logo.webp'
 import { useSchoolBranding } from '../../hooks/useSchoolBranding'
+import { useBrandedTab } from '../../hooks/useBrandedTab'
 import { useLibraryFeature } from '../../hooks/useLibraryFeature'
+import { useSchoolModules } from '../../hooks/useSchoolModules'
+import { ROLE_HOME, readStoredUser } from '../../utils/roles'
+import { useLocation } from 'react-router'
 import { useNavBadges } from '../../hooks/useNavBadges'
 
 /* Every page mounts its own <Sidebar> — 64 of them — so component state alone
@@ -25,13 +29,32 @@ export function Sidebar({ navItems, secondaryItems }) {
      pages ask. `enabled` is null until the answer arrives, and a link is not
      shown on a maybe. */
   const { enabled: libraryEnabled } = useLibraryFeature()
-  const visible = items => items.filter(
-    item => item.feature !== 'library' || libraryEnabled === true)
+  /* `feature: 'matron'` / `'boarding'` are parts an operator can switch off for a
+     school (a day school has no use for them). Those are hidden only on an
+     explicit `false`, never on a maybe: a failed check must not take a part of
+     the product away from a school that is using it. */
+  const { modules } = useSchoolModules()
+  const visible = items => items.filter(item => {
+    if (item.feature === 'library') return libraryEnabled === true
+    if (item.feature) return modules?.[item.feature] !== false
+    return true
+  })
   const [mobileOpen, setMobileOpen] = useState(false)
   const badges = useNavBadges(navItems)
   const { logout } = useAuth()
   const { schoolName, logo: schoolLogo } = useSchoolBranding()
+  useBrandedTab()
   const { t } = useTranslation()
+
+  const location = useLocation()
+  /* A person who holds more than one role (a teacher who is also the assistant
+     DOS) gets a link to each portal they can open, except the one they are in.
+     The links come from the roles on the account, never from the URL. */
+  const me = readStoredUser()
+  const portals = me?.extra_roles?.length ? [me.role, ...me.extra_roles] : []
+  const switchItems = portals
+    .filter(r => ROLE_HOME[r] && !(location.pathname === ROLE_HOME[r] || location.pathname.startsWith(`${ROLE_HOME[r]}/`)))
+    .map(r => ({ to: ROLE_HOME[r], icon: 'swap_horiz', label: t('sidebar.switchTo', { role: t(`roles.${r}`) }) }))
 
   // Remember the choice. localStorage throws in some privacy modes, and a
   // sidebar that will not remember its width is not worth failing a render over.
@@ -58,7 +81,7 @@ export function Sidebar({ navItems, secondaryItems }) {
   const row = (item) => (
     <>
       <span className="material-symbols-rounded" aria-hidden="true">{item.icon}</span>
-      <span className="sidebar-nav-label">{t(item.labelKey)}</span>
+      <span className="sidebar-nav-label">{item.label ?? t(item.labelKey)}</span>
       {badges[item.badge] > 0 && (
         <span className="sidebar-badge" title={t('sidebar.waiting', { count: badges[item.badge] })}>
           <span aria-hidden="true">{badges[item.badge] > 99 ? '99+' : badges[item.badge]}</span>
@@ -146,7 +169,7 @@ export function Sidebar({ navItems, secondaryItems }) {
           <div className="sidebar-account-group">
           <p className="sidebar-nav-group" id="sidebar-group-account">{t('sidebar.groupAccount')}</p>
           <ul className="nav-list secondary-nav" aria-labelledby="sidebar-group-account">
-            {visible(secondaryItems).map((item) => (
+            {[...switchItems, ...visible(secondaryItems)].map((item) => (
               <li key={item.to || item.action || item.labelKey}>
                 {item.action === 'logout' ? (
                   <button

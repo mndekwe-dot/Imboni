@@ -15,6 +15,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/parent.css'
 import '../../styles/tables.css'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 const toList = d => Array.isArray(d) ? d : (d?.results ?? [])
 
@@ -118,7 +119,7 @@ export function ParentAssignments() {
                         )}
 
                         {loading ? (
-                            <p className="u-pad u-muted">{t('common.loading')}</p>
+                            <SkeletonList items={3} />
                         ) : children.length === 0 ? (
                             <p className="u-pad u-muted">{t('parent.noChildren')}</p>
                         ) : (
@@ -166,7 +167,7 @@ export function ParentAssignments() {
                                 </div>
 
                                 {loadingChild ? (
-                                    <p className="u-pad u-muted">{t('common.loading')}</p>
+                                    <SkeletonList items={3} />
                                 ) : (
                                     <DataTable
                                         title={t('parent.assignments.tableTitle', {

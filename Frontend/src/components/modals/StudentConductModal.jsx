@@ -6,6 +6,7 @@ import { formatDate } from '../../utils/date'
 import '../../styles/components.css'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { ModalOverlay } from '../ui/ModalOverlay'
 
 const TABS = [
     { key: 'profile', labelKey: 'modals.conduct.tabProfile', icon: 'person' },
@@ -34,11 +35,11 @@ const TYPE_META = {
 }
 
 const CONDUCT_COLORS = {
-    A: { bg: '#dcfce7', color: '#15803d', labelKey: 'modals.conduct.gradeExcellent'        },
-    B: { bg: '#dbeafe', color: '#1d4ed8', labelKey: 'modals.conduct.gradeGood'             },
-    C: { bg: '#fef9c3', color: '#92400e', labelKey: 'modals.conduct.gradeSatisfactory'     },
-    D: { bg: '#fee2e2', color: '#b91c1c', labelKey: 'modals.conduct.gradeNeedsImprovement' },
-    F: { bg: '#fce7f3', color: '#9d174d', labelKey: 'modals.conduct.gradeUnsatisfactory'   },
+    A: { bg: 'var(--success-surface)', color: 'var(--success-text)', labelKey: 'modals.conduct.gradeExcellent'        },
+    B: { bg: 'var(--info-surface)', color: 'var(--info-text)', labelKey: 'modals.conduct.gradeGood'             },
+    C: { bg: 'var(--warning-surface)', color: 'var(--warning-text)', labelKey: 'modals.conduct.gradeSatisfactory'     },
+    D: { bg: 'var(--destructive-surface)', color: 'var(--destructive-text)', labelKey: 'modals.conduct.gradeNeedsImprovement' },
+    F: { bg: 'var(--cat-rose-surface)', color: 'var(--cat-rose-text)', labelKey: 'modals.conduct.gradeUnsatisfactory'   },
 }
 
 function todayISO() {
@@ -254,7 +255,7 @@ function LogTab({ student, onReportSaved }) {
                 <input
                     className="form-input" name="title" value={form.title}
                     onChange={handleChange} placeholder={t('modals.conduct.titlePlaceholder')}
-                />
+                 aria-label={t('modals.conduct.titlePlaceholder')}/>
             </div>
 
             {isNeg && (
@@ -289,7 +290,7 @@ function LogTab({ student, onReportSaved }) {
                                 setForm(prev => ({ ...prev, marks_deducted: e.target.value === '' ? '' : v }))
                             }}
                             placeholder={t('modals.conduct.egFive')}
-                        />
+                         aria-label={t('modals.conduct.egFive')}/>
                     </div>
                 </>
             )}
@@ -300,7 +301,7 @@ function LogTab({ student, onReportSaved }) {
                     className="form-input form-textarea" rows="3"
                     name="description" value={form.description}
                     onChange={handleChange} placeholder={t('modals.conduct.descPlaceholder')}
-                />
+                 aria-label={t('modals.conduct.descPlaceholder')}/>
             </div>
 
             <div className="scm-form-row-2">
@@ -317,7 +318,7 @@ function LogTab({ student, onReportSaved }) {
                     <input
                         className="form-input" name="location" value={form.location}
                         onChange={handleChange} placeholder={t('modals.conduct.egLocation')}
-                    />
+                     aria-label={t('modals.conduct.egLocation')}/>
                 </div>
             </div>
 
@@ -386,7 +387,7 @@ export function StudentConductModal({ student, onClose }) {
     }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box" onClick={e => e.stopPropagation()}>
 
                 {/* Header */}
@@ -432,6 +433,6 @@ export function StudentConductModal({ student, onClose }) {
                 </div>
 
             </div>
-        </div>
+        </ModalOverlay>
     )
 }

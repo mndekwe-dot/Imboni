@@ -21,6 +21,8 @@ import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
+import { confirmDialog } from '../../utils/confirm'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 /**
  * Create or edit an assignment, on a page of its own.
@@ -125,8 +127,8 @@ export function TeacherAssignmentForm() {
         return () => window.removeEventListener('beforeunload', warn)
     }, [dirty])
 
-    function leave() {
-        if (dirty && !window.confirm(t('teacher.assignments.discardChanges'))) return
+    async function leave() {
+        if (dirty && !await confirmDialog(t('teacher.assignments.discardChanges'))) return
         navigate('/teacher/assignments')
     }
 
@@ -264,7 +266,7 @@ export function TeacherAssignmentForm() {
                         )}
 
                         {loading ? (
-                            <p className="u-pad u-muted">{t('common.loading')}</p>
+                            <SkeletonList items={3} />
                         ) : (
                             <>
                                 {/* Paper or online. Chosen first because it decides

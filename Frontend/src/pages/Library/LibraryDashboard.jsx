@@ -10,6 +10,7 @@ import { errorMessage } from '../../utils/errors'
 import { formatDate } from '../../utils/date'
 import { getLibraryDashboard } from '../../api/library'
 import { LibraryShell } from './LibraryShell'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 /** The desk at a glance: what is out, what is late, what is waiting to be bought. */
 export function LibraryDashboard() {
@@ -50,7 +51,7 @@ export function LibraryDashboard() {
                     count={loading ? null : t('library.loanCount', { count: data?.due_soon?.length ?? 0 })}
                 >
                     {loading ? (
-                        <p className="u-muted">{t('common.loading')}</p>
+                        <SkeletonList items={3} />
                     ) : !data?.due_soon?.length ? (
                         <EmptyState
                             icon="event_available"
@@ -79,7 +80,7 @@ export function LibraryDashboard() {
                     count={loading ? null : t('library.titleCount', { count: data?.popular?.length ?? 0 })}
                 >
                     {loading ? (
-                        <p className="u-muted">{t('common.loading')}</p>
+                        <SkeletonList items={3} />
                     ) : !data?.popular?.length ? (
                         <EmptyState
                             icon="menu_book"

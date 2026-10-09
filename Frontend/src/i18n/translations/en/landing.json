@@ -101,24 +101,12 @@
   "hero": {
     "badge": "Boarding School Management Platform",
     "cta": "Access Your Portal",
+    "screenshotAlt": "The Imboni student dashboard: attendance, conduct, today’s timetable, upcoming assignments and recent grades.",
     "secondary": "Learn more",
     "subtitle": "Imboni brings students, teachers, parents, and boarding staff together on one unified platform, keeping communication clear and school life running smoothly.",
     "titleAccent": "connected.",
     "titleLine1": "Every part of",
     "titleLine2": "school life,"
-  },
-  "mock": {
-    "attendance": "Attendance",
-    "dueSoon": "Due Soon",
-    "notif1": "Physics Exam moved to Mar 14",
-    "notif1Time": "2m ago",
-    "notif2": "Term 2 results now published",
-    "notif2Time": "1h ago",
-    "notif3": "Parent-Teacher Conf, Mar 20",
-    "notif3Time": "3h ago",
-    "notifLabel": "Recent Notifications",
-    "role": "Student · S4A",
-    "subjects": "Subjects"
   },
   "portals": {
     "disDesc": "Track student conduct, manage boarding activities, dining schedules, and staff coordination.",

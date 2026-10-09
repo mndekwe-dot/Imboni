@@ -102,14 +102,18 @@ class FineSerializer(serializers.ModelSerializer):
     borrower_detail = serializers.SerializerMethodField()
     book_title      = serializers.CharField(source='loan.copy.book.title', read_only=True)
     outstanding     = serializers.BooleanField(read_only=True)
+    billed_to_finance = serializers.SerializerMethodField()
 
     class Meta:
         model = Fine
         fields = ['id', 'loan', 'kind', 'book_title', 'borrower_detail', 'days_late',
                   'rate', 'amount', 'paid', 'paid_at', 'waived', 'waived_reason',
-                  'refunded', 'refunded_at', 'outstanding', 'created_at']
+                  'refunded', 'refunded_at', 'outstanding', 'billed_to_finance', 'created_at']
         read_only_fields = ['id', 'created_at', 'kind', 'days_late', 'rate', 'amount',
                             'refunded', 'refunded_at']
+
+    def get_billed_to_finance(self, obj):
+        return obj.billed_fee_id is not None
 
     def get_borrower_detail(self, obj):
         return person(obj.loan.borrower)
@@ -177,7 +181,7 @@ class LibrarySettingsSerializer(serializers.ModelSerializer):
         model = LibrarySettings
         fields = ['id', 'loan_period_days', 'max_books_student', 'max_books_staff',
                   'renewals_allowed', 'fine_per_day', 'currency',
-                  'reservation_hold_days', 'updated_at']
+                  'reservation_hold_days', 'bill_lost_to_finance', 'updated_at']
         read_only_fields = ['id', 'updated_at']
 
 

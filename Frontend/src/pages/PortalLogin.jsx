@@ -7,6 +7,8 @@ import {Link} from 'react-router'
 import '../styles/login.css'
 import '../styles/components.css'
 import { useSchoolBranding } from '../hooks/useSchoolBranding'
+import { useBrandedTab } from '../hooks/useBrandedTab'
+import { ModalOverlay } from '../components/ui/ModalOverlay'
 
 function ForgotPasswordModal({ onClose }) {
     const { t } = useTranslation()
@@ -32,7 +34,7 @@ function ForgotPasswordModal({ onClose }) {
     }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
@@ -68,7 +70,7 @@ function ForgotPasswordModal({ onClose }) {
                                     placeholder={t('auth.emailPlaceholder')}
                                     value={email}
                                     onChange={e => setEmail(e.target.value)}
-                                />
+                                 aria-label={t('auth.emailPlaceholder')}/>
                             </div>
                         </>
                     )}
@@ -96,7 +98,7 @@ function ForgotPasswordModal({ onClose }) {
                 </div>
 
             </div>
-        </div>
+        </ModalOverlay>
     )
 }
 
@@ -115,6 +117,7 @@ export function PortalLogin({ portal, icon, placeholder, redirectTo }) {
     const { t } = useTranslation()
     const {login, completeTwoFactor} = useAuth()
     const { schoolName, logo: schoolLogo } = useSchoolBranding()
+    useBrandedTab()
     const label    = t(`portal.${portal}`)
     const subtitle = t(`portalLogin.${portal}`)
     const [email,      setEmail]      = useState('')

@@ -1,0 +1,50 @@
+{% comment %}
+The receipt for a till-roll printer (80 mm or 58 mm), handed to a parent at the desk.
+
+NOT built on base.html: that is an A4 letterhead with a footer frame and a
+two-column layout, and none of it survives a 58 mm roll. This is one narrow
+column - school, receipt number, who, what, how much, what is still owed - and
+nothing else a roll of paper has no room for.
+
+Written for xhtml2pdf, like every document here: tables, not flexbox.
+{% endcomment %}<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        @page { size: {{ paper_width }}mm 230mm; margin: 3mm; }
+        body { font-family: Helvetica, Arial, sans-serif; font-size: {{ font_pt }}pt; color: #000; }
+        .c { text-align: center; }
+        .r { text-align: right; }
+        .school { font-size: {{ title_pt }}pt; font-weight: bold; }
+        .rule { border-top: 0.6pt dashed #000; margin: 4pt 0; }
+        .big { font-size: {{ title_pt }}pt; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; }
+        td { padding: 1.5pt 0; vertical-align: top; }
+    </style>
+</head>
+<body>
+<div class="c school">{{ school_name }}</div>
+{% if school_phone %}<div class="c">{{ school_phone }}</div>{% endif %}
+<div class="rule"></div>
+<div class="c">RECEIPT {{ payment.receipt_no }}{% if payment.is_reversed %} &middot; REVERSED{% endif %}</div>
+<div class="c">{{ payment.paid_on|date:"j M Y" }}</div>
+<div class="rule"></div>
+<div>{{ student.full_name|default:"-" }}</div>
+<div>{{ class_label|default:"-" }} &middot; {{ student.student_id|default:"-" }}</div>
+<div class="rule"></div>
+<table>
+{% for line in lines %}
+    <tr><td>{{ line.fee.category_label|default:line.fee.get_category_display }}</td><td class="r">{{ line.payment.amount|floatformat:0 }}</td></tr>
+    <tr><td class="muted">{% if line.settled %}settled{% else %}owed {{ line.balance|floatformat:0 }}{% endif %}</td><td></td></tr>
+{% endfor %}
+</table>
+<div class="rule"></div>
+<table><tr><td class="big">TOTAL</td><td class="r big">{{ total|floatformat:0 }}</td></tr></table>
+<div>{{ payment.get_method_display }}{% if payment.reference %} &middot; {{ payment.reference }}{% endif %}</div>
+{% if payment.payer_name %}<div>Paid by {{ payment.payer_name }}</div>{% endif %}
+{% if payment.received_by %}<div>Received by {{ payment.received_by.first_name }} {{ payment.received_by.last_name }}</div>{% endif %}
+<div class="rule"></div>
+<div class="c">Thank you</div>
+</body>
+</html>

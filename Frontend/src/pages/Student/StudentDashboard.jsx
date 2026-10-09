@@ -15,6 +15,7 @@ import '../../styles/student.css'
 import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
 import { useToast } from '../../context/ToastContext'
 import { partialLoad } from '../../utils/errors'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 function formatTime(timeStr) {
     if (!timeStr) return ''
@@ -201,7 +202,7 @@ export function StudentDashboard() {
                                 </div>
                                 <div className="section-card-body">
                                     {loading ? (
-                                        <p className="att-empty">{t('common.loading')}</p>
+                                        <SkeletonList items={3} />
                                     ) : todaySchedule.length === 0 ? (
                                         <p className="att-empty">{t('student.dashboard.noClassesToday')}</p>
                                     ) : (
@@ -217,7 +218,7 @@ export function StudentDashboard() {
                                     <Link to="/student/assignments" className="btn btn-outline btn-sm">{t('common.viewAll')}</Link>
                                 </div>
                                 {loading ? (
-                                    <p className="att-empty">{t('common.loading')}</p>
+                                    <SkeletonList items={3} />
                                 ) : upcomingAssignments.length === 0 ? (
                                     <p className="att-empty">{t('student.dashboard.noUpcomingAssignments')}</p>
                                 ) : (
@@ -235,7 +236,7 @@ export function StudentDashboard() {
                             </div>
                             <div className="card-content">
                                 {loading ? (
-                                    <p className="u-muted">{t('common.loading')}</p>
+                                    <SkeletonList items={3} />
                                 ) : recentGrades.length === 0 ? (
                                     <p className="u-muted">{t('student.dashboard.noResults')}</p>
                                 ) : (

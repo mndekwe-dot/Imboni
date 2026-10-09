@@ -140,7 +140,8 @@
       "overdue": "Nothing is overdue",
       "returned": "Nothing has been returned yet"
     },
-    "emptyDesc": "Books appear here as they are issued at the desk."
+    "emptyDesc": "Books appear here as they are issued at the desk.",
+    "classesTab": "Class sets & clearance"
   },
   "fines": {
     "outstanding": "Unpaid fines",
@@ -159,7 +160,8 @@
     },
     "waiveTitle": "Waive this fine",
     "waiveIntro": "{{name}} owes {{amount}}. Waiving it means the school will not collect this money.",
-    "waiveReason": "Why is it being waived?"
+    "waiveReason": "Why is it being waived?",
+    "onFeeAccount": "On the fee account: paid at the bursar’s desk"
   },
   "members": {
     "title": "Borrowers",
@@ -242,7 +244,9 @@
     "fine_per_day": "Fine per day late",
     "fine_per_dayHint": "Changing this affects new fines only — a fine already raised keeps the rate it was worked out at.",
     "currency": "Currency",
-    "currencyHint": "Shown beside every amount."
+    "currencyHint": "Shown beside every amount.",
+    "bill_lost_to_finance": "Bill lost books to the fee account",
+    "bill_lost_to_financeHint": "A lost book’s replacement cost goes on the student’s fees and is paid at the bursar’s desk, instead of at the library."
   },
   "messages": {
     "subtitle": "Messages with staff and students"
@@ -398,5 +402,27 @@
     "cancel": "Cancel the {{amount}} replacement charge",
     "refund": "Refund the {{amount}} replacement charge",
     "keepHint": "Any fine for returning it late stays. Untick if the school has already bought a replacement."
+  },
+  "classes": {
+    "setTitle": "Issue a class set",
+    "setNote": "One copy of the same title to every pupil in a class, for the start of term. The usual rules still apply to each pupil.",
+    "findBook": "Find the title…",
+    "noBooks": "No title on the shelf matches.",
+    "available": "{{count}} available",
+    "chosen": "Issuing: {{title}}",
+    "issue": "Issue to the class",
+    "chooseFirst": "Choose a title and a year first.",
+    "result": "{{issued}} of {{size}} pupils now have a copy.",
+    "short": "No copy left for: {{names}}",
+    "skipped": "Not issued: {{list}}",
+    "issueFailed": "Could not issue the class set.",
+    "clearTitle": "End of term clearance",
+    "clearNote": "Who in this class still has a book out or a fine unpaid.",
+    "check": "Check the class",
+    "allClear": "Everyone in this class is cleared.",
+    "checkFailed": "Could not check clearance.",
+    "notCleared": "{{count}} of {{size}} not cleared",
+    "owes": "owes {{amount}}",
+    "booksOut": "has: {{titles}}"
   }
 }

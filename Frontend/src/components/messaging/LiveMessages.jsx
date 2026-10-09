@@ -13,6 +13,7 @@ import {
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/pages.css'
+import { ModalOverlay } from '../ui/ModalOverlay'
 
 const POLL_MS = 20000
 
@@ -308,9 +309,9 @@ export function LiveMessages({
                                                     value={draft}
                                                     onChange={e => setDraft(e.target.value)}
                                                     onKeyDown={e => { if (e.key === 'Enter') handleSend() }}
-                                                />
+                                                 aria-label={t('messaging.typeMessage')}/>
                                                 <button className="btn btn-primary send-btn" title={t('common.send')}
-                                                    onClick={handleSend} disabled={sending || !draft.trim()}>
+                                                    onClick={handleSend} disabled={sending || !draft.trim()} aria-label={t('common.send')}>
                                                     <span className="material-symbols-rounded" aria-hidden="true">send</span>
                                                 </button>
                                             </div>
@@ -325,7 +326,7 @@ export function LiveMessages({
 
             {/* ── New message: contacts picker ── */}
             {showNew && (
-                <div className="modal-overlay" onClick={() => setShowNew(false)}>
+                <ModalOverlay onClose={() => setShowNew(false)}>
                     <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                         <div className="modal-header">
                             <div className="modal-header-left">
@@ -343,7 +344,7 @@ export function LiveMessages({
                                 value={contactSearch}
                                 onChange={e => setContactSearch(e.target.value)}
                                 autoFocus
-                            />
+                             aria-label={t('messaging.searchPeople')}/>
                             <div className="lm-contact-list">
                                 {contacts.length === 0 ? (
                                     <p className="lm-contact-empty">No contacts found.</p>
@@ -361,7 +362,7 @@ export function LiveMessages({
                             </div>
                         </div>
                     </div>
-                </div>
+                </ModalOverlay>
             )}
         </>
     )

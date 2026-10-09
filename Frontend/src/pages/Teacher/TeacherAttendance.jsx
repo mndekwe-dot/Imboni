@@ -26,10 +26,10 @@ import {
 } from '../../api/teacher'
 
 const STATUS_COLORS = {
-    present: 'var(--success, #16a34a)',
-    absent:  'var(--danger,  #dc2626)',
-    late:    'var(--warning, #d97706)',
-    excused: 'var(--primary, #2563eb)',
+    present: 'var(--success)',
+    absent:  'var(--danger)',
+    late:    'var(--warning)',
+    excused: 'var(--primary)',
 }
 
 const STATUS_LABELS = { present: 'Present', absent: 'Absent', late: 'Late', excused: 'Excused' }
@@ -137,12 +137,15 @@ export function TeacherAttendance() {
                 setStats(statsRes)
                 const init = {}
                 stuRes.forEach(s => {
-                    // A student signed out on an exéat is not a truant: until the teacher says
-                    // otherwise they start as excused, with the reason in the note.
-                    const away = s.status == null && s.on_exeat
+                    // A student signed out on an exéat, or admitted to the sick bay, is not a
+                    // truant: until the teacher says otherwise they start as excused, with the
+                    // reason in the note.
+                    const reason = s.in_sick_bay ? t('teacher.attendance.inSickBayNote')
+                        : s.on_exeat ? t('teacher.attendance.onExeatNote') : ''
+                    const away = s.status == null && !!reason
                     init[s.student_id] = {
                         status: s.status ?? (away ? 'excused' : 'present'),
-                        notes: s.notes || (away ? t('teacher.attendance.onExeatNote') : ''),
+                        notes: s.notes || (away ? reason : ''),
                     }
                 })
                 setAttendance(init)
@@ -294,6 +297,7 @@ export function TeacherAttendance() {
                                                                 <div className="dt-name">{s.full_name}</div>
                                                                 <div className="dt-sub">{s.student_code}</div>
                                                                 {s.on_exeat && <span className="badge badge-soft-info">{t('teacher.attendance.onExeat')}</span>}
+                                                                {s.in_sick_bay && <span className="badge badge-soft-warning">{t('teacher.attendance.inSickBay')}</span>}
                                                             </div>
                                                         </div>
                                                     </td>
@@ -316,7 +320,7 @@ export function TeacherAttendance() {
                                                             placeholder={t('common.notesOptional')}
                                                             value={getNotes(s.student_id)}
                                                             onChange={e => setStudentNotes(s.student_id, e.target.value)}
-                                                        />
+                                                         aria-label={t('common.notesOptional')}/>
                                                     </td>
                                                 </tr>
                                             )}

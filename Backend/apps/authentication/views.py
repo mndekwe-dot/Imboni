@@ -29,6 +29,7 @@ from django.utils.crypto import constant_time_compare
 from django.core.mail import EmailMultiAlternatives, send_mail
 from django.template.loader import render_to_string
 from django.conf import settings
+from apps.common.branding import frontend_url, school_branding
 from django.db import transaction
 from datetime import timedelta
 import logging
@@ -482,19 +483,20 @@ class PasswordResetRequestView(APIView):
         token = default_token_generator.make_token(user)
         uid   = urlsafe_base64_encode(force_bytes(user.pk))
 
-        reset_link = f"{settings.FRONTEND_URL}/reset-password/{uid}/{token}/"
+        reset_link = f"{frontend_url()}/reset-password/{uid}/{token}/"
 
         # Render HTML email template
         context = {
             'first_name': user.first_name or user.username,
             'email':      user.email,
             'reset_link': reset_link,
+            'school_name': school_branding()['name'],
         }
         html_body  = render_to_string('emails/password_reset.html', context)
         plain_body = f'Click the link below to reset your password:\n\n{reset_link}\n\nThis link expires in 3 days.'
 
         email_msg = EmailMultiAlternatives(
-            subject='Imboni School Password Reset',
+            subject=f"{context['school_name']} password reset",
             body=plain_body,
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[user.email],
@@ -585,7 +587,7 @@ class SendInvitationView(APIView):
             invitation.uid = uid
             invitation.save(update_fields=['uid'])
 
-        registration_link = f"{settings.FRONTEND_URL}/register/{uid}/{raw_token}/"
+        registration_link = f"{frontend_url()}/register/{uid}/{raw_token}/"
 
         #send to all available channels
         channels = dispatch_invitation(invitation,registration_link)
@@ -672,7 +674,7 @@ class BulkInviteView(APIView):
                 invitation.uid = uid
                 invitation.save(update_fields=['uid'])
 
-            registration_link = f"{settings.FRONTEND_URL}/register/{uid}/{raw_token}/"
+            registration_link = f"{frontend_url()}/register/{uid}/{raw_token}/"
             channels = dispatch_invitation(invitation,registration_link)
             invitation.channels_sent =channels
             invitation.delivery_status = 'sent' if channels else 'failed'
@@ -733,7 +735,7 @@ class ResendInvitationView(APIView):
         invitation.save(update_fields=['token_hash', 'uid', 'expires_at',
                                        'delivery_status'])
 
-        registration_link        = f"{settings.FRONTEND_URL}/register/{uid}/{raw_token}/"
+        registration_link        = f"{frontend_url()}/register/{uid}/{raw_token}/"
         channels                 = dispatch_invitation(invitation, registration_link)
         invitation.channels_sent = channels
         invitation.delivery_status = 'sent' if channels else 'failed'
@@ -910,7 +912,7 @@ class CSVInviteView(APIView):
                     invitation.uid = uid
                     invitation.save(update_fields=['uid'])
 
-                registration_link = f"{settings.FRONTEND_URL}/register/{uid}/{raw_token}/"
+                registration_link = f"{frontend_url()}/register/{uid}/{raw_token}/"
                 channels = dispatch_invitation(invitation, registration_link)
                 invitation.channels_sent    = channels
                 invitation.delivery_status  = 'sent' if channels else 'failed'
@@ -1122,7 +1124,7 @@ class CompleteRegistrationView(APIView):
     
 def _send_welcome_message(user):
         """Send welcome message via same channels as invitation."""
-        login_link = f"{settings.FRONTEND_URL}/login/"
+        login_link = f"{frontend_url()}/login/"
 
         if user.email:
             try:
@@ -1132,10 +1134,11 @@ def _send_welcome_message(user):
                         'first_name': user.first_name,
                         'role':       user.get_role_display() if hasattr(user, 'get_role_display') else user.role,
                         'username':   user.username,
-                        'login_link': login_link, 
+                        'login_link': login_link,
+                        'school_name': school_branding()['name'],
                     })
                 send_mail(
-                    subject = 'Welcome to Imboni School System',
+                    subject = f"Welcome to {school_branding()['name']}",
                     message = F'Welcome {user.first_name}! Login here: {login_link}',
                     from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[user.email],
@@ -1165,10 +1168,10 @@ class EmailChangeRequestView(APIView):
         token =default_token_generator.make_token(user)
         uid= urlsafe_base64_encode(force_bytes(user.pk))
 
-        confirm_link=f"{settings.FRONTEND_URL}/email-change/confirm/{uid}/{token}/"
+        confirm_link=f"{frontend_url()}/email-change/confirm/{uid}/{token}/"
 
         send_mail(
-            subject='Confirm your new email - Imboni School',
+            subject=f"Confirm your new email - {school_branding()['name']}",
             message = f'click to confirm your new email:{confirm_link}',
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[new_email],
@@ -1210,7 +1213,7 @@ class EmailChangeConfirmView(APIView):
 
         #notify old email about the change
         send_mail (
-            subject='Your email has been changed - IMboni school',
+            subject=f"Your email has been changed - {school_branding()['name']}",
             message =f'Your email was changed from {old_email} to {user.email}.If you did not do this,contact the administrator immediately.',
             from_email= settings.DEFAULT_FROM_EMAIL,
             recipient_list=[old_email],

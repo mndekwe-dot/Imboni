@@ -19,9 +19,9 @@ import { useToast } from '../../context/ToastContext'
 import { partialLoad } from '../../utils/errors'
 
 function barColor(value) {
-    if (value >= 90) return '#10b981'
-    if (value >= 75) return '#003d7a'
-    return '#f59e0b'
+    if (value >= 90) return 'var(--success)'
+    if (value >= 75) return 'var(--primary)'
+    return 'var(--warning)'
 }
 
 function OverviewTooltip({ active, payload }) {
@@ -164,7 +164,7 @@ export function AdminDashboard() {
                                             </BarChart>
                                         </ResponsiveContainer>
                                         <div className="chart-legend-row adm-legend-mt">
-                                            {[['#10b981', '≥ 90% Excellent'], ['#003d7a', '75-89% Good'], ['#f59e0b', '< 75% Needs attention']].map(([color, label]) => (
+                                            {[['var(--success)', '≥ 90% Excellent'], ['var(--primary)', '75-89% Good'], ['var(--warning)', '< 75% Needs attention']].map(([color, label]) => (
                                                 <div key={label} className="chart-legend-item">
                                                     <span className="chart-legend-dot-sq" style={{ background: color }} />
                                                     {label}

@@ -4,6 +4,7 @@ export const matronNavItems = [
     { to: '/matron/schedule',             icon: 'schedule',          labelKey: 'nav.dailySchedule'             },
     { to: '/matron/incidents',            icon: 'report',            labelKey: 'nav.reportIncident'            },
     { to: '/matron/health',               icon: 'health_and_safety', labelKey: 'nav.healthWellness'          },
+    { to: '/matron/pharmacy',             icon: 'medication',        labelKey: 'nav.pharmacy'                  },
     { to: '/matron/messages',             icon: 'chat',              labelKey: 'nav.messages'                   },
 ]
 

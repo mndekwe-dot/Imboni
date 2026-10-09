@@ -26,6 +26,7 @@ import { SearchBar } from '../../components/ui/SearchBar'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { StudentsNeedingAttention } from './StudentsNeedingAttention'
+import { confirmDialog } from '../../utils/confirm'
 
 const STATUS_MAP = { submitted: 'pending', approved: 'approved', rejected: 'rejected' }
 
@@ -162,7 +163,7 @@ function ResultCard({ result, onReview, onView }) {
 
 // ── Grade helper ──────────────────────────────────────────────────────────────
 function gradeColor(g) {
-    return { A: '#10b981', B: '#003d7a', C: '#3b82f6', D: '#f59e0b', F: '#ef4444' }[g] ?? 'var(--muted-foreground)'
+    return { A: 'var(--success)', B: 'var(--primary)', C: 'var(--info)', D: 'var(--warning)', F: 'var(--destructive)' }[g] ?? 'var(--muted-foreground)'
 }
 
 // ── Reject Modal ──────────────────────────────────────────────────────────────
@@ -290,7 +291,7 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
                         <textarea className="form-control es-textarea-v" rows={3}
                             placeholder={t('dos.results.notePlaceholder')}
                             value={comment} onChange={e => setComment(e.target.value)}
-                        />
+                         aria-label={t('dos.results.notePlaceholder')}/>
                     </div>
                 </div>
             )}
@@ -524,7 +525,7 @@ export function DosResults() {
 
     // Every pending card the filters currently show, in one request.
     async function approveAllShown() {
-        if (!window.confirm(t('dos.results.approveAllConfirm', { count: pendingShown.length }))) return
+        if (!await confirmDialog(t('dos.results.approveAllConfirm', { count: pendingShown.length }))) return
         try {
             await bulkApproveResults(pendingShown.flatMap(c => c.ids))
             const done = new Set(pendingShown.map(c => c.key))
@@ -715,15 +716,15 @@ export function DosResults() {
                                                     <AreaChart data={d.attendance_monthly} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                                                         <defs>
                                                             <linearGradient id="attGrad2" x1="0" y1="0" x2="0" y2="1">
-                                                                <stop offset="5%" stopColor="#10b981" stopOpacity={0.2} />
-                                                                <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                                                <stop offset="5%" stopColor="var(--success)" stopOpacity={0.2} />
+                                                                <stop offset="95%" stopColor="var(--success)" stopOpacity={0} />
                                                             </linearGradient>
                                                         </defs>
                                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
                                                         <XAxis dataKey="month" tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} />
                                                         <YAxis domain={[80, 100]} tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
                                                         <Tooltip formatter={v => [`${v}%`, 'Attendance']} contentStyle={tooltipStyle} cursor={{ stroke: 'var(--border)' }} />
-                                                        <Area type="monotone" dataKey="rate" name="Attendance" stroke="#10b981" strokeWidth={2} fill="url(#attGrad2)" dot={{ r: 4, fill: '#10b981' }} activeDot={{ r: 5 }} />
+                                                        <Area type="monotone" dataKey="rate" name="Attendance" stroke="var(--success)" strokeWidth={2} fill="url(#attGrad2)" dot={{ r: 4, fill: 'var(--success)' }} activeDot={{ r: 5 }} />
                                                     </AreaChart>
                                                 </ResponsiveContainer>
                                             </div>
@@ -744,8 +745,8 @@ export function DosResults() {
                                                     <YAxis tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
                                                     <Tooltip formatter={(v, n) => [`${v}%`, n]} contentStyle={tooltipStyle} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
                                                     <Legend iconType="square" iconSize={10} wrapperStyle={{ fontSize: '0.78rem' }} />
-                                                    <Bar dataKey="pass" name="Passed" stackId="a" fill="#10b981" radius={[0, 0, 0, 0]} maxBarSize={40} />
-                                                    <Bar dataKey="fail" name="Failed" stackId="a" fill="#ef4444" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                                                    <Bar dataKey="pass" name="Passed" stackId="a" fill="var(--success)" radius={[0, 0, 0, 0]} maxBarSize={40} />
+                                                    <Bar dataKey="fail" name="Failed" stackId="a" fill="var(--destructive)" radius={[4, 4, 0, 0]} maxBarSize={40} />
                                                 </BarChart>
                                             </ResponsiveContainer>
                                         </div>
@@ -768,8 +769,8 @@ export function DosResults() {
                                                         <YAxis type="category" dataKey="subject" tick={{ fontSize: 10, fill: 'var(--foreground)' }} axisLine={false} tickLine={false} width={78} />
                                                         <Tooltip contentStyle={tooltipStyle} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
                                                         <Legend iconType="square" iconSize={10} wrapperStyle={{ fontSize: '0.78rem' }} />
-                                                        <Bar dataKey="submitted" name="Submitted" stackId="b" fill="#003d7a" radius={[0, 0, 0, 0]} maxBarSize={18} />
-                                                        <Bar dataKey="pending" name="Pending" stackId="b" fill="#f59e0b" radius={[0, 4, 4, 0]} maxBarSize={18} />
+                                                        <Bar dataKey="submitted" name="Submitted" stackId="b" fill="var(--primary)" radius={[0, 0, 0, 0]} maxBarSize={18} />
+                                                        <Bar dataKey="pending" name="Pending" stackId="b" fill="var(--warning)" radius={[0, 4, 4, 0]} maxBarSize={18} />
                                                     </BarChart>
                                                 </ResponsiveContainer>
                                             </div>
@@ -789,7 +790,7 @@ export function DosResults() {
                                                         <YAxis type="category" dataKey="grade" tick={{ fontSize: 12, fontWeight: 600, fill: 'var(--foreground)' }} axisLine={false} tickLine={false} width={28} />
                                                         <Tooltip formatter={v => [`${v}%`, 'Average']} contentStyle={tooltipStyle} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
                                                         <Bar dataKey="score" radius={[0, 6, 6, 0]} maxBarSize={20}>
-                                                            {(d.grade_performance || []).map((e, i) => <Cell key={i} fill={e.score >= 80 ? '#10b981' : e.score >= 70 ? '#003d7a' : '#f59e0b'} />)}
+                                                            {(d.grade_performance || []).map((e, i) => <Cell key={i} fill={e.score >= 80 ? 'var(--success)' : e.score >= 70 ? 'var(--primary)' : 'var(--warning)'} />)}
                                                         </Bar>
                                                     </BarChart>
                                                 </ResponsiveContainer>
@@ -811,7 +812,7 @@ export function DosResults() {
                                                     <YAxis type="category" dataKey="subject" tick={{ fontSize: 11, fontWeight: 600, fill: 'var(--foreground)' }} axisLine={false} tickLine={false} width={78} />
                                                     <Tooltip formatter={v => [`${v}%`, 'Average']} contentStyle={tooltipStyle} cursor={{ fill: 'rgba(0,0,0,0.04)' }} />
                                                     <Bar dataKey="avg_score" radius={[0, 6, 6, 0]} maxBarSize={20}>
-                                                        {(d.subject_averages || []).map((e, i) => <Cell key={i} fill={e.avg_score >= 78 ? '#10b981' : '#f59e0b'} />)}
+                                                        {(d.subject_averages || []).map((e, i) => <Cell key={i} fill={e.avg_score >= 78 ? 'var(--success)' : 'var(--warning)'} />)}
                                                     </Bar>
                                                 </BarChart>
                                             </ResponsiveContainer>

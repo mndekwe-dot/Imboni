@@ -215,7 +215,9 @@
     "subtitle": "Suivez les présences des élèves de vos classes",
     "title": "Faire l'appel",
     "onExeat": "En permission",
-    "onExeatNote": "Sorti avec une permission de sortie"
+    "onExeatNote": "Sorti avec une permission de sortie",
+    "inSickBay": "À l’infirmerie",
+    "inSickBayNote": "Admis à l’infirmerie"
   },
   "classes": {
     "assessmentNamePlaceholder": "ex. Examen de mi-trimestre, contrôle continu 1, quiz 3…",

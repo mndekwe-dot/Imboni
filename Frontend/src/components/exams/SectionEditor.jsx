@@ -52,15 +52,15 @@ export function SectionEditor({
                 </span>
                 <div className="flex-row-gap-sm">
                     <button type="button" className="btn btn-outline btn-sm" disabled={isFirst}
-                        onClick={onMoveUp} title={t('common.moveUp')}>
+                        onClick={onMoveUp} title={t('common.moveUp')} aria-label={t('common.moveUp')}>
                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">arrow_upward</span>
                     </button>
                     <button type="button" className="btn btn-outline btn-sm" disabled={isLast}
-                        onClick={onMoveDown} title={t('common.moveDown')}>
+                        onClick={onMoveDown} title={t('common.moveDown')} aria-label={t('common.moveDown')}>
                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">arrow_downward</span>
                     </button>
                     <button type="button" className="btn btn-outline btn-sm" onClick={onRemove}
-                        title={t('teacher.exams.removeSection')}>
+                        title={t('teacher.exams.removeSection')} aria-label={t('teacher.exams.removeSection')}>
                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
                     </button>
                 </div>

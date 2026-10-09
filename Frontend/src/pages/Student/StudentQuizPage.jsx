@@ -52,7 +52,7 @@ function QuestionCard({ q, qi, total, answer, onChange, submitted, result }) {
                 <div className="sqz-q-meta">
                     <span className="sqz-q-points">{q.points} pt{q.points !== 1 ? 's' : ''}</span>
                     {isGraded && (
-                        <span className="material-symbols-rounded sqz-q-mark" style={{ color: isCorrect ? 'var(--success)' : '#dc2626' }} aria-hidden="true">
+                        <span className="material-symbols-rounded sqz-q-mark" style={{ color: isCorrect ? 'var(--success)' : 'var(--destructive)' }} aria-hidden="true">
                             {isCorrect ? 'check_circle' : 'cancel'}
                         </span>
                     )}
@@ -113,9 +113,9 @@ function QuestionCard({ q, qi, total, answer, onChange, submitted, result }) {
                         value={answer || ''}
                         disabled={submitted}
                         onChange={e => !submitted && onChange(e.target.value)}
-                    />
+                     aria-label={q.type === 'fill_blank' ? 'Fill in the blank…' : 'Type your answer…'}/>
                     {isGraded && result?.correct_answer && (
-                        <div className="sqz-sa-feedback" style={{ color: isCorrect ? 'var(--success)' : '#dc2626' }}>
+                        <div className="sqz-sa-feedback" style={{ color: isCorrect ? 'var(--success)' : 'var(--destructive)' }}>
                             {isCorrect ? 'Correct!' : `Model answer: ${result.correct_answer}`}
                         </div>
                     )}
@@ -137,7 +137,7 @@ function QuestionCard({ q, qi, total, answer, onChange, submitted, result }) {
 function ResultsPanel({ results, quiz, isLate, onBack }) {
     const { score, max_score, percentage, answers } = results
     const grade = percentage >= 80 ? 'A' : percentage >= 70 ? 'B' : percentage >= 60 ? 'C' : percentage >= 50 ? 'D' : 'F'
-    const gradeColor = { A: 'var(--success)', B: '#22c55e', C: '#f59e0b', D: '#f97316', F: '#dc2626' }[grade]
+    const gradeColor = { A: 'var(--success)', B: 'var(--info)', C: 'var(--warning)', D: 'var(--accent)', F: 'var(--destructive)' }[grade]
 
     return (
         <div className="sqz-results">

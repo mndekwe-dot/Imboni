@@ -337,6 +337,12 @@ class RecordPaymentView(BursarView):
             return Response({'detail': str(exc)}, status=400)
         for line in lines:
             line.fee.refresh_from_db()
+        if details['method'] == 'waiver':
+            # Money the school chose not to take: somebody has to be able to ask who.
+            from apps.audit.services import audit
+            who = lines[0].fee.student
+            audit(request.user, 'finance.waiver', f"{who.user.get_full_name()} ({who.student_id})",
+                  {'amount': str(sum((line.amount for line in lines), Decimal('0'))), 'notes': details['notes']})
         return Response({
             'payment': FeePaymentSerializer(lines[0]).data,
             'payments': FeePaymentSerializer(lines, many=True).data,
@@ -633,7 +639,11 @@ class ReceiptDocumentView(FinanceView):
         payment = get_object_or_404(
             FeePayment.objects.select_related('fee__student__user').exclude(method='carried'),
             pk=pk)
-        return finance_documents.receipt_pdf(payment)
+        # ?paper=80mm|58mm for a till-roll printer; anything else is the A4 letterhead.
+        paper = request.query_params.get('paper', 'a4')
+        if paper != 'a4' and paper not in finance_documents.THERMAL_PAPER:
+            return Response({'detail': 'paper must be a4, 80mm or 58mm.'}, status=400)
+        return finance_documents.receipt_pdf(payment, paper=paper)
 
 
 class StatementDocumentView(FinanceView):
@@ -646,40 +656,268 @@ class StatementDocumentView(FinanceView):
         return finance_documents.statement_pdf(student, term, balance)
 
 
+def _families_owing(request, term):
+    """
+    Who owes what, per student, for the class the picker is showing.
+
+    Shared by the printed letters and the bulk send, so "owes" means the same
+    thing in both. `charged` is the whole bill, so a caller can ask for those
+    who still owe more than half of it.
+    """
+    fees = Fee.objects.select_related('student__user').prefetch_related('payments')
+    if term is not None:
+        fees = fees.filter(term=term)
+    fees = student_filters(fees, request)
+
+    families = {}
+    for fee in fees:
+        if fee.student is None:
+            continue
+        row = families.setdefault(str(fee.student.id), {
+            'student': student_brief(fee.student),
+            'outstanding': Decimal('0'),
+            'charged': Decimal('0'),
+            'lines': [],
+        })
+        row['charged'] += money(fee.amount)
+        balance = services.balance_of(fee)
+        if balance <= Decimal('0'):
+            continue
+        row['outstanding'] += balance
+        row['lines'].append({
+            'category': services.category_label(fee.category),
+            'due_date': fee.due_date,
+            'balance': balance,
+        })
+
+    rows = [r for r in families.values() if r['outstanding'] > Decimal('0')]
+    return sorted(rows, key=lambda r: r['outstanding'], reverse=True)
+
+
 class RemindersDocumentView(FinanceView):
     """
     A letter per family that owes, for the class the picker is showing.
 
     One page each rather than one list: a reminder is handed to a particular
-    parent, and a sheet carrying forty families\' debts tells every one of them
+    parent, and a sheet carrying forty families' debts tells every one of them
     what the others owe.
     """
 
     def get(self, request):
         term = _current_term(request)
-        fees = Fee.objects.select_related('student__user').prefetch_related('payments')
-        if term is not None:
-            fees = fees.filter(term=term)
-        fees = student_filters(fees, request)
+        return finance_documents.reminders_pdf(_families_owing(request, term), term)
 
-        families = {}
-        for fee in fees:
-            if fee.student is None:
-                continue
-            balance = services.balance_of(fee)
-            if balance <= Decimal('0'):
-                continue
-            row = families.setdefault(str(fee.student.id), {
-                'student': student_brief(fee.student),
-                'outstanding': Decimal('0'),
-                'lines': [],
-            })
-            row['outstanding'] += balance
-            row['lines'].append({
-                'category': services.category_label(fee.category),
-                'due_date': fee.due_date,
-                'balance': balance,
-            })
 
-        rows = sorted(families.values(), key=lambda r: r['outstanding'], reverse=True)
-        return finance_documents.reminders_pdf(rows, term)
+DEFAULT_REMINDER = (
+    'Fees reminder: {student_name} ({student_code}) has {balance} outstanding '
+    'this term. Please pay at the school office or by mobile money.'
+)
+REMINDER_PLACEHOLDERS = ('student_name', 'student_code', 'balance')
+
+
+class _Blank(dict):
+    def __missing__(self, key):
+        return ''
+
+
+class RemindersSendView(BursarView):
+    """
+    POST /imboni/finance/reminders/send/
+
+    One send to every family that owes more than a threshold, instead of the
+    bursar ticking them one by one. `dry_run` answers "who would get it, and
+    what would it say" without sending anything, so the office can look first.
+
+        min_percent  only those who still owe at least this share of the bill (default 50)
+        min_amount   and at least this much in money (default 0)
+        message      text with {student_name} {student_code} {balance}
+        sms          also send as an SMS (default true); in-app always
+        grade, stream, term   the same class picker as the lists
+    """
+
+    def post(self, request):
+        data = request.data
+        try:
+            min_percent = Decimal(str(data.get('min_percent', 50)))
+            min_amount = Decimal(str(data.get('min_amount', 0)))
+        except InvalidOperation:
+            return Response({'detail': 'Thresholds must be numbers.'}, status=400)
+        if not (Decimal('0') <= min_percent <= Decimal('100')) or min_amount < 0:
+            return Response({'detail': 'Percentage must be 0-100 and amount cannot be negative.'}, status=400)
+        template = (data.get('message') or DEFAULT_REMINDER).strip()
+        try:
+            template.format_map(_Blank())
+        except (ValueError, KeyError, IndexError):
+            return Response({'detail': 'The message has a { or } that is not a placeholder.'}, status=400)
+
+        term = _current_term(request)
+        chosen = []
+        for r in _families_owing(request, term):
+            share = (r['outstanding'] / r['charged'] * 100) if r['charged'] else Decimal('100')
+            if share >= min_percent and r['outstanding'] >= min_amount:
+                chosen.append(r)
+
+        def text(r):
+            return template.format_map(_Blank(
+                student_name=r['student']['name'], student_code=r['student']['student_id'],
+                balance=f"{r['outstanding']:,.0f}",
+            ))
+
+        total = sum((r['outstanding'] for r in chosen), Decimal('0'))
+        summary = {
+            'families': len(chosen), 'total': str(total),
+            'sample': text(chosen[0]) if chosen else '',
+        }
+        if data.get('dry_run'):
+            return Response({**summary, 'sent': 0})
+
+        from apps.notifications.services import notify_parents_of
+        sent = reached = 0
+        for r in chosen:
+            student = Student.objects.get(pk=r['student']['id'])
+            n = notify_parents_of(
+                student, 'Fees reminder', text(r), type='announcement',
+                path='/parent/children', send_sms=bool(data.get('sms', True)),
+            )
+            sent += n
+            reached += 1 if n else 0
+        from apps.audit.services import audit
+        audit(request.user, 'finance.reminders_sent', f'{len(chosen)} families',
+              {'min_percent': str(min_percent), 'min_amount': str(min_amount), 'notified': sent})
+        return Response({**summary, 'sent': sent, 'reached': reached,
+                         'unreachable': len(chosen) - reached})
+
+
+class StatementMatchView(BursarView):
+    """
+    POST /imboni/finance/reconcile/statement/   {rows: [{reference, amount, description, phone, date}], term?}
+
+    Say which family each line of a bank or mobile-money statement belongs to.
+    Writes nothing: the bursar reviews the suggestions, then applies them.
+    """
+
+    def post(self, request):
+        from . import statement_match as sm
+        rows = request.data.get('rows')
+        if not isinstance(rows, list) or not rows:
+            return Response({'detail': 'Send the statement lines to match.'}, status=400)
+        if len(rows) > 2000:
+            return Response({'detail': 'Match at most 2,000 lines at a time.'}, status=400)
+
+        families = []
+        for fee_group in _families_owing(request, _current_term(request)):
+            student = fee_group['student']
+            account = StudentAccount.objects.filter(student_id=student['id']).first()
+            families.append({
+                'id': str(student['id']), 'student_id': student['student_id'], 'name': student['name'],
+                'class_label': student['class_label'],
+                'phone': account.payer_phone if account else '',
+                'outstanding': fee_group['outstanding'],
+            })
+        by_id = {f['id']: f for f in families}
+        recorded = {r.lower() for r in FeePayment.objects.exclude(reference='')
+                    .filter(reversed_at__isnull=True).values_list('reference', flat=True)}
+
+        results = sm.match_statement(rows, families, recorded)
+        for result in results:
+            result['candidates'] = [
+                {'id': c, 'name': by_id[c]['name'], 'student_id': by_id[c]['student_id'],
+                 'class_label': by_id[c]['class_label'], 'outstanding': str(by_id[c]['outstanding'])}
+                for c in result['candidates']]
+        counts = {}
+        for r in results:
+            counts[r['status']] = counts.get(r['status'], 0) + 1
+        return Response({'results': results, 'counts': counts})
+
+
+class StatementApplyView(BursarView):
+    """
+    POST /imboni/finance/reconcile/statement/apply/
+        {method: 'momo'|'bank', rows: [{student, amount, reference, date?, payer_name?}]}
+
+    Take the money for the lines the bursar confirmed. A reference that is
+    already on a receipt is skipped rather than taken twice, so clicking Apply
+    again after a timeout cannot double a family's payment.
+    """
+
+    def post(self, request):
+        from . import statement_match as sm
+        method = request.data.get('method', 'bank')
+        if method not in ('bank', 'momo'):
+            return Response({'detail': 'method must be bank or momo.'}, status=400)
+        rows = request.data.get('rows')
+        if not isinstance(rows, list) or not rows:
+            return Response({'detail': 'Nothing to apply.'}, status=400)
+
+        term = _current_term(request)
+        taken, skipped = [], []
+        for row in rows:
+            amount = sm.parse_amount(row.get('amount'))
+            reference = (row.get('reference') or '').strip()[:80]
+            student = Student.objects.filter(pk=row.get('student')).first() if row.get('student') else None
+            if student is None or amount is None:
+                skipped.append({'reference': reference, 'reason': 'No family or amount.'})
+                continue
+            if reference and FeePayment.objects.filter(
+                    reference__iexact=reference, reversed_at__isnull=True).exists():
+                skipped.append({'reference': reference, 'reason': 'Already recorded.'})
+                continue
+            try:
+                lines = services.record_split_payment(
+                    student, amount, None, method=method, reference=reference,
+                    received_by=request.user, paid_on=row.get('date') or None,
+                    payer_name=row.get('payer_name', ''), notes='From a statement', term=term)
+            except services.FinanceError as exc:
+                skipped.append({'reference': reference, 'reason': str(exc)})
+                continue
+            taken.append({'reference': reference, 'student': student.full_name,
+                          'receipt_no': lines[0].receipt_no, 'amount': str(amount)})
+        from apps.audit.services import audit
+        audit(request.user, 'finance.statement_applied', f'{len(taken)} payments',
+              {'method': method, 'skipped': len(skipped)})
+        return Response({'taken': taken, 'skipped': skipped}, status=201 if taken else 200)
+
+
+class OnlinePaymentListView(BursarView):
+    """
+    GET /imboni/finance/online-payments/?status=needs_review
+
+    Payments parents made from their phones. The one that matters to the office
+    is ``needs_review``: the money arrived but could not be placed on a charge.
+    """
+
+    def get(self, request):
+        from .models import OnlinePayment
+        rows = OnlinePayment.objects.select_related('student__user', 'paid_by')
+        if request.query_params.get('status'):
+            rows = rows.filter(status=request.query_params['status'])
+        return Response([{
+            'id': str(o.id), 'student': o.student.user.get_full_name(), 'student_id': o.student.student_id,
+            'paid_by': o.paid_by.get_full_name() if o.paid_by else '', 'phone': o.phone,
+            'amount': str(o.amount), 'status': o.status, 'detail': o.detail,
+            'transaction_id': o.transaction_id, 'receipt_no': o.receipt_no, 'created_at': o.created_at,
+        } for o in rows[:200]])
+
+
+class OnlinePaymentResolveView(BursarView):
+    """
+    POST /imboni/finance/online-payments/<id>/resolve/   {note}
+
+    The office has dealt with a payment that arrived with nowhere to go (credited
+    it, refunded it, or receipted it by hand). Closes it, with the note and the
+    name of whoever did, so it stops being waved at every morning.
+    """
+
+    def post(self, request, pk):
+        from apps.audit.services import audit
+        from .models import OnlinePayment
+        op = get_object_or_404(OnlinePayment, pk=pk)
+        if op.status != 'needs_review':
+            return Response({'detail': 'Only a payment waiting for review can be closed this way.'}, status=400)
+        note = (request.data.get('note') or '').strip()
+        if not note:
+            return Response({'detail': 'Say what was done with the money.'}, status=400)
+        op.status, op.detail = 'successful', f'Handled by {request.user.get_full_name()}: {note}'[:255]
+        op.save(update_fields=['status', 'detail', 'updated_at'])
+        audit(request.user, 'finance.online_payment_resolved', op.student.student_id, {'note': note[:200], 'amount': str(op.amount)})
+        return Response({'id': str(op.id), 'status': op.status})

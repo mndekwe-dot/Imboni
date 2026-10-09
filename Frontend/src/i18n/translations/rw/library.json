@@ -140,7 +140,8 @@
       "overdue": "Nta kirenze igihe",
       "returned": "Nta cyarasubizwa"
     },
-    "emptyDesc": "Ibitabo bigaragara hano uko bitangwa."
+    "emptyDesc": "Ibitabo bigaragara hano uko bitangwa.",
+    "classesTab": "Ibitabo by’ishuri n’icyemezo cyo kwishyura"
   },
   "fines": {
     "outstanding": "Amande atarishyurwa",
@@ -159,7 +160,8 @@
     },
     "waiveTitle": "Kureka iyi amande",
     "waiveIntro": "{{name}} afite amande ya {{amount}}. Kuyireka bivuze ko ikigo kitazakira aya mafaranga.",
-    "waiveReason": "Kuki iyi amande irekwa?"
+    "waiveReason": "Kuki iyi amande irekwa?",
+    "onFeeAccount": "Biri ku mafaranga y’ishuri: bishyurirwa ku biro by’imari"
   },
   "members": {
     "title": "Abaguza",
@@ -242,7 +244,9 @@
     "fine_per_day": "Amande ku munsi",
     "fine_per_dayHint": "Guhindura ibi bireba amande mashya gusa — amande yamaze gutangwa akomeza afite igipimo yabazwe.",
     "currency": "Ifaranga",
-    "currencyHint": "Rigaragara iruhande rw'umubare wose."
+    "currencyHint": "Rigaragara iruhande rw'umubare wose.",
+    "bill_lost_to_finance": "Shyira igitabo cyatakaye ku mafaranga y’ishuri",
+    "bill_lost_to_financeHint": "Igiciro cyo gusimbura igitabo cyatakaye gishyirwa ku mafaranga y’umunyeshuri kandi kikishyurirwa ku biro by’imari, aho kuba mu isomero."
   },
   "messages": {
     "subtitle": "Ubutumwa n'abakozi n'abanyeshuri"
@@ -398,5 +402,27 @@
     "cancel": "Gukuraho amafaranga {{amount}} yo gusimbura",
     "refund": "Gusubiza amafaranga {{amount}} yo gusimbura",
     "keepHint": "Amande yo gutinda kukigarura arasigara. Kuramo akamenyetso niba ishuri ryaramaze kugura ikindi gitabo."
+  },
+  "classes": {
+    "setTitle": "Tanga ibitabo ku ishuri ryose",
+    "setNote": "Igitabo kimwe cyo mu mutwe umwe ku munyeshuri wese wo mu ishuri, mu itangira ry’igihembwe. Amategeko asanzwe areba buri munyeshuri.",
+    "findBook": "Shaka igitabo…",
+    "noBooks": "Nta gitabo gihari gihuye.",
+    "available": "Bihari: {{count}}",
+    "chosen": "Gutanga: {{title}}",
+    "issue": "Tanga ku ishuri",
+    "chooseFirst": "Banza uhitemo igitabo n’umwaka.",
+    "result": "Abanyeshuri {{issued}} muri {{size}} bafite igitabo.",
+    "short": "Nta gitabo gisigaye kuri: {{names}}",
+    "skipped": "Ntibahawe: {{list}}",
+    "issueFailed": "Ntibishobotse gutanga ibitabo.",
+    "clearTitle": "Icyemezo cyo kutagira ideni mu isomero",
+    "clearNote": "Ni nde muri iri shuri ugifite igitabo cyangwa ihazabu itishyuwe.",
+    "check": "Reba ishuri",
+    "allClear": "Abo mu ishuri bose nta kibazo bafite.",
+    "checkFailed": "Ntibishobotse kugenzura.",
+    "notCleared": "{{count}} muri {{size}} bafite ibibazo",
+    "owes": "afite ideni rya {{amount}}",
+    "booksOut": "afite: {{titles}}"
   }
 }

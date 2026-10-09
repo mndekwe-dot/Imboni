@@ -16,6 +16,7 @@ import { dosNavItems, dosSecondaryItems } from './dosNav'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 const TABS = ['submitted', 'approved', 'rejected', 'draft', 'all']
 
@@ -109,7 +110,7 @@ export function DosExamPapers() {
                         />
 
                         {loading ? (
-                            <p className="u-muted">{t('common.loading')}</p>
+                            <SkeletonList items={3} />
                         ) : error ? (
                             <p className="form-error">{error}</p>
                         ) : papers.length === 0 ? (
@@ -150,19 +151,19 @@ export function DosExamPapers() {
                                                     <div className="flex-row-gap-sm">
                                                         <button className="btn btn-outline btn-sm"
                                                             onClick={() => setReviewing(paper)}
-                                                            title={t('dos.examPapers.review')}>
+                                                            title={t('dos.examPapers.review')} aria-label={t('dos.examPapers.review')}>
                                                             <span className="material-symbols-rounded icon-sm" aria-hidden="true">rate_review</span>
                                                         </button>
                                                         <button className="btn btn-outline btn-sm"
                                                             disabled={printing === paper.id}
                                                             onClick={() => print(paper, false)}
-                                                            title={t('dos.examPapers.printPaper')}>
+                                                            title={t('dos.examPapers.printPaper')} aria-label={t('dos.examPapers.printPaper')}>
                                                             <span className="material-symbols-rounded icon-sm" aria-hidden="true">print</span>
                                                         </button>
                                                         <button className="btn btn-outline btn-sm"
                                                             disabled={printing === paper.id}
                                                             onClick={() => print(paper, true)}
-                                                            title={t('dos.examPapers.printScheme')}>
+                                                            title={t('dos.examPapers.printScheme')} aria-label={t('dos.examPapers.printScheme')}>
                                                             <span className="material-symbols-rounded icon-sm" aria-hidden="true">key</span>
                                                         </button>
                                                     </div>

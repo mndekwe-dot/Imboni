@@ -2,8 +2,9 @@ import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
-    createStaffMember, deleteStaffMember, getDepartments, getStaffMembers, updateStaffMember,
+    createStaffMember, deleteStaffMember, getDepartments, getStaffMembers, setStaffExtraRoles, updateStaffMember,
 } from '../../api/staff'
+import { readStoredUser } from '../../utils/roles'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { formatAmount } from '../../utils/money'
@@ -12,8 +13,12 @@ import { DocumentActions } from '../ui/DocumentActions'
 import { Modal } from '../ui/Modal'
 import { SearchBar } from '../ui/SearchBar'
 import { departmentName } from './departmentName'
+import { confirmDialog } from '../../utils/confirm'
 
 const EMPLOYMENT = ['full_time', 'part_time', 'contract', 'casual']
+
+// The roles a person can hold besides their own. Mirrors apps.authentication.permissions.SECONDARY_ROLES.
+const SECONDARY_ROLES = ['teacher', 'dos', 'discipline', 'matron', 'librarian', 'bursar']
 
 /**
  * Everyone the school employs, with or without an Imboni login.
@@ -34,6 +39,9 @@ export function StaffRegister({ onSalary, reloadKey = 0 }) {
     const [department, setDepartment] = useState('')
     const [status, setStatus] = useState('active')
     const [editing, setEditing] = useState(null)
+    const [roleFor, setRoleFor] = useState(null)
+    // Only the administrator hands out roles; the bursar reads this register too.
+    const isAdmin = readStoredUser()?.role === 'admin'
 
     const params = {
         ...(search.trim() ? { q: search.trim() } : {}),
@@ -69,6 +77,8 @@ export function StaffRegister({ onSalary, reloadKey = 0 }) {
                 <WorkerModal member={editing === 'new' ? null : editing} departments={departments}
                     onClose={() => setEditing(null)} onSaved={load} />
             )}
+
+            {roleFor && <RolesModal member={roleFor} onClose={() => setRoleFor(null)} onSaved={load} />}
 
             <div className="toolbar-card">
                 <SearchBar value={search} onChange={setSearch} placeholder={t('staff.searchPlaceholder')} />
@@ -132,6 +142,11 @@ export function StaffRegister({ onSalary, reloadKey = 0 }) {
                             <button className="btn btn-ghost btn-sm" onClick={() => setEditing(m)}>
                                 {t('common.edit')}
                             </button>
+                            {isAdmin && m.has_account && SECONDARY_ROLES.includes(m.account_role) && m.is_active && (
+                                <button className="btn btn-ghost btn-sm" onClick={() => setRoleFor(m)}>
+                                    {t('common.staffRoles')}{m.account_extra_roles?.length > 0 && ` (${m.account_extra_roles.length})`}
+                                </button>
+                            )}
                             {payroll && m.is_active && (
                                 <button className="btn btn-outline btn-sm" onClick={() => onSalary(m)}>
                                     {m.salary ? t('staff.salary') : t('staff.setSalary')}
@@ -145,6 +160,44 @@ export function StaffRegister({ onSalary, reloadKey = 0 }) {
                 emptyDesc={loading ? '' : t('staff.emptyDesc')}
             />
         </>
+    )
+}
+
+/** Which other portals this person may open. The full list, so unticking everything takes them all away. */
+function RolesModal({ member, onClose, onSaved }) {
+    const { t } = useTranslation()
+    const toast = useToast()
+    const [roles, setRoles] = useState(member.account_extra_roles || [])
+    const [busy, setBusy] = useState(false)
+
+    async function save() {
+        setBusy(true)
+        try {
+            await setStaffExtraRoles(member.id, roles)
+            toast.success(t('admin.staff.rolesSaved'))
+            onSaved(); onClose()
+        } catch (e) {
+            toast.error(errorMessage(e, t('admin.staff.rolesFailed')))
+        } finally { setBusy(false) }
+    }
+
+    return (
+        <Modal title={t('admin.staff.rolesTitle', { name: member.full_name })} icon="admin_panel_settings" onClose={onClose}
+            footer={
+                <>
+                    <button className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
+                    <button className="btn btn-primary" onClick={save} disabled={busy}>{t('admin.staff.rolesSave')}</button>
+                </>
+            }>
+            <p className="u-muted u-sm">{t('admin.staff.rolesHint', { role: t(`roles.${member.account_role}`) })}</p>
+            {SECONDARY_ROLES.filter(r => r !== member.account_role).map(r => (
+                <label key={r} className="form-check">
+                    <input type="checkbox" checked={roles.includes(r)}
+                        onChange={e => setRoles(cur => (e.target.checked ? [...cur, r] : cur.filter(x => x !== r)))} />
+                    <span>{t(`roles.${r}`)}</span>
+                </label>
+            ))}
+        </Modal>
     )
 }
 
@@ -190,7 +243,7 @@ function WorkerModal({ member, departments, onClose, onSaved }) {
     }
 
     async function remove() {
-        if (!window.confirm(t('staff.deleteConfirm', { name: member.full_name }))) return
+        if (!await confirmDialog(t('staff.deleteConfirm', { name: member.full_name }))) return
         setBusy(true)
         try {
             await deleteStaffMember(member.id)

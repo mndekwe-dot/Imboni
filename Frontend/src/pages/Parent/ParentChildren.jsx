@@ -16,6 +16,7 @@ import {
     getMyChildren, getChildCard, getChildFees, getChildDocuments,
     getConsentRequests, respondToConsent,
 } from '../../api/parent'
+import { PayFeesPanel } from './PayFees'
 
 function toList(data) {
     return Array.isArray(data) ? data : (data?.results ?? [])
@@ -83,6 +84,8 @@ function ChildCard({ childId, card, fees, docs }) {
                         ))}
                     </section>
                 )}
+
+                <PayFeesPanel childId={childId} />
 
                 {docs?.length > 0 && (
                     <section className="detail-section">
@@ -201,7 +204,7 @@ function ConsentCard() {
                                                 <span className="pchild-consent-name">{child.student_name}</span>
                                                 {child.status ? (
                                                     <span className="pchild-consent-status"
-                                                        style={{ '--pchild-status': child.status === 'approved' ? 'var(--success)' : '#dc2626' }}>
+                                                        style={{ '--pchild-status': child.status === 'approved' ? 'var(--success)' : 'var(--destructive)' }}>
                                                         <span className="material-symbols-rounded pchild-status-icon" aria-hidden="true">
                                                             {child.status === 'approved' ? 'check_circle' : 'cancel'}
                                                         </span>

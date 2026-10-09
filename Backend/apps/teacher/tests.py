@@ -85,6 +85,33 @@ class TestTeacherAttendanceStudentsView:
         assert len(response.data) == 1
         assert response.data[0]['student_code'] == student.student_id
 
+    def test_register_flags_students_who_are_out_on_exeat_or_in_the_sick_bay(self, make_authenticated_client):
+        from datetime import timedelta
+        from django.utils import timezone
+        from apps.discipline.models import ExeatPass
+        from apps.matron.models import HealthRecord
+
+        client, teacher = make_authenticated_client('teacher')
+        term = _make_term()
+        class_obj = _make_class()
+        _assign_teacher(teacher, _make_subject(), class_obj, term)
+        gone, sick, here = (StudentFactory(grade='S4', section='A') for _ in range(3))
+        for st in (gone, sick, here):
+            ClassAssignment.objects.create(class_obj=class_obj, student=st, term=term)
+        now = timezone.now()
+        ExeatPass.objects.create(student=gone, status='out', departure_at=now - timedelta(hours=3),
+                                 expected_return_at=now + timedelta(days=1))
+        HealthRecord.objects.create(student=sick, visit_type='sickbay_admission', condition_tag='illness',
+                                    status='in_sick_bay', visit_datetime=now - timedelta(hours=2),
+                                    complaint='Malaria', admitted=True)
+
+        rows = {r['student_id']: r for r in client.get(
+            '/imboni/teacher/attendance/students/', {'class_id': str(class_obj.id)}).data}
+
+        assert rows[str(gone.id)]['on_exeat'] is True and rows[str(gone.id)]['in_sick_bay'] is False
+        assert rows[str(sick.id)]['in_sick_bay'] is True and rows[str(sick.id)]['on_exeat'] is False
+        assert rows[str(here.id)]['on_exeat'] is False and rows[str(here.id)]['in_sick_bay'] is False
+
     def test_teacher_cannot_view_roster_for_a_class_they_do_not_teach(self, make_authenticated_client):
         # Was a real gap: this view had no check that the requesting teacher
         # actually teaches the class_id given. Now enforced via

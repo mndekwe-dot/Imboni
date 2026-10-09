@@ -1,3 +1,4 @@
+import { asButton } from '../../utils/a11y'
 /**
  * ConversationItem — one row in the conversation list panel.
  *
@@ -31,7 +32,7 @@ export function ConversationItem({
     onClick,
 }) {
     return (
-        <div className={`conv-item${isActive ? ' active' : ''}${isUnread ? ' unread' : ''}`} onClick={onClick}>
+        <div className={`conv-item${isActive ? ' active' : ''}${isUnread ? ' unread' : ''}`} {...asButton(onClick)}>
             <div
                 className={`conv-avatar has-presence ${avatarClass}`}
                 style={avatarStyle || undefined}

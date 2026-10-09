@@ -39,6 +39,11 @@ class User(AbstractUser):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     pending_email=models.EmailField(blank=True)
+    # Further portals this person may open besides their own `role`: a teacher who is also
+    # the assistant DOS or the dormitory master. Only ever staff roles, and never 'admin':
+    # see apps.authentication.permissions.SECONDARY_ROLES. `role` stays what they ARE; this
+    # is what they may ALSO do.
+    extra_roles = models.JSONField(default=list, blank=True)
     
     class Meta:
         db_table = 'users'

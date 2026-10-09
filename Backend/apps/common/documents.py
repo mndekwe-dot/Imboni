@@ -25,6 +25,8 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.text import slugify
 
+from .branding import branding_context, school_branding
+
 
 def school_name():
     """
@@ -35,17 +37,13 @@ def school_name():
     printed at one school must never carry another's name. `SCHOOL_NAME` in
     settings is the single-school fallback for local development.
     """
-    tenant = getattr(connection, 'tenant', None)
-    return (getattr(tenant, 'name', None)
-            or getattr(settings, 'SCHOOL_NAME', 'Imboni School'))
+    return school_branding()['name']
 
 
 def document_context(title, subtitle='', **extra):
     """The header every printed document shares."""
     return {
-        'school_name': school_name(),
-        'school_email': getattr(settings, 'SCHOOL_EMAIL', ''),
-        'school_phone': getattr(settings, 'SCHOOL_PHONE', ''),
+        **branding_context(),
         'title': title,
         'subtitle': subtitle,
         'printed_on': timezone.localtime(),

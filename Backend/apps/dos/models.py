@@ -238,6 +238,12 @@ class SchoolSetting(models.Model):
     # derivation makes pale-yellow-behind-white-text readable.
     logo = models.ImageField(upload_to='school-logos/', null=True, blank=True)
 
+    # How a parent or an auditor reaches the school, printed on letterheads and
+    # report cards. They used to come from deployment-wide environment settings,
+    # so every school on one server printed the same address.
+    contact_email = models.EmailField(blank=True, default='')
+    contact_phone = models.CharField(max_length=30, blank=True, default='')
+
     # ISO 4217 code the school bills in. Amounts were formatted with a literal
     # in the UI ('KES' in one modal, 'RWF' elsewhere), so a school outside
     # Rwanda had no way to correct it and the two disagreed with each other.
