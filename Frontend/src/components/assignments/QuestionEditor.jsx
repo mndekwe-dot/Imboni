@@ -1,6 +1,8 @@
 import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { QUESTION_TYPES } from './quizModel'
+import { useToast } from '../../context/ToastContext'
+import { readImageAsDataUrl, imageErrorText } from '../../utils/imageData'
 
 /**
  * One question in the quiz builder: its type, its text, its answers, its marks.
@@ -17,6 +19,7 @@ import { QUESTION_TYPES } from './quizModel'
 export function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMoveUp, onMoveDown,
                                  isFirst, isLast, types = QUESTION_TYPES }) {
     const { t } = useTranslation()
+    const toast = useToast()
     const qType = types.find(qt => qt.value === q.type)
 
     function set(field, value) { onChange({ ...q, [field]: value }) }
@@ -32,12 +35,19 @@ export function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMove
         if (q.correct >= opts.length) set('correct', Math.max(0, opts.length - 1))
     }
 
-    function handleImage(e) {
-        const file = e.target.files?.[0]
+    async function handleImage(e) {
+        const input = e.target
+        const file = input.files?.[0]
         if (!file) return
-        const reader = new FileReader()
-        reader.onloadend = () => set('image', reader.result)
-        reader.readAsDataURL(file)
+        try {
+            set('image', await readImageAsDataUrl(file))
+        } catch (err) {
+            // Said out loud: a refused picture used to just not appear.
+            toast.error(imageErrorText(err, t))
+        } finally {
+            // Lets the same file be chosen again after fixing it.
+            input.value = ''
+        }
     }
 
     const imgRef = useRef()
