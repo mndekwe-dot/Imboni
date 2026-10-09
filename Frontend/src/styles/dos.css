@@ -7,21 +7,21 @@
    =============================================== */
 
 .quick-stats,
-.stat-cards-grid {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .stat-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
-.stat-header {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .stat-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
 }
 
-.stat-icon {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .stat-icon {
   width: 48px;
   height: 48px;
   border-radius: var(--radius-lg);
@@ -33,22 +33,22 @@
   flex-shrink: 0;
 }
 
-.stat-icon.success {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .stat-icon.success {
   background: var(--success-light);
   color: var(--success);
 }
 
-.stat-icon.warning {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .stat-icon.warning {
   background: var(--warning-light);
   color: var(--warning);
 }
 
-.stat-icon.danger {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .stat-icon.danger {
   background: var(--destructive-light);
   color: var(--destructive);
 }
 
-.stat-icon.info {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .stat-icon.info {
   background: var(--info-light);
   color: var(--info);
 }
@@ -57,7 +57,7 @@
   font-size: var(--icon-lg);
 }
 
-.stat-value {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .stat-value {
   font-size: var(--text-stat);
   font-weight: 700;
   color: var(--foreground);
@@ -65,7 +65,7 @@
   margin-bottom: 0.5rem;
 }
 
-.stat-label {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .stat-label {
   font-size: var(--text-sm);
   color: var(--muted-foreground);
   font-weight: 500;
@@ -258,14 +258,14 @@
   font-weight: 600;
 }
 
-.progress-bar {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .progress-bar {
   height: 10px;
   background: var(--muted);
   border-radius: var(--radius-full);
   overflow: hidden;
 }
 
-.progress-fill {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .progress-fill {
   height: 100%;
   background: linear-gradient(90deg, var(--primary) 0%, var(--primary-hover) 100%);
   border-radius: var(--radius-full);
@@ -292,13 +292,13 @@
   gap: 1rem;
 }
 
-.activity-item {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .activity-item {
   display: flex;
   align-items: flex-start;
   gap: 1rem;
 }
 
-.activity-icon {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .activity-icon {
   width: 40px;
   height: 40px;
   border-radius: var(--radius);
@@ -308,17 +308,17 @@
   flex-shrink: 0;
 }
 
-.activity-icon.success {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .activity-icon.success {
   background: var(--success-light);
   color: var(--success);
 }
 
-.activity-icon.info {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .activity-icon.info {
   background: var(--info-light);
   color: var(--info);
 }
 
-.activity-icon.warning {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .activity-icon.warning {
   background: var(--warning-light);
   color: var(--warning);
 }
@@ -344,7 +344,7 @@
   margin: 0;
 }
 
-/* ===============================================
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) /* ===============================================
    CHART CONTAINERS
    =============================================== */
 
@@ -757,13 +757,13 @@
   border-radius: var(--radius-sm);
 }
 
-.house-stat-value {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .house-stat-value {
   font-size: var(--text-title);
   font-weight: 700;
   color: var(--primary);
 }
 
-.house-stat-label {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .house-stat-label {
   font-size: var(--text-caption);
   color: var(--muted-foreground);
   margin-top: 0.125rem;
@@ -811,7 +811,7 @@
   background: var(--muted);
 } }
 
-.room-badge {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .room-badge {
   display: inline-flex;
   align-items: center;
   padding: 0.2rem 0.625rem;
@@ -960,7 +960,7 @@
   font-weight: 700;
 }
 
-/* ===============================================
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) /* ===============================================
    ACTIVITIES — Clubs & Extracurriculars
    =============================================== */
 
@@ -971,7 +971,7 @@
   margin-bottom: 1.5rem;
 }
 
-.activity-card {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .activity-card {
   background: var(--card);
   border: 2px solid var(--border);
   border-radius: var(--radius-lg);
@@ -1126,7 +1126,7 @@
     grid-template-columns: 1fr;
   }
 
-  .stat-value {
+  :where(:root[data-portal="admin"], :root[data-portal="dos"]) .stat-value {
     font-size: var(--text-display);
   }
 
@@ -1176,7 +1176,7 @@
 }
 
 @media (max-width: 374px) {
-  .stat-cards-grid { grid-template-columns: 1fr; }
+  :where(:root[data-portal="admin"], :root[data-portal="dos"]) .stat-cards-grid { grid-template-columns: 1fr; }
 
 /* .stat-card is now defined in components.css alongside the other
    controls that do this job, so the whole family is edited in one place. */
@@ -1778,7 +1778,7 @@ body.tm-panel-open { overflow: hidden; }
 @media (hover: hover) { .cls-stream-btn:hover { border-color: var(--primary); color: var(--primary); } }
 .cls-stream-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 
-/* ===============================================
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) /* ===============================================
    STUDENT CLASS NAVIGATOR
    =============================================== */
 
@@ -1794,7 +1794,7 @@ body.tm-panel-open { overflow: hidden; }
   margin-bottom: 0;
 }
 
-.class-nav-btn {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .class-nav-btn {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -1814,13 +1814,13 @@ body.tm-panel-open { overflow: hidden; }
               transform var(--duration-press) var(--ease-out);
 }
 
-@media (hover: hover) { .class-nav-btn:hover {
+@media (hover: hover) { :where(:root[data-portal="admin"], :root[data-portal="dos"]) .class-nav-btn:hover {
   background: var(--primary);
   color: #fff;
   border-color: var(--primary);
 } }
 
-.class-nav-center {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .class-nav-center {
   flex: 1;
   display: flex;
   align-items: center;
@@ -1829,14 +1829,14 @@ body.tm-panel-open { overflow: hidden; }
   position: relative;
 }
 
-.class-nav-label {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .class-nav-label {
   font-size: var(--text-title);
   font-weight: 700;
   color: var(--foreground);
   pointer-events: none;
 }
 
-.class-nav-select {
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .class-nav-select {
   position: absolute;
   inset: 0;
   opacity: 0;
@@ -1888,7 +1888,7 @@ body.tm-panel-open { overflow: hidden; }
 
 .mb-1 { margin-bottom: 1rem; }
 .mt-1 { margin-top: 1rem; }
-.mt-1-5 { margin-top: 1.5rem; }
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .mt-1-5 { margin-top: 1.5rem; }
 .text-center { text-align: center; }
 .flex-1 { flex: 1; }
 .gap-1 { gap: 1rem; }
@@ -1985,7 +1985,7 @@ body.tm-panel-open { overflow: hidden; }
 /* Status badges */.badge-published { background:var(--success-surface);  color:var(--success-text); }
 .badge-upcoming  { background:var(--info-surface);  color: var(--info-text); }
 .badge-ongoing   { background:var(--warning-surface);  color:var(--warning-text); }
-.badge-done      { background:var(--success-surface);  color:var(--success-text); }
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .badge-done      { background:var(--success-surface);  color:var(--success-text); }
 
 /* Hidden elements — shown by JS via .visible class */
 #editingBadge { display:none; }
@@ -2054,7 +2054,7 @@ body.tm-panel-open { overflow: hidden; }
 .es-filter-section { display:flex; align-items:flex-start; gap:.75rem; padding:.65rem 0;
                       border-bottom:1px solid var(--border); flex-wrap:wrap; }
 .es-filter-section:last-of-type { border-bottom:none; margin-bottom:.75rem; }
-.es-filter-section-label { display:flex; align-items:center; gap:.3rem; font-size: var(--text-caption);
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .es-filter-section-label { display:flex; align-items:center; gap:.3rem; font-size: var(--text-caption);
                              font-weight:700; text-transform:uppercase; letter-spacing:.06em;
                              color:var(--muted-foreground); white-space:nowrap; min-width:5.5rem;
                              padding-top:.4rem; }
@@ -2063,12 +2063,12 @@ body.tm-panel-open { overflow: hidden; }
 
 /* ── Session chips ──────────────────────────────────────────────────── */
 .es-session-chips { display:flex; gap:.4rem; flex-wrap:wrap; align-items:center; }
-.es-session-chip  { display:inline-flex; align-items:center; gap:.4rem; padding:.35rem .85rem;
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .es-session-chip  { display:inline-flex; align-items:center; gap:.4rem; padding:.35rem .85rem;
                      border-radius: var(--radius-full); border:1.5px solid var(--border); background:var(--card);
                      font-size: var(--text-sm); font-weight:500; cursor:pointer; transition: background-color var(--duration-hover) var(--ease-hover), border-color var(--duration-hover) var(--ease-hover), color var(--duration-hover) var(--ease-hover), box-shadow var(--duration-hover) var(--ease-hover), transform var(--duration-press) var(--ease-out);
                      color:var(--foreground); }
-@media (hover: hover) { .es-session-chip:hover   { border-color:var(--primary); color:var(--primary); } }
-.es-session-chip.active  { background:var(--primary); color:#fff; border-color:var(--primary); }
+@media (hover: hover) { :where(:root[data-portal="admin"], :root[data-portal="dos"]) .es-session-chip:hover   { border-color:var(--primary); color:var(--primary); } }
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .es-session-chip.active  { background:var(--primary); color:#fff; border-color:var(--primary); }
 .es-chip-count           { font-size: var(--text-caption); background:rgba(0,0,0,.08); border-radius: var(--radius-full);
                             padding:.05rem .4rem; font-weight:600; }
 .es-session-chip.active .es-chip-count { background:rgba(255,255,255,.25); }
@@ -2079,7 +2079,7 @@ body.tm-panel-open { overflow: hidden; }
                           border:1.5px solid var(--border); background:var(--card);
                           overflow:hidden; transition:border-color .15s; }
 .es-session-chip-wrap.active { border-color:var(--primary); background:var(--primary); }
-.es-session-chip-label { display:inline-flex; align-items:center; gap:.4rem;
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .es-session-chip-label { display:inline-flex; align-items:center; gap:.4rem;
                            padding:.35rem .5rem .35rem .85rem; font-size: var(--text-sm); font-weight:500;
                            cursor:pointer; color:var(--foreground); background:transparent; border:none; }
 .es-session-chip-wrap.active .es-session-chip-label { color:#fff; }
@@ -2291,7 +2291,7 @@ body.tm-panel-open { overflow: hidden; }
 .publish-actions .material-symbols-rounded { font-size: var(--icon-sm); }
 .es-pub-filter-row { display:flex; gap:1rem; flex-wrap:wrap; margin-bottom:1.25rem; align-items:flex-end; }
 .es-pub-filter-group { display:flex; flex-direction:column; gap:.35rem; }
-/* ── Recharts custom tooltip ── */
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) /* ── Recharts custom tooltip ── */
 .chart-tooltip {
   background: var(--card);
   border: 1px solid var(--border);
@@ -2300,7 +2300,7 @@ body.tm-panel-open { overflow: hidden; }
   font-size: var(--text-sm);
   box-shadow: var(--shadow-md);
 }
-.chart-tooltip-label  { font-weight: 700; margin-bottom: 6px; }
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) .chart-tooltip-label  { font-weight: 700; margin-bottom: 6px; }
 .chart-tooltip-item   { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 2px; }
 .chart-tooltip-dot-ln { width: 10px; height: 3px;  border-radius: 2px; display: inline-block; }
 .chart-tooltip-dot-sq { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
@@ -2329,7 +2329,7 @@ body.tm-panel-open { overflow: hidden; }
 .overview-panel-title { font-weight: 700; font-size: var(--text-body); }
 .overview-panel-body  { padding: 1rem; gap: 1rem; }
 
-/* ── Chart legend row ── */
+:where(:root[data-portal="admin"], :root[data-portal="dos"]) /* ── Chart legend row ── */
 .chart-legend-row  { display: flex; gap: 1rem; justify-content: center; margin-top: 0.25rem; }
 .chart-legend-item { display: flex; align-items: center; gap: 0.35rem; font-size: var(--text-caption); color: var(--muted-foreground); }
 .chart-legend-dot  { width: 16px; height: 2px; border-radius: 1px; display: inline-block; }

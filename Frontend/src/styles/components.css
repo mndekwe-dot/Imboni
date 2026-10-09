@@ -3510,3 +3510,6 @@ h1, h2, h3,
 @media (max-width: 800px) {
   .att-mode-bar { gap: 0.375rem; }
 }
+
+/* A vertical stack of form fields. Was in admin.css while three DOS pages used it. */
+.settings-form { display: flex; flex-direction: column; gap: 1rem; }

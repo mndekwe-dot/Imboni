@@ -63,22 +63,22 @@
   flex-shrink: 0;
 }
 .stat-icon .material-symbols-rounded { font-size: var(--icon-md); }
-.stat-icon.blue   { background: var(--primary-light); color: var(--primary); }
-.stat-icon.teal   { background: var(--student-light); color: var(--student); }
-.stat-icon.orange { background: var(--accent-light);  color: var(--accent); }
-.stat-icon.green  { background: var(--success-light); color: var(--success); }
-.stat-icon.red    { background: var(--destructive-light); color: var(--destructive); }
-.stat-icon.yellow { background: var(--warning-light); color: var(--warning); }
+:where(:root[data-portal="student"]) .stat-icon.blue   { background: var(--primary-light); color: var(--primary); }
+:where(:root[data-portal="student"]) .stat-icon.teal   { background: var(--student-light); color: var(--student); }
+:where(:root[data-portal="student"]) .stat-icon.orange { background: var(--accent-light);  color: var(--accent); }
+:where(:root[data-portal="student"]) .stat-icon.green  { background: var(--success-light); color: var(--success); }
+:where(:root[data-portal="student"]) .stat-icon.red    { background: var(--destructive-light); color: var(--destructive); }
+:where(:root[data-portal="student"]) .stat-icon.yellow { background: var(--warning-light); color: var(--warning); }
 
 .stat-body { flex: 1; min-width: 0; }
-.stat-value {
+:where(:root[data-portal="student"]) .stat-value {
   font-size: var(--text-display);
   font-weight: 800;
   line-height: 1;
   margin-bottom: 2px;
   color: var(--foreground);
 }
-.stat-label {
+:where(:root[data-portal="student"]) .stat-label {
   font-size: var(--text-caption);
   color: var(--muted-foreground);
   font-weight: 500;
@@ -155,7 +155,7 @@
 }
 .badge-now { background: var(--student-light); color: var(--student); }
 .badge-next { background: var(--accent-light); color: var(--accent); }
-.badge-done { background: var(--muted); color: var(--muted-foreground); }
+:where(:root[data-portal="student"]) .badge-done { background: var(--muted); color: var(--muted-foreground); }
 
 /* Upcoming assignments sidebar */
 .upcoming-assignments-card {
@@ -280,7 +280,7 @@
   margin-bottom: 0.75rem;
 }
 .subject-name-label { font-weight: 700; font-size: var(--text-body); }
-.grade-badge {
+:where(:root[data-portal="student"]) .grade-badge {
   font-size: var(--text-body);
   font-weight: 800;
   padding: 0.2rem 0.75rem;
@@ -653,7 +653,7 @@
 .dot-online { width: 6px; height: 6px; border-radius: 50%; background: #22c55e; }
 
 
-.date-sep { text-align: center; font-size: var(--text-caption); color: var(--muted-foreground); font-weight: 600; margin: 1rem 0 0.875rem; letter-spacing: 0.04em; text-transform: uppercase; }
+:where(:root[data-portal="student"]) .date-sep { text-align: center; font-size: var(--text-caption); color: var(--muted-foreground); font-weight: 600; margin: 1rem 0 0.875rem; letter-spacing: 0.04em; text-transform: uppercase; }
 .date-sep span { background: #d4edda; border: none; padding: 4px 16px; border-radius: var(--radius-xl); box-shadow: 0 1px 2px rgba(0,0,0,0.08); color: #4a6258; }
 /* msg-* styles are defined once in pages.css using var(--portal-accent) */
 
@@ -784,14 +784,14 @@
 .disc-points-pos { background: var(--success-light); color: var(--success); font-weight: 700; padding: 2px 8px; border-radius: var(--radius); font-size: var(--text-sm); }
 .disc-points-neg { background: var(--destructive-light); color: var(--destructive); font-weight: 700; padding: 2px 8px; border-radius: var(--radius); font-size: var(--text-sm); }
 
-/* Activities grid */
+:where(:root[data-portal="student"]) /* Activities grid */
 .activities-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1rem;
   margin-bottom: 1.25rem;
 }
-.activity-card {
+:where(:root[data-portal="student"]) .activity-card {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -805,7 +805,7 @@
   gap: 0.875rem;
   margin-bottom: 0.75rem;
 }
-.activity-icon {
+:where(:root[data-portal="student"]) .activity-icon {
   width: 42px;
   height: 42px;
   border-radius: var(--radius);
@@ -881,7 +881,7 @@
 .event-date-box .ev-day   { font-size: var(--text-title); font-weight: 900; line-height: 1; }
 .event-date-box .ev-month { font-size: var(--text-caption); font-weight: 700; text-transform: uppercase; }
 .event-info { flex: 1; min-width: 0; }
-.event-title { font-weight: 600; font-size: var(--text-body); margin-bottom: 2px; }
+:where(:root[data-portal="student"]) .event-title { font-weight: 600; font-size: var(--text-body); margin-bottom: 2px; }
 .event-detail { font-size: var(--text-caption); color: var(--muted-foreground); }
 .event-type-tag {
   font-size: var(--text-caption);
@@ -932,7 +932,7 @@
 }
 .pinned-label .material-symbols-rounded { font-size: var(--icon-sm); }
 
-.ann-grid {
+:where(:root[data-portal="student"]) .ann-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr));
   gap: 0.75rem;
@@ -1178,7 +1178,7 @@
 @media (max-width: 768px) {
   .student-stats-grid { grid-template-columns: repeat(2, 1fr); }
   .subject-grades-grid { grid-template-columns: 1fr; }
-  /* Messaging — defer to pages.css WhatsApp layout */
+  :where(:root[data-portal="student"]) /* Messaging — defer to pages.css WhatsApp layout */
   
   
   

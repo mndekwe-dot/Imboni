@@ -238,7 +238,7 @@
 .matron-student-meta .material-symbols-rounded {
   font-size: var(--icon-sm);
 }
-.room-badge {
+:where(:root[data-portal="matron"]) .room-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -605,7 +605,7 @@ button.stu-name {
   font-size: var(--text-caption);
   color: var(--muted-foreground);
 }
-.class-badge {
+:where(:root[data-portal="matron"]) .class-badge {
   display: inline-block;
   font-size: var(--text-caption);
   font-weight: 700;
@@ -614,7 +614,7 @@ button.stu-name {
   background: var(--matron-light);
   color: var(--matron);
 }
-.status-pill {
+:where(:root[data-portal="matron"]) .status-pill {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -623,15 +623,15 @@ button.stu-name {
   padding: 2px 9px;
   border-radius: var(--radius);
 }
-.status-pill.present {
+:where(:root[data-portal="matron"]) .status-pill.present {
   background: var(--success-light);
   color: var(--success);
 }
-.status-pill.late {
+:where(:root[data-portal="matron"]) .status-pill.late {
   background: var(--warning-light);
   color: var(--warning);
 }
-.status-pill.absent {
+:where(:root[data-portal="matron"]) .status-pill.absent {
   background: var(--destructive-light);
   color: var(--destructive);
 }
