@@ -9,6 +9,7 @@ import { errorMessage } from '../../utils/errors'
 import { formatDate } from '../../utils/date'
 import { cancelReservation, getReservations } from '../../api/library'
 import { LibraryShell } from './LibraryShell'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 /**
  * The hold queue: who is waiting, and what is sitting on the hold shelf.
@@ -66,7 +67,7 @@ export function LibraryReservations() {
                 count={loading ? null : t('library.reservationCount', { count: ready.length })}
             >
                 {loading ? (
-                    <p className="u-muted">{t('common.loading')}</p>
+                    <SkeletonList items={3} />
                 ) : ready.length === 0 ? (
                     <EmptyState
                         icon="inventory"
@@ -111,7 +112,7 @@ export function LibraryReservations() {
                 count={loading ? null : t('library.reservationCount', { count: waiting.length })}
             >
                 {loading ? (
-                    <p className="u-muted">{t('common.loading')}</p>
+                    <SkeletonList items={3} />
                 ) : waiting.length === 0 ? (
                     <EmptyState
                         icon="hourglass_empty"

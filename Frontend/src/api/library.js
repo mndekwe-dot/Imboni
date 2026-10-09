@@ -29,6 +29,8 @@ export const removeCopy  = (id)     => client.delete(`/imboni/library/copies/${i
 // ── Circulation ───────────────────────────────────────────────────────────────
 export const getLoans   = (params) => client.get('/imboni/library/loans/', { params })
 export const issueLoan  = (data)   => client.post('/imboni/library/loans/issue/', data)
+export const issueClassSet = (data) => client.post('/imboni/library/loans/issue-class/', data)
+export const getClassClearance = (params) => client.get('/imboni/library/clearance/', { params })
 export const returnLoan = (id)     => client.post(`/imboni/library/loans/${id}/return/`, {})
 export const renewLoan  = (id)     => client.post(`/imboni/library/loans/${id}/renew/`, {})
 

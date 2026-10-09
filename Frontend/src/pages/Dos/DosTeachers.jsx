@@ -26,7 +26,7 @@ import { errorMessage } from '../../utils/errors'
 // ── Constants ─────────────────────────────────────────────────────────────────
 const TYPES = ['Full-Time', 'Part-Time']
 
-const AVATAR_COLORS = ['#003d7a', '#10b981', '#f59e0b', '#6366f1', '#ef4444', '#0891b2', '#7c3aed', '#be185d']
+const AVATAR_COLORS = ['var(--primary)', 'var(--success-text)', 'var(--warning-text)', 'var(--cat-indigo)', 'var(--destructive)', 'var(--info-text)', 'var(--cat-violet)', 'var(--cat-rose)']
 function avatarColor(name) { return AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length] }
 function initials(name) { return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() }
 
@@ -168,7 +168,7 @@ function TeacherModal({ teacher, config, subjectOptions, onClose, onSave }) {
                 <div className="form-group">
                     <label className="form-label">{t('common.fullNameRequired')}</label>
                     <input className="form-control" placeholder="e.g. Jean-Pierre Habimana"
-                        value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} autoFocus />
+                        value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} autoFocus  aria-label="e.g. Jean-Pierre Habimana"/>
                 </div>
                 <div className="resp-grid-2 u-gap-sm">
                     <div className="form-group">
@@ -197,12 +197,12 @@ function TeacherModal({ teacher, config, subjectOptions, onClose, onSave }) {
                         <div className="form-group">
                             <label className="form-label">{t('dos.teachers.emailRequired')}</label>
                             <input className="form-control" type="email" placeholder="teacher@school.rw"
-                                value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} />
+                                value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))}  aria-label="teacher@school.rw"/>
                         </div>
                         <div className="form-group">
                             <label className="form-label">{t('dos.teachers.passwordRequired')}</label>
                             <input className="form-control" type="password" placeholder={t('dos.teachers.minChars')}
-                                value={form.password} onChange={e => setForm(p => ({ ...p, password: e.target.value }))} />
+                                value={form.password} onChange={e => setForm(p => ({ ...p, password: e.target.value }))}  aria-label={t('dos.teachers.minChars')}/>
                         </div>
                     </div>
                 )}
@@ -241,7 +241,7 @@ function TeacherModal({ teacher, config, subjectOptions, onClose, onSave }) {
                                             <button type="button"
                                                 className={`assign-year-lbl${allYearOn ? ' active' : ''}`}
                                                 onClick={() => toggleYear(y.name, y.streams)}
-                                                title={`Toggle all ${y.name} classes`}>
+                                                title={`Toggle all ${y.name} classes`} aria-label={`Toggle all ${y.name} classes`}>
                                                 {y.name}
                                             </button>
                                             <div className="assign-stream-group">
@@ -331,18 +331,18 @@ function InviteTeacherModal({ onClose, onInvite }) {
                     <div className="form-group">
                         <label className="form-label">{t('common.firstNameRequired')}</label>
                         <input className="form-control" placeholder="e.g. Jean-Pierre"
-                            value={form.first_name} onChange={e => setForm(p => ({ ...p, first_name: e.target.value }))} autoFocus />
+                            value={form.first_name} onChange={e => setForm(p => ({ ...p, first_name: e.target.value }))} autoFocus  aria-label="e.g. Jean-Pierre"/>
                     </div>
                     <div className="form-group">
                         <label className="form-label">{t('common.lastNameRequired')}</label>
                         <input className="form-control" placeholder="e.g. Habimana"
-                            value={form.last_name} onChange={e => setForm(p => ({ ...p, last_name: e.target.value }))} />
+                            value={form.last_name} onChange={e => setForm(p => ({ ...p, last_name: e.target.value }))}  aria-label="e.g. Habimana"/>
                     </div>
                 </div>
                 <div className="form-group">
                     <label className="form-label">{t('common.emailAddressRequired')}</label>
                     <input className="form-control" type="email" placeholder="teacher@school.rw"
-                        value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} />
+                        value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))}  aria-label="teacher@school.rw"/>
                 </div>
                 <div className="form-group">
                     <label className="form-label">{t('dos.teachers.employmentType')}</label>

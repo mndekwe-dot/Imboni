@@ -16,6 +16,7 @@ import {
 } from '../../api/library'
 import { printPdf } from '../../api/documents'
 import { LibraryShell } from './LibraryShell'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 const CATEGORIES = ['all', 'textbook', 'fiction', 'nonfiction', 'reference', 'periodical', 'other']
 
@@ -164,7 +165,7 @@ export function LibraryCatalogue() {
                 count={loading ? null : t('library.titleCount', { count: visible.length })}
             >
                 {loading ? (
-                    <p className="u-muted">{t('common.loading')}</p>
+                    <SkeletonList items={3} />
                 ) : visible.length === 0 ? (
                     <EmptyState
                         icon={search ? 'search_off' : 'menu_book'}
@@ -351,7 +352,7 @@ function BookDetail({ bookId, onClose, onDeleted, onCopyAdded }) {
                 )
             }
         >
-            {!book ? <p className="u-muted">{t('common.loading')}</p> : (
+            {!book ? <SkeletonList items={3} /> : (
                 <>
                     <dl className="lib-detail-grid">
                         <div><dt>{t('library.fields.author')}</dt><dd>{book.author || '-'}</dd></div>
@@ -508,13 +509,13 @@ function ScanToAddModal({ onClose, onAdded }) {
                         <div className="form-grid mt-1">
                             <input className="form-input" value={form.title} autoFocus
                                 placeholder={t('library.fields.title')}
-                                onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
+                                onChange={e => setForm(f => ({ ...f, title: e.target.value }))}  aria-label={t('library.fields.title')}/>
                             <input className="form-input" value={form.author}
                                 placeholder={t('library.fields.author')}
-                                onChange={e => setForm(f => ({ ...f, author: e.target.value }))} />
+                                onChange={e => setForm(f => ({ ...f, author: e.target.value }))}  aria-label={t('library.fields.author')}/>
                             <input className="form-input" value={form.shelf}
                                 placeholder={t('library.fields.shelf')}
-                                onChange={e => setForm(f => ({ ...f, shelf: e.target.value }))} />
+                                onChange={e => setForm(f => ({ ...f, shelf: e.target.value }))}  aria-label={t('library.fields.shelf')}/>
                         </div>
                     </div>
                     <button className="btn btn-primary btn-sm"

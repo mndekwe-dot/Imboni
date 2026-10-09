@@ -48,6 +48,6 @@ describe('Student360Modal', () => {
     it('flags a student who is currently out on exéat', async () => {
         getStudent360.mockResolvedValue({ ...DATA, exeat: { status: 'out', expected_return_at: '2026-10-12T16:00:00Z' } })
         renderWithRouter(<Student360Modal studentId="s1" onClose={() => {}} />)
-        expect(await screen.findByRole('status')).toHaveTextContent(/Out of school on exéat/)
+        expect(await screen.findByText(/Out of school on exéat/)).toBeInTheDocument()
     })
 })

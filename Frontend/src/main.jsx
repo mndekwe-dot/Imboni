@@ -7,7 +7,7 @@ import { initSentry, Sentry } from './utils/sentry'
 import { ErrorFallback } from './components/ErrorFallback'
 // Imported for its side effect: initialises i18next before the first render, so
 // the very first paint is already in the user's language.
-import './i18n'
+import { i18nReady } from './i18n'
 import './index.css'
 /* Shared chrome for the seven signed-in portals. Imported here rather
    than from a page so the ties break the same way they did when this
@@ -20,7 +20,8 @@ import App from './App.jsx'
 // No-op unless VITE_SENTRY_DSN is set (dev/tests send nothing).
 initSentry()
 
-createRoot(document.getElementById('root')).render(
+// Wait for the user's language so the first paint is not a flash of English.
+i18nReady.finally(() => createRoot(document.getElementById('root')).render(
   <StrictMode>
     <Sentry.ErrorBoundary fallback={ErrorFallback}>
       <BrowserRouter>
@@ -32,4 +33,4 @@ createRoot(document.getElementById('root')).render(
       </BrowserRouter>
     </Sentry.ErrorBoundary>
   </StrictMode>,
-)
+))

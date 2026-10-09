@@ -19,6 +19,8 @@ import { disNavItems, disSecondaryItems } from './disNav'
 import { StatCard } from '../../components/layout/StatCard'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { ModalOverlay } from '../../components/ui/ModalOverlay'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -76,7 +78,7 @@ function SectionModal({ section, onClose, onSave }) {
     }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
@@ -91,7 +93,7 @@ function SectionModal({ section, onClose, onSave }) {
                     <div className="form-group">
                         <label className="form-label">{t('dis.settings.sectionNameRequired')}</label>
                         <input className="form-input" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-                            placeholder={t('dis.settings.sectionNamePlaceholder')} autoFocus />
+                            placeholder={t('dis.settings.sectionNamePlaceholder')} autoFocus  aria-label={t('dis.settings.sectionNamePlaceholder')}/>
                     </div>
                     <div className="form-group">
                         <label className="form-label">{t('dis.settings.gender')}</label>
@@ -106,7 +108,7 @@ function SectionModal({ section, onClose, onSave }) {
                     </div>
                     <div className="form-group">
                         <label className="form-label">{t('dis.settings.descriptionOptional')}</label>
-                        <textarea className="form-input form-textarea" value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} rows="2" placeholder={t('dis.settings.descriptionPlaceholder')} />
+                        <textarea className="form-input form-textarea" value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} rows="2" placeholder={t('dis.settings.descriptionPlaceholder')}  aria-label={t('dis.settings.descriptionPlaceholder')}/>
                     </div>
                     {error && <p className="form-error-text">{error}</p>}
                 </div>
@@ -118,7 +120,7 @@ function SectionModal({ section, onClose, onSave }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     )
 }
 
@@ -207,7 +209,7 @@ function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
     }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
@@ -221,7 +223,7 @@ function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
                 <div className="modal-body">
                     <div className="form-group">
                         <label className="form-label">{t('dis.settings.facilityNameRequired')}</label>
-                        <input className="form-input" name="name" value={form.name} onChange={handleChange} placeholder={t('dis.settings.facilityNamePlaceholder')} autoFocus />
+                        <input className="form-input" name="name" value={form.name} onChange={handleChange} placeholder={t('dis.settings.facilityNamePlaceholder')} autoFocus  aria-label={t('dis.settings.facilityNamePlaceholder')}/>
                     </div>
                     <div className="form-row-2">
                         <div className="form-group">
@@ -234,7 +236,7 @@ function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
                         </div>
                         <div className="form-group">
                             <label className="form-label">{t('dis.settings.capacity')}</label>
-                            <input className="form-input" type="number" name="capacity" value={form.capacity} onChange={handleChange} placeholder={t('dis.settings.capacityPlaceholder')} min="1" />
+                            <input className="form-input" type="number" name="capacity" value={form.capacity} onChange={handleChange} placeholder={t('dis.settings.capacityPlaceholder')} min="1"  aria-label={t('dis.settings.capacityPlaceholder')}/>
                         </div>
                     </div>
 
@@ -268,7 +270,7 @@ function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
 
                     <div className="form-group">
                         <label className="form-label">{t('dis.settings.descriptionOptional')}</label>
-                        <textarea className="form-input form-textarea" name="description" value={form.description} onChange={handleChange} rows="2" placeholder={t('dis.settings.facilityDescPlaceholder')} />
+                        <textarea className="form-input form-textarea" name="description" value={form.description} onChange={handleChange} rows="2" placeholder={t('dis.settings.facilityDescPlaceholder')}  aria-label={t('dis.settings.facilityDescPlaceholder')}/>
                     </div>
                     {error && <p className="form-error-text">{error}</p>}
                 </div>
@@ -280,7 +282,7 @@ function FacilityModal({ facility, defaultType, sections, onClose, onSave }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     )
 }
 
@@ -610,7 +612,7 @@ export function DisSettings() {
                                                         const ft = FACILITY_TYPES.find(x => x.key === type)
                                                         return (
                                                             <button key={type} className="btn btn-outline btn-sm" onClick={() => setAddingFacType(type)}
-                                                                title={t('dis.settings.addType', { type: ft ? t(ft.labelKey) : type })}>
+                                                                title={t('dis.settings.addType', { type: ft ? t(ft.labelKey) : type })} aria-label={t('dis.settings.addType', { type: ft ? t(ft.labelKey) : type })}>
                                                                 <span className="material-symbols-rounded icon-sm" aria-hidden="true">{ft?.icon}</span>
                                                             </button>
                                                         )
@@ -641,7 +643,7 @@ export function DisSettings() {
                         {activeTab === 'structure' && (
                             <>
                                 {loading ? (
-                                    <p className="u-pad u-muted">{t('common.loading')}</p>
+                                    <SkeletonList items={3} />
                                 ) : error ? (
                                     <p className="u-pad disc-danger">{t('common.errorPrefix')}: {error}</p>
                                 ) : (

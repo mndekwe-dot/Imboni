@@ -11,6 +11,7 @@ import { errorMessage } from '../../utils/errors'
 import { formatDate } from '../../utils/date'
 import { getFinanceDashboard, getFinanceReport } from '../../api/finance'
 import { FinanceShell, Money, categoryName, formatAmount } from './FinanceShell'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 /**
  * The school's money for the term, on one page.
@@ -98,7 +99,7 @@ export function FinanceDashboard() {
             <div className="fin-dash-grid mb-1-5">
                 <ListSection icon="savings" title={t('finance.dashboard.moneyIn')}
                     count={report ? <Money value={report.income_total} /> : null}>
-                    {loading ? <p className="u-muted">{t('common.loading')}</p>
+                    {loading ? <SkeletonList items={3} />
                         : !report?.income?.length ? (
                             <EmptyState icon="savings" title={t('finance.dashboard.nothingIn')}
                                 description={t('finance.dashboard.nothingInDesc')} />
@@ -132,7 +133,7 @@ export function FinanceDashboard() {
 
                 <ListSection icon="shopping_bag" title={t('finance.dashboard.moneyOut')}
                     count={report ? <Money value={report.expenses} /> : null}>
-                    {loading ? <p className="u-muted">{t('common.loading')}</p>
+                    {loading ? <SkeletonList items={3} />
                         : !report?.expenditure?.length ? (
                             <EmptyState icon="shopping_bag" title={t('finance.dashboard.nothingOut')}
                                 description={t('finance.dashboard.nothingOutDesc')} />
@@ -157,7 +158,7 @@ export function FinanceDashboard() {
             <div className="fin-dash-grid">
                 <ListSection icon="groups" title={t('finance.dashboard.byClass')}>
                     {loading ? (
-                        <p className="u-muted">{t('common.loading')}</p>
+                        <SkeletonList items={3} />
                     ) : !data?.by_class?.length ? (
                         <EmptyState icon="groups" title={t('finance.dashboard.nothingBilled')}
                             description={t('finance.dashboard.nothingBilledDesc')} />
@@ -187,7 +188,7 @@ export function FinanceDashboard() {
 
                 <ListSection icon="receipt" title={t('finance.dashboard.recentPayments')}>
                     {loading ? (
-                        <p className="u-muted">{t('common.loading')}</p>
+                        <SkeletonList items={3} />
                     ) : !data?.recent_payments?.length ? (
                         <EmptyState icon="payments" title={t('finance.dashboard.noPayments')}
                             description={t('finance.dashboard.noPaymentsDesc')} />

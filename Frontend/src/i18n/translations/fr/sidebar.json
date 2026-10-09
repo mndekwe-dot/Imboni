@@ -7,5 +7,6 @@
   "mainNavigation": "Navigation principale",
   "openMenu": "Ouvrir le menu",
   "tagline": "L'éducation relie",
-  "waiting": "{{count}} en attente"
+  "waiting": "{{count}} en attente",
+  "switchTo": "Passer à : {{role}}"
 }

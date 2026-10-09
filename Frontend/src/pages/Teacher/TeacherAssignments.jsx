@@ -128,7 +128,7 @@ function GradeModal({ assignment, onClose }) {
             footer={
                 <div className="modal-footer-row">
                     <span className="modal-footer-hint"
-                        style={{ color: message?.type === 'error' ? '#dc2626' : message?.type === 'success' ? 'var(--success)' : undefined }}>
+                        style={{ color: message?.type === 'error' ? 'var(--destructive)' : message?.type === 'success' ? 'var(--success)' : undefined }}>
                         {message?.text || t('teacher.assignments.gradedSummary', {
                             graded: gradedCount, total: sheet?.students?.length ?? 0, max: maxScore })}
                     </span>
@@ -309,7 +309,7 @@ function AssignmentCard({ a, onEdit, onDelete, onPublish, onDuplicate, onViewSub
                     </span>
                     <span className="asgn-chip" style={{
                         background: a.mode === 'online' ? 'rgba(16,185,129,0.1)' : 'rgba(99,102,241,0.1)',
-                        color:      a.mode === 'online' ? 'var(--success)'        : '#6366f1',
+                        color:      a.mode === 'online' ? 'var(--success)'        : 'var(--cat-indigo)',
                     }}>
                         {a.mode === 'online' ? t('teacher.assignments.online') : t('teacher.assignments.paper')}
                     </span>
@@ -379,14 +379,14 @@ function AssignmentCard({ a, onEdit, onDelete, onPublish, onDuplicate, onViewSub
                         </button>
                     )}
                     {a.status !== 'closed' && (
-                        <button className="btn btn-outline btn-sm" onClick={() => onEdit(a)} title={t('common.edit')}>
+                        <button className="btn btn-outline btn-sm" onClick={() => onEdit(a)} title={t('common.edit')} aria-label={t('common.edit')}>
                             <span className="material-symbols-rounded icon-sm" aria-hidden="true">edit</span>
                         </button>
                     )}
-                    <button className="btn btn-outline btn-sm" onClick={() => onDuplicate(a)} title={t('common.duplicate')}>
+                    <button className="btn btn-outline btn-sm" onClick={() => onDuplicate(a)} title={t('common.duplicate')} aria-label={t('common.duplicate')}>
                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">content_copy</span>
                     </button>
-                    <button className="btn btn-outline btn-sm btn-destructive-outline" onClick={() => onDelete(a.id)} title={t('common.delete')}>
+                    <button className="btn btn-outline btn-sm btn-destructive-outline" onClick={() => onDelete(a.id)} title={t('common.delete')} aria-label={t('common.delete')}>
                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
                     </button>
                 </div>

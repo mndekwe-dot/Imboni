@@ -73,7 +73,7 @@ export default defineConfig(({ mode }) => {
       filename: 'sw.js',
       injectManifest: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
-        globIgnores: ['**/inter-latin-ext.woff2'],
+        globIgnores: ['**/geist-latin-ext.woff2'],
       },
       includeAssets: ['imboni-logo.svg', 'icon-192.png', 'icon-512.png'],
       manifest: {

@@ -48,10 +48,10 @@ export function StimulusEditor({ stimulus, onChange }) {
             <div className="flex-row-gap-sm u-mb-xs">
                 <input className="form-control" value={value.title}
                     onChange={e => set('title', e.target.value)}
-                    placeholder={t('teacher.exams.stimulusTitle')} />
+                    placeholder={t('teacher.exams.stimulusTitle')}  aria-label={t('teacher.exams.stimulusTitle')}/>
                 <button type="button" className="btn btn-outline btn-sm"
                     onClick={() => onChange(newStimulus())}
-                    title={t('teacher.exams.removeStimulus')}>
+                    title={t('teacher.exams.removeStimulus')} aria-label={t('teacher.exams.removeStimulus')}>
                     <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
                 </button>
             </div>
@@ -59,12 +59,12 @@ export function StimulusEditor({ stimulus, onChange }) {
             <textarea className="form-control" rows={6}
                 value={value.text}
                 onChange={e => set('text', e.target.value)}
-                placeholder={t('teacher.exams.stimulusPlaceholder')} />
+                placeholder={t('teacher.exams.stimulusPlaceholder')}  aria-label={t('teacher.exams.stimulusPlaceholder')}/>
 
             <div className="flex-row-gap-sm u-mt-xs">
                 <input className="form-control" value={value.source_note}
                     onChange={e => set('source_note', e.target.value)}
-                    placeholder={t('teacher.exams.sourceNote')} />
+                    placeholder={t('teacher.exams.sourceNote')}  aria-label={t('teacher.exams.sourceNote')}/>
 
                 <input ref={fileRef} type="file" accept="image/*" className="u-hidden"
                     aria-label={t('teacher.exams.stimulusImage')}

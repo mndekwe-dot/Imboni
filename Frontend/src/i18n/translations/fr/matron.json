@@ -126,5 +126,71 @@
     "subtitle": "{{house}}, {{count}} élèves",
     "subtitleNoHouse": "{{count}} élèves",
     "title": "Mes élèves"
+  },
+  "medical": {
+    "title": "Alertes santé",
+    "hint": "Problèmes que le personnel doit voir d’un coup d’œil. Affichés sur la liste, le réfectoire et l’infirmerie.",
+    "save": "Enregistrer les alertes",
+    "saved": "Alertes santé enregistrées.",
+    "saveFailed": "Impossible d’enregistrer les alertes santé.",
+    "allergies": "Allergies",
+    "alert": "Alerte santé",
+    "flags": {
+      "asthma": "Asthme (inhalateur)",
+      "epilepsy": "Épilepsie",
+      "diabetes_insulin": "Diabète (insuline)",
+      "severe_allergy": "Allergie sévère",
+      "sickle_cell": "Drépanocytose",
+      "heart_condition": "Cardiopathie",
+      "other": "Autre problème"
+    }
+  },
+  "pharmacy": {
+    "title": "Pharmacie de l’infirmerie",
+    "subtitle": "Ce que l’infirmerie a en stock, ce qui s’épuise et ce qui va expirer",
+    "add": "Ajouter un article",
+    "name": "Article",
+    "unit": "Unité",
+    "quantity": "En stock",
+    "reorder": "Alerte à partir de",
+    "expiry": "Expiration la plus proche",
+    "notes": "Notes",
+    "save": "Enregistrer",
+    "saved": "Article ajouté.",
+    "saveFailed": "Impossible d’enregistrer l’article.",
+    "loadFailed": "Impossible de charger la pharmacie.",
+    "empty": "Rien dans la pharmacie pour l’instant.",
+    "emptyDesc": "Ajoutez paracétamol, SRO, pansements… pour les suivre.",
+    "stock": "Modifier le stock",
+    "apply": "Mettre à jour",
+    "moved": "Stock mis à jour.",
+    "moveFailed": "Impossible de mettre le stock à jour.",
+    "howMany": "Combien",
+    "why": "Pourquoi",
+    "note": "Note (facultatif)",
+    "history": "Registre",
+    "noHistory": "Aucun mouvement.",
+    "by": "par {{name}}",
+    "expires": "Expire le {{date}}",
+    "status": {
+      "ok": "En stock",
+      "low": "Bientôt épuisé",
+      "out": "Épuisé",
+      "expiring": "Expire bientôt",
+      "expired": "Expiré"
+    },
+    "reasons": {
+      "received": "Reçu",
+      "dispensed": "Donné à un élève",
+      "expired": "Jeté : expiré",
+      "correction": "Correction d’inventaire"
+    },
+    "stats": {
+      "items": "Articles",
+      "attention": "À surveiller",
+      "low": "Bas ou épuisés",
+      "expiring": "Expirant ou expirés"
+    },
+    "correctionHint": "Pour une correction, utilisez un nombre négatif pour retirer du stock."
   }
 }

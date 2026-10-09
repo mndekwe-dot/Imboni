@@ -56,13 +56,13 @@ export function PeriodManager({ periods, onChange, onClose }) {
                             value={p.label}
                             onChange={e => updateRow(i, 'label', e.target.value)}
                             placeholder="e.g. Period 1"
-                        />
+                         aria-label="e.g. Period 1"/>
                         <input
                             className="form-input"
                             value={p.time}
                             onChange={e => updateRow(i, 'time', e.target.value)}
                             placeholder="e.g. 8:00 - 8:40"
-                        />
+                         aria-label="e.g. 8:00 - 8:40"/>
                         <input
                             type="checkbox"
                             className="tt-period-break"
@@ -81,7 +81,7 @@ export function PeriodManager({ periods, onChange, onClose }) {
                                 </button>
                             </div>
                         ) : (
-                            <button className="btn btn-outline btn-sm" onClick={() => removeRow(i)} title="Remove row">
+                            <button className="btn btn-outline btn-sm" onClick={() => removeRow(i)} title="Remove row" aria-label="Remove row">
                                 <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
                             </button>
                         )}

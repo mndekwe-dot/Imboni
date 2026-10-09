@@ -125,6 +125,53 @@ class MedicationLog(models.Model):
         return f"{self.schedule.medicine_name} ({self.date} {self.time})"
 
 
+class PharmacyItem(models.Model):
+    """
+    One thing the sick bay keeps in its cupboard: paracetamol, ORS, bandages,
+    malaria rapid tests. Quantity is a running count, changed only through
+    PharmacyMovement so every change has a reason and a name against it.
+    """
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=150, unique=True)
+    unit = models.CharField(max_length=30, default='pcs')      # tablets, sachets, boxes ...
+    quantity = models.IntegerField(default=0)
+    reorder_level = models.PositiveIntegerField(default=0)     # warn at or below this
+    expiry_date = models.DateField(null=True, blank=True)      # the soonest-expiring batch
+    notes = models.CharField(max_length=255, blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'matron_pharmacy_items'
+        ordering = ['name']
+
+    def __str__(self):
+        return f"{self.name} ({self.quantity} {self.unit})"
+
+
+class PharmacyMovement(models.Model):
+    """Stock received, used or corrected: the cupboard's logbook."""
+    REASON_CHOICES = [
+        ('received',  'Received'),
+        ('dispensed', 'Dispensed to a student'),
+        ('expired',   'Discarded: expired'),
+        ('correction', 'Stock-take correction'),
+    ]
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    item = models.ForeignKey(PharmacyItem, on_delete=models.CASCADE, related_name='movements')
+    change = models.IntegerField()                              # + in, - out
+    reason = models.CharField(max_length=12, choices=REASON_CHOICES)
+    note = models.CharField(max_length=255, blank=True)
+    student = models.ForeignKey(Student, on_delete=models.SET_NULL, null=True, blank=True,
+                                related_name='pharmacy_movements')
+    by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='pharmacy_movements')
+    at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'matron_pharmacy_movements'
+        ordering = ['-at']
+
+
 class ParentCommunication(models.Model):
     TYPE_CHOICES = [
         ('call',  'Phone Call'),

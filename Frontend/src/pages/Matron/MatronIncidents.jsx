@@ -54,7 +54,7 @@ const SEVERITY_OPTIONS = [
 
 const SEVERITY_STYLE = {
     minor:    { background: 'var(--muted)', color: 'var(--muted-text)' },
-    moderate: { background: 'rgba(245,158,11,0.12)', color: '#f59e0b' },
+    moderate: { background: 'rgba(245,158,11,0.12)', color: 'var(--warning)' },
     serious:  { background: 'var(--destructive-light)', color: 'var(--destructive)' },
     critical: { background: 'var(--destructive-light)', color: 'var(--destructive)' },
 }

@@ -76,7 +76,7 @@ export function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMove
                                 placeholder={t('teacher.assignments.fillBlankPlaceholder', { n: qi + 1 })}
                                 value={q.text}
                                 onChange={e => set('text', e.target.value)}
-                            />
+                             aria-label={t('teacher.assignments.fillBlankPlaceholder', { n: qi + 1 })}/>
                             <div className="quiz-q-hint">
                                 {t('teacher.assignments.fillBlankHint')}
                             </div>
@@ -87,23 +87,23 @@ export function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMove
                             placeholder={t('teacher.assignments.questionPlaceholder', { n: qi + 1 })}
                             value={q.text}
                             onChange={e => set('text', e.target.value)}
-                        />
+                         aria-label={t('teacher.assignments.questionPlaceholder', { n: qi + 1 })}/>
                     )}
                 </div>
 
                 {/* Move + delete */}
                 <div className="quiz-q-tools">
                     {!isFirst && (
-                        <button type="button" className="quiz-q-delete quiz-q-move" onClick={onMoveUp} title={t('common.moveUp')}>
+                        <button type="button" className="quiz-q-delete quiz-q-move" onClick={onMoveUp} title={t('common.moveUp')} aria-label={t('common.moveUp')}>
                             <span className="material-symbols-rounded" aria-hidden="true">arrow_upward</span>
                         </button>
                     )}
                     {!isLast && (
-                        <button type="button" className="quiz-q-delete quiz-q-move" onClick={onMoveDown} title={t('common.moveDown')}>
+                        <button type="button" className="quiz-q-delete quiz-q-move" onClick={onMoveDown} title={t('common.moveDown')} aria-label={t('common.moveDown')}>
                             <span className="material-symbols-rounded" aria-hidden="true">arrow_downward</span>
                         </button>
                     )}
-                    <button type="button" className="quiz-q-delete" onClick={onRemove} title={t('teacher.assignments.deleteQuestion')}>
+                    <button type="button" className="quiz-q-delete" onClick={onRemove} title={t('teacher.assignments.deleteQuestion')} aria-label={t('teacher.assignments.deleteQuestion')}>
                         <span className="material-symbols-rounded" aria-hidden="true">delete</span>
                     </button>
                 </div>
@@ -115,7 +115,7 @@ export function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMove
                 {q.image ? (
                     <div className="u-row-sm">
                         <img src={q.image} alt="question" className="quiz-q-image" />
-                        <button type="button" className="quiz-q-delete quiz-q-move" onClick={() => set('image', '')} title={t('common.removeImage')}>
+                        <button type="button" className="quiz-q-delete quiz-q-move" onClick={() => set('image', '')} title={t('common.removeImage')} aria-label={t('common.removeImage')}>
                             <span className="material-symbols-rounded" aria-hidden="true">close</span>
                         </button>
                     </div>
@@ -137,7 +137,7 @@ export function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMove
                                     checked={q.correct === oi} onChange={() => set('correct', oi)} />
                                 <input className="quiz-q-option-input"
                                     placeholder={t('teacher.assignments.optionLetter', { letter: String.fromCharCode(65 + oi) })}
-                                    value={opt} onChange={e => setOption(oi, e.target.value)} />
+                                    value={opt} onChange={e => setOption(oi, e.target.value)}  aria-label={t('teacher.assignments.optionLetter', { letter: String.fromCharCode(65 + oi) })}/>
                                 {q.options.length > 2 && (
                                     <button type="button" className="quiz-q-delete quiz-q-delete-sm" onClick={() => removeOption(oi)} aria-label={t('common.remove')}>
                                         <span className="material-symbols-rounded" aria-hidden="true">remove</span>
@@ -188,7 +188,9 @@ export function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMove
                                 : t('teacher.assignments.egLaw')}
                             value={q.correct || ''}
                             onChange={e => set('correct', e.target.value)}
-                        />
+                         aria-label={q.type === 'fill_blank'
+                                ? t('teacher.assignments.egParis')
+                                : t('teacher.assignments.egLaw')}/>
                     </div>
                 )}
             </div>
@@ -204,7 +206,7 @@ export function QuestionEditor({ q, qi, onChange, onRemove, onSaveToBank, onMove
                 <div className="quiz-q-expl">
                     <input className="form-control quiz-q-expl-input"
                         placeholder={t('teacher.assignments.explanationPlaceholder')}
-                        value={q.explanation} onChange={e => set('explanation', e.target.value)} />
+                        value={q.explanation} onChange={e => set('explanation', e.target.value)}  aria-label={t('teacher.assignments.explanationPlaceholder')}/>
                 </div>
                 <button type="button"
                     onClick={() => onSaveToBank(q)}

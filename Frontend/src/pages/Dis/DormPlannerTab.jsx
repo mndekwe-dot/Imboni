@@ -72,7 +72,7 @@ function DormManager({ dorms, rooms, onCreateDorm, onUpdateDorm, onDeleteDorm,
                                 {t('common.active')}
                             </label>
                             <button className="btn-icon-clean" title={t('dis.dormPlanner.deleteDorm', { name: d.name })}
-                                    onClick={() => onDeleteDorm(d.id)}>
+                                    onClick={() => onDeleteDorm(d.id)} aria-label={t('dis.dormPlanner.deleteDorm', { name: d.name })}>
                                 <span className="material-symbols-rounded u-fs-095" aria-hidden="true">delete</span>
                             </button>
                         </div>
@@ -81,13 +81,13 @@ function DormManager({ dorms, rooms, onCreateDorm, onUpdateDorm, onDeleteDorm,
                                 <span key={r.id} className={`dorm-room-chip${r.is_active ? '' : ' is-off'}`}>
                                     {r.room_number} · {t('dis.dormPlanner.bedCount', { count: r.bed_capacity })}
                                     <button className="btn-icon-clean" title={t('dis.dormPlanner.toggleRoom', { number: r.room_number })}
-                                            onClick={() => onUpdateRoom(r.id, { is_active: !r.is_active })}>
+                                            onClick={() => onUpdateRoom(r.id, { is_active: !r.is_active })} aria-label={t('dis.dormPlanner.toggleRoom', { number: r.room_number })}>
                                         <span className="material-symbols-rounded u-fs-085" aria-hidden="true">
                                             {r.is_active ? 'toggle_on' : 'toggle_off'}
                                         </span>
                                     </button>
                                     <button className="btn-icon-clean" title={t('dis.dormPlanner.deleteRoom', { number: r.room_number })}
-                                            onClick={() => onDeleteRoom(r.id)}>
+                                            onClick={() => onDeleteRoom(r.id)} aria-label={t('dis.dormPlanner.deleteRoom', { number: r.room_number })}>
                                         <span className="material-symbols-rounded u-fs-085" aria-hidden="true">close</span>
                                     </button>
                                 </span>
@@ -105,7 +105,7 @@ function DormManager({ dorms, rooms, onCreateDorm, onUpdateDorm, onDeleteDorm,
                         <div className="u-flex u-gap-05">
                             <input className="form-input" placeholder={t('dis.dormPlanner.dormNamePlaceholder')}
                                    value={dormDraft.name}
-                                   onChange={e => setDormDraft({ ...dormDraft, name: e.target.value })} />
+                                   onChange={e => setDormDraft({ ...dormDraft, name: e.target.value })}  aria-label={t('dis.dormPlanner.dormNamePlaceholder')}/>
                             <select className="form-select" aria-label={t('dis.dormPlanner.dormGender')}
                                     value={dormDraft.gender}
                                     onChange={e => setDormDraft({ ...dormDraft, gender: e.target.value })}>
@@ -126,7 +126,7 @@ function DormManager({ dorms, rooms, onCreateDorm, onUpdateDorm, onDeleteDorm,
                             </select>
                             <input className="form-input" placeholder={t('dis.dormPlanner.roomNumberPlaceholder')}
                                    value={roomDraft.room_number}
-                                   onChange={e => setRoomDraft({ ...roomDraft, room_number: e.target.value })} />
+                                   onChange={e => setRoomDraft({ ...roomDraft, room_number: e.target.value })}  aria-label={t('dis.dormPlanner.roomNumberPlaceholder')}/>
                             <input type="number" min="1" max="100" className="form-input"
                                    aria-label={t('dis.dormPlanner.bedCapacity')} value={roomDraft.bed_capacity}
                                    onChange={e => setRoomDraft({ ...roomDraft, bed_capacity: Number(e.target.value) })} />

@@ -10,6 +10,7 @@ export const getMatronDashboard = () => client.get('/imboni/matron/dashboard/')
 // class runs across every house), had no way to see them.
 export const getMatronStudents = (params) => client.get('/imboni/matron/students/', { params })
 export const getMatronStudent  = (id) => client.get(`/imboni/matron/students/${id}/`)
+export const updateMatronMedical = (id, data) => client.patch(`/imboni/matron/students/${id}/medical/`, data)
 // Scoped to the matron's own dormitory by the server, not by the caller.
 export const searchMatronStudents = (q) => getMatronStudents({ search: q })
 
@@ -46,3 +47,9 @@ export const patchMedication       = (id, d)   => client.patch(`/imboni/matron/m
 export const deleteMedication      = (id)      => client.delete(`/imboni/matron/medications/${id}/`)
 export const getMedicationsToday   = (params)  => client.get('/imboni/matron/medications/today/', { params })
 export const administerMedication  = (id, d)   => client.post(`/imboni/matron/medications/${id}/administer/`, d)
+
+// ── The sick bay's cupboard ──────────────────────────────────────────────────
+export const getPharmacy        = () => client.get('/imboni/matron/pharmacy/')
+export const addPharmacyItem    = (data) => client.post('/imboni/matron/pharmacy/', data)
+export const movePharmacyStock  = (id, data) => client.post(`/imboni/matron/pharmacy/${id}/move/`, data)
+export const getPharmacyHistory = (id) => client.get(`/imboni/matron/pharmacy/${id}/history/`)

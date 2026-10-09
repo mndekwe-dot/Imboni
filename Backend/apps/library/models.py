@@ -47,6 +47,11 @@ class LibrarySettings(models.Model):
     # in the queue gets it.
     reservation_hold_days = models.PositiveSmallIntegerField(default=3)
 
+    # When on, a lost book's replacement cost is put on the student's fee account
+    # (so it shows in Who owes and is paid at the bursar's desk) instead of being
+    # taken at the library desk. Off by default: the library works without finance.
+    bill_lost_to_finance = models.BooleanField(default=False)
+
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
@@ -269,6 +274,9 @@ class Fine(models.Model):
     # through it. Not a foreign key: the finance office is a separate portal a
     # school may not have, and the library must work without it.
     income_id = models.UUIDField(null=True, blank=True)
+    # The charge on the student's fee account, when the school bills lost books there.
+    # Then the money is taken in Finance and `paid` follows that charge.
+    billed_fee_id = models.UUIDField(null=True, blank=True)
     # A lost book that turns up again: the replacement part of a PAID charge
     # is given back. What was refunded is kept, not subtracted from `amount`,
     # so the history still shows what the borrower paid and what came back.

@@ -30,7 +30,7 @@ function ReviewQuestion({ q, qi }) {
                     <span className="sqz-q-points">
                         {q.points_earned ?? 0}/{q.points} pt{q.points !== 1 ? 's' : ''}
                     </span>
-                    <span className="material-symbols-rounded sqz-q-mark" style={{ color: isCorrect ? 'var(--success)' : '#dc2626' }} aria-hidden="true">
+                    <span className="material-symbols-rounded sqz-q-mark" style={{ color: isCorrect ? 'var(--success)' : 'var(--destructive)' }} aria-hidden="true">
                         {isCorrect ? 'check_circle' : 'cancel'}
                     </span>
                 </div>
@@ -41,7 +41,7 @@ function ReviewQuestion({ q, qi }) {
             <div className="sqz-ans-list">
                 <div>
                     <span className="u-muted">Your answer: </span>
-                    <span className="u-strong" style={{ color: isCorrect ? 'var(--success)' : '#dc2626' }}>
+                    <span className="u-strong" style={{ color: isCorrect ? 'var(--success)' : 'var(--destructive)' }}>
                         {answerLabel(q, q.your_answer)}
                     </span>
                 </div>
@@ -94,7 +94,7 @@ export function StudentQuizReview() {
         )
     }
 
-    const scoreColor = review.percentage >= 50 ? 'var(--success)' : '#dc2626'
+    const scoreColor = review.percentage >= 50 ? 'var(--success)' : 'var(--destructive)'
 
     return (
         <div className="sqz-review-page">

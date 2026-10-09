@@ -45,7 +45,10 @@ export function ProtectedRoute({ children, role }) {
     }
 
     const allowed = Array.isArray(role) ? role : [role]
-    if (!allowed.includes(user.role)) {
+    // A secondary role (a teacher who is also the assistant DOS) opens that
+    // portal too. The server decides what they can actually do in it.
+    const held = [user.role, ...(user.extra_roles || [])]
+    if (!held.some(r => allowed.includes(r))) {
         return <Navigate to={ROLE_HOME[user.role] ?? '/login'} replace />
     }
 

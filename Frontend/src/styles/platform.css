@@ -7,7 +7,7 @@
 
 /* ── Login ─────────────────────────────────────────────────────────────────── */
 .platform-login {
-    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    min-height: 100dvh; display: flex; align-items: center; justify-content: center;
     background: var(--background); padding: 1.5rem;
 }
 .platform-login.is-top { align-items: flex-start; padding: 2.5rem 1.5rem; }
@@ -51,7 +51,7 @@
 /* ── Stat grid ───────────────────────────────────────────────────────────────── */
 .platform-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 0.5rem; }
 .portal-stat-card.clickable { cursor: pointer; }
-.portal-stat-card.clickable:hover { border-color: var(--primary); }
+@media (hover: hover) { .portal-stat-card.clickable:hover { border-color: var(--primary); } }
 .platform-stat-hint { font-size: var(--text-caption); color: var(--muted-foreground); margin-top: 0.15rem; }
 
 /* ── Tables (light, matches the app) ─────────────────────────────────────────── */
@@ -62,7 +62,7 @@
 .platform-form > .btn { margin-top: 0.85rem; }              /* submit button under a form */
 
 /* ── Chips ───────────────────────────────────────────────────────────────────── */
-.platform-chip { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: var(--text-caption); font-weight: 600; text-transform: capitalize; }
+.platform-chip { display: inline-block; padding: 0.15rem 0.6rem; border-radius: var(--radius-full); font-size: var(--text-caption); font-weight: 600; text-transform: capitalize; }
 .platform-chip-ok   { background: var(--success-light); color: var(--success); }
 .platform-chip-info { background: var(--primary-light); color: var(--primary); }
 .platform-chip-warn { background: rgba(245, 158, 11, 0.15); color: #b45309; }
@@ -82,7 +82,7 @@
     border: 1px solid var(--border); border-radius: var(--radius-sm);
     padding: 0.7rem 0.8rem; margin-bottom: 0.5rem; cursor: pointer;
 }
-.platform-ticket-row:hover { border-color: var(--border-hover); }
+@media (hover: hover) { .platform-ticket-row:hover { border-color: var(--border-hover); } }
 .platform-ticket-row.is-active { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
 .platform-ticket-row-top { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.35rem; }
 .platform-ticket-row-sub { display: flex; align-items: center; gap: 0.5rem; font-size: var(--text-sm); }
@@ -139,11 +139,11 @@
 
 /* Link-styled button (e.g. clickable school name) */
 .platform-linkish { background: none; border: none; padding: 0; cursor: pointer; color: var(--primary); font-weight: 600; font: inherit; text-align: left; }
-.platform-linkish:hover { text-decoration: underline; }
+@media (hover: hover) { .platform-linkish:hover { text-decoration: underline; } }
 
 /* Destructive outline button (piggybacks on .btn) */
 .btn.platform-danger { color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.45); background: transparent; }
-.btn.platform-danger:hover:not(:disabled) { background: rgba(239, 68, 68, 0.08); }
+@media (hover: hover) { .btn.platform-danger:hover:not(:disabled) { background: rgba(239, 68, 68, 0.08); } }
 
 /* Ticket detail pane beside the ticket list */
 .platform-ticket-detail {

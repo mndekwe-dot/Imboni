@@ -1,13 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderWithRouter, setSessionUser, screen, fireEvent, waitFor } from '../../test/test-utils'
 import { MatronStudents } from './MatronStudents'
-import { getMatronStudents, getMatronDashboard, getMatronStudent } from '../../api/matron'
+import { getMatronStudents, getMatronDashboard, getMatronStudent, updateMatronMedical } from '../../api/matron'
 import { getSchoolSettings, getSchoolConfig } from '../../api/dos'
 
 vi.mock('../../api/matron', () => ({
     getMatronDashboard: vi.fn(),
     getMatronStudents: vi.fn(),
     getMatronStudent: vi.fn(),
+    updateMatronMedical: vi.fn(),
 }))
 vi.mock('../../api/dos', () => ({
     getSchoolSettings: vi.fn(),
@@ -143,5 +144,21 @@ describe('MatronStudents', () => {
         renderWithRouter(<MatronStudents />)
         await waitFor(() => expect(screen.getByText('Peter N.')).toBeInTheDocument())
         expect(screen.getByRole('button', { name: 'Peter N.' })).toBeInTheDocument()
+    })
+
+    it('shows health alerts on the roll and lets the matron change them', async () => {
+        getMatronStudents.mockResolvedValue([{ ...STUDENTS[0], medical_flags: ['asthma'] }, STUDENTS[1]])
+        updateMatronMedical.mockResolvedValue({ medical_flags: ['asthma', 'epilepsy'] })
+        renderWithRouter(<MatronStudents />)
+
+        expect(await screen.findByText('Asthma (inhaler)')).toBeInTheDocument()
+
+        fireEvent.click(screen.getByRole('button', { name: 'Iris Niyomugabo' }))
+        fireEvent.click(await screen.findByLabelText('Epilepsy'))
+        fireEvent.click(screen.getByRole('button', { name: 'Save alerts' }))
+
+        await waitFor(() => expect(updateMatronMedical).toHaveBeenCalledWith('b1', { medical_flags: ['asthma', 'epilepsy'] }))
+        // The roll behind the dialog updates without a reload.
+        await waitFor(() => expect(screen.getAllByText('Epilepsy').length).toBeGreaterThan(1))
     })
 })

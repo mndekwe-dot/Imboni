@@ -141,7 +141,11 @@
     "dueOn": "Échéance {{date}}",
     "totalOwed": "{{amount}} dus ce trimestre",
     "tooMuch": "C'est plus que les {{amount}} dus ce trimestre.",
-    "amountFor": "Montant pour {{charge}}"
+    "amountFor": "Montant pour {{charge}}",
+    "printA4": "Imprimer (A4)",
+    "printRoll80": "Imprimer sur rouleau 80 mm",
+    "printRoll58": "Imprimer sur rouleau 58 mm",
+    "importStatement": "Importer un relevé"
   },
   "debtors": {
     "title": "Impayés",
@@ -493,5 +497,62 @@
     "fromChild": "À partir de l'enfant n°",
     "categoriesLabel": "Sur quels frais",
     "active": "En vigueur"
+  },
+  "reminders": {
+    "open": "Envoyer des rappels",
+    "title": "Relancer les familles débitrices",
+    "minPercent": "Doit au moins ce % de la facture",
+    "minAmount": "et au moins ce montant",
+    "message": "Message",
+    "placeholders": "Vous pouvez utiliser {student_name}, {student_code} et {balance}.",
+    "defaultMessage": "Rappel de frais : {student_name} ({student_code}) a {balance} à payer ce trimestre. Merci de régler au bureau de l’école ou par mobile money.",
+    "alsoSms": "Envoyer aussi par SMS (la notification dans l’application est toujours envoyée)",
+    "preview": "Aperçu",
+    "send": "Envoyer à {{count}}",
+    "nobody": "Aucune famille ne correspond à ces seuils.",
+    "sample": "Le premier message sera :",
+    "sent": "Rappels envoyés. {{reached}} familles jointes, {{unreachable}} sans parent lié.",
+    "sendFailed": "Impossible d’envoyer les rappels.",
+    "previewFailed": "Impossible de déterminer qui serait relancé."
+  },
+  "statement": {
+    "title": "Rapprocher un relevé bancaire ou mobile money",
+    "intro": "Importez le relevé CSV. Chaque ligne est associée à une famille ; vous vérifiez avant tout enregistrement.",
+    "method": "D’où vient l’argent ?",
+    "bank": "Banque",
+    "momo": "Mobile money",
+    "file": "Fichier du relevé (CSV)",
+    "noAmount": "Aucune colonne de montant. Le fichier doit avoir une colonne Amount ou Credit.",
+    "noRows": "Aucun paiement reçu dans ce fichier.",
+    "match": "Associer les lignes",
+    "matching": "Association…",
+    "matchFailed": "Impossible d’associer le relevé.",
+    "line": "Ligne",
+    "amount": "Montant",
+    "reference": "Référence",
+    "family": "Famille",
+    "record": "Enregistrer",
+    "choose": "Choisir une famille…",
+    "status": {
+      "suggested": "Suggérée",
+      "ambiguous": "À choisir",
+      "recorded": "Déjà enregistrée",
+      "unmatched": "Non associée"
+    },
+    "summary": "{{ready}} prêtes · {{review}} à choisir · {{skip}} ignorées",
+    "apply": "Enregistrer {{count}} paiements",
+    "applied": "{{taken}} paiements enregistrés, {{skipped}} ignorés.",
+    "applyFailed": "Impossible d’enregistrer les paiements.",
+    "unmatchedHint": "Non associée : retrouvez la famille sous Encaisser un paiement.",
+    "discard": "Quitter ce rapprochement ? Rien n’a encore été enregistré."
+  },
+  "onlineReview": {
+    "title": "Paiements en ligne à placer",
+    "intro": "Ces paiements sont arrivés du téléphone d’un parent mais n’ont pu être imputés. Créditez, remboursez ou encaissez chacun, puis fermez-le.",
+    "note": "Ce qui a été fait de l’argent",
+    "close": "Clore",
+    "closed": "Clos.",
+    "failed": "Impossible de le clore.",
+    "loadFailed": "Impossible de charger les paiements en ligne."
   }
 }

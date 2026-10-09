@@ -3,6 +3,7 @@ import { LanguageSwitcher } from '../components/ui/LanguageSwitcher'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import logo from '../assets/images/imboni-logo.webp'
+import heroScreenshot from '../assets/images/hero-student-dashboard.webp'
 
 // These tables are evaluated once at module load, before a language is known,
 // so they hold translation keys and the component resolves them at render.
@@ -93,12 +94,6 @@ const boardingHouses = [
     { name: 'Sabyinyo',  groupKey: 'common.boys'  },
 ]
 
-const mockNotifs = [
-    { icon: 'priority_high', color: '#ef4444', key: 'notif1' },
-    { icon: 'school',        color: '#0d9488', key: 'notif2' },
-    { icon: 'event',         color: '#f97316', key: 'notif3' },
-]
-
 // Contact details are data, not copy — only the labels are translated.
 const contactItems = [
     { icon: 'location_on', labelKey: 'landing.contact.address', valueKey: 'landing.contact.addressValue' },
@@ -142,7 +137,6 @@ export function LandingPage() {
             <section className="landing-hero">
                 <div className="hero-bg-image" />
                 <div className="hero-bg-overlay" />
-                <div className="hero-grid" />
 
                 <div className="hero-inner">
                     <div className="hero-content">
@@ -172,55 +166,18 @@ export function LandingPage() {
                         </div>
                     </div>
 
-                    {/* RIGHT — UI mockup */}
+                    {/* RIGHT: the real student dashboard (a screenshot of the app
+                        running on sample data), not a drawing of one. */}
                     <div className="hero-visual">
                         <div className="hero-mockup">
-                            <div className="mockup-bar">
+                            <div className="mockup-bar" aria-hidden="true">
                                 <div className="mockup-dots">
                                     <span /><span /><span />
                                 </div>
-                                <div className="mockup-url">imboni.edu/student</div>
                             </div>
-                            <div className="mockup-body">
-                                <div className="mockup-header">
-                                    <div className="mockup-avatar">UA</div>
-                                    <div>
-                                        <div className="mockup-name">Uwase Amina</div>
-                                        <div className="mockup-role">{t('landing.mock.role')}</div>
-                                    </div>
-                                </div>
-                                <div className="mockup-stat-row">
-                                    <div className="mockup-stat-card" style={{ '--mc': '#0d9488' }}>
-                                        <span className="material-symbols-rounded" aria-hidden="true">menu_book</span>
-                                        <div className="msc-val">8</div>
-                                        <div className="msc-lbl">{t('landing.mock.subjects')}</div>
-                                    </div>
-                                    <div className="mockup-stat-card" style={{ '--mc': '#f97316' }}>
-                                        <span className="material-symbols-rounded" aria-hidden="true">assignment</span>
-                                        <div className="msc-val">3</div>
-                                        <div className="msc-lbl">{t('landing.mock.dueSoon')}</div>
-                                    </div>
-                                    <div className="mockup-stat-card" style={{ '--mc': '#4f46e5' }}>
-                                        <span className="material-symbols-rounded" aria-hidden="true">check_circle</span>
-                                        <div className="msc-val">94%</div>
-                                        <div className="msc-lbl">{t('landing.mock.attendance')}</div>
-                                    </div>
-                                </div>
-                                <div className="mockup-notif-label">{t('landing.mock.notifLabel')}</div>
-                                <div className="mockup-notifs">
-                                    {mockNotifs.map((n, i) => (
-                                        <div key={i} className="mockup-notif">
-                                            <div className="mockup-notif-icon" style={{ background: `${n.color}20`, color: n.color }}>
-                                                <span className="material-symbols-rounded" aria-hidden="true">{n.icon}</span>
-                                            </div>
-                                            <div className="mockup-notif-text">{t(`landing.mock.${n.key}`)}</div>
-                                            <div className="mockup-notif-time">{t(`landing.mock.${n.key}Time`)}</div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
+                            <img className="hero-screenshot" src={heroScreenshot} width="1280" height="633"
+                                alt={t('landing.hero.screenshotAlt')} fetchPriority="high" />
                         </div>
-                        <div className="hero-mockup-glow" />
                     </div>
                 </div>
 
@@ -232,7 +189,6 @@ export function LandingPage() {
             {/* ── About ── */}
             <section className="landing-section" id="about">
                 <div className="section-header">
-                    <div className="section-label">{t('landing.about.label')}</div>
                     <h2 className="section-title">{t('landing.about.title')}</h2>
                     <p className="section-subtitle">
                         {t('landing.about.subtitle')}
@@ -265,7 +221,6 @@ export function LandingPage() {
             {/* ── Portals ── */}
             <section className="landing-section alt" id="portals">
                 <div className="section-header">
-                    <div className="section-label">{t('landing.portals.label')}</div>
                     <h2 className="section-title">{t('landing.portals.title')}</h2>
                     <p className="section-subtitle">
                         {t('landing.portals.subtitle')}
@@ -299,7 +254,6 @@ export function LandingPage() {
             {/* ── Features ── */}
             <section className="landing-section" id="features">
                 <div className="section-header">
-                    <div className="section-label">{t('landing.features.label')}</div>
                     <h2 className="section-title">{t('landing.features.title')}</h2>
                     <p className="section-subtitle">
                         {t('landing.features.subtitle')}
@@ -339,7 +293,6 @@ export function LandingPage() {
                         <div className="boarding-visual-glow" />
                     </div>
                     <div>
-                        <div className="section-label">{t('landing.boarding.label')}</div>
                         <h2 className="section-title">{t('landing.boarding.title')}</h2>
                         <p className="section-subtitle lp-sub-mb-175">
                             {t('landing.boarding.subtitle')}
@@ -362,7 +315,6 @@ export function LandingPage() {
             <section className="landing-section" id="contact">
                 <div className="contact-split">
                     <div>
-                        <div className="section-label">{t('landing.contact.label')}</div>
                         <h2 className="section-title">{t('landing.contact.title')}</h2>
                         <p className="section-subtitle lp-sub-mb-2">
                             {t('landing.contact.subtitle')}
@@ -386,11 +338,11 @@ export function LandingPage() {
                         <div className="contact-form-title">{t('landing.contact.formTitle')}</div>
                         <div className="contact-form-group">
                             <label className="contact-form-label">{t('landing.contact.yourName')}</label>
-                            <input type="text" className="contact-form-input" placeholder={t('landing.contact.namePlaceholder')} />
+                            <input type="text" className="contact-form-input" placeholder={t('landing.contact.namePlaceholder')}  aria-label={t('landing.contact.namePlaceholder')}/>
                         </div>
                         <div className="contact-form-group">
                             <label className="contact-form-label">{t('common.emailAddress')}</label>
-                            <input type="email" className="contact-form-input" placeholder="your@email.com" />
+                            <input type="email" className="contact-form-input" placeholder="your@email.com"  aria-label="your@email.com"/>
                         </div>
                         <div className="contact-form-group">
                             <label className="contact-form-label">{t('common.role')}</label>
@@ -405,7 +357,7 @@ export function LandingPage() {
                         </div>
                         <div className="contact-form-group">
                             <label className="contact-form-label">{t('landing.contact.message')}</label>
-                            <textarea className="contact-form-input" rows={4} placeholder={t('landing.contact.messagePlaceholder')}></textarea>
+                            <textarea className="contact-form-input" rows={4} placeholder={t('landing.contact.messagePlaceholder')} aria-label={t('landing.contact.messagePlaceholder')}></textarea>
                         </div>
                         <button className="contact-form-btn">
                             <span className="material-symbols-rounded" aria-hidden="true">send</span>
@@ -418,9 +370,6 @@ export function LandingPage() {
             {/* ── CTA strip ── */}
             <section className="landing-cta-strip">
                 <div className="cta-strip-inner">
-                    <div className="cta-strip-orb" />
-                    <div className="cta-strip-orb cta-strip-orb-2" />
-                    <div className="section-label cta-strip-label">{t('landing.cta.label')}</div>
                     <h2 className="cta-strip-title">{t('landing.cta.title')}</h2>
                     <p className="cta-strip-subtitle">
                         {t('landing.cta.subtitle')}

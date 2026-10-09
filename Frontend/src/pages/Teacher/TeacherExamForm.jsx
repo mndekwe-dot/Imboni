@@ -20,6 +20,8 @@ import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
+import { confirmDialog } from '../../utils/confirm'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 const EXAM_TYPES = ['midterm', 'final', 'quiz', 'mock', 'other']
 
@@ -110,8 +112,8 @@ export function TeacherExamForm() {
         return () => window.removeEventListener('beforeunload', warn)
     }, [dirty, readOnly])
 
-    function leave() {
-        if (dirty && !readOnly && !window.confirm(t('teacher.exams.leaveWarning'))) return
+    async function leave() {
+        if (dirty && !readOnly && !await confirmDialog(t('teacher.exams.leaveWarning'))) return
         navigate('/teacher/exams')
     }
 
@@ -200,7 +202,7 @@ export function TeacherExamForm() {
                     />
                     <DashboardContent>
                         {loading ? (
-                            <p className="u-muted">{t('common.loading')}</p>
+                            <SkeletonList items={3} />
                         ) : loadError ? (
                             <p className="form-error">{loadError}</p>
                         ) : (

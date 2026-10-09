@@ -16,6 +16,8 @@ import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
+import { confirmDialog } from '../../utils/confirm'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 /**
  * The teacher's own exam papers, and where each one has got to.
@@ -64,7 +66,7 @@ export function TeacherExams() {
     }
 
     async function remove(paper) {
-        if (!window.confirm(t('teacher.exams.confirmDelete', { title: paper.title }))) return
+        if (!await confirmDialog(t('teacher.exams.confirmDelete', { title: paper.title }))) return
         setBusyId(paper.id)
         try {
             await deleteTeacherExamPaper(paper.id)
@@ -99,7 +101,7 @@ export function TeacherExams() {
                     />
                     <DashboardContent>
                         {loading ? (
-                            <p className="u-muted">{t('common.loading')}</p>
+                            <SkeletonList items={3} />
                         ) : error ? (
                             <p className="form-error">{error}</p>
                         ) : papers.length === 0 ? (
@@ -147,7 +149,7 @@ export function TeacherExams() {
                                                     <div className="flex-row-gap-sm">
                                                         <button className="btn btn-outline btn-sm"
                                                             onClick={() => navigate(`/teacher/exams/${paper.id}/edit`)}
-                                                            title={paper.is_editable ? t('common.edit') : t('common.view')}>
+                                                            title={paper.is_editable ? t('common.edit') : t('common.view')} aria-label={paper.is_editable ? t('common.edit') : t('common.view')}>
                                                             <span className="material-symbols-rounded icon-sm" aria-hidden="true">
                                                                 {paper.is_editable ? 'edit_note' : 'visibility'}
                                                             </span>
@@ -156,7 +158,7 @@ export function TeacherExams() {
                                                             <button className="btn btn-primary btn-sm"
                                                                 disabled={busyId === paper.id || paper.question_count === 0}
                                                                 onClick={() => submit(paper)}
-                                                                title={t('teacher.exams.submitForApproval')}>
+                                                                title={t('teacher.exams.submitForApproval')} aria-label={t('teacher.exams.submitForApproval')}>
                                                                 <span className="material-symbols-rounded icon-sm" aria-hidden="true">send</span>
                                                             </button>
                                                         )}
@@ -164,7 +166,7 @@ export function TeacherExams() {
                                                             <button className="btn btn-outline btn-sm"
                                                                 disabled={busyId === paper.id}
                                                                 onClick={() => remove(paper)}
-                                                                title={t('common.delete')}>
+                                                                title={t('common.delete')} aria-label={t('common.delete')}>
                                                                 <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
                                                             </button>
                                                         )}

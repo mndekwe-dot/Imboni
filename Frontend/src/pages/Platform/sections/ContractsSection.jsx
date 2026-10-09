@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Modal } from '../../../components/ui/Modal'
 import {
     getContracts, createContract, signContract, terminateContract, renewContract, deleteContract,
@@ -6,29 +7,25 @@ import {
 } from '../../../api/platform'
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
+import { SkeletonList } from '../../../components/ui/Skeleton'
 
 const money = (v, c) => `${c || 'USD'} ${Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`
 const today = () => new Date().toISOString().slice(0, 10)
 const plusYear = () => { const d = new Date(); d.setFullYear(d.getFullYear() + 1); return d.toISOString().slice(0, 10) }
 const emptyForm = () => ({ client: '', title: '', plan: 'basic', amount: '', currency: 'USD', billing_interval: 'yearly', start_date: today(), end_date: plusYear(), grace_days: 14 })
-const INTERVALS = [['monthly', 'Monthly'], ['quarterly', 'Quarterly'], ['yearly', 'Yearly'], ['one_time', 'One-time']]
+const INTERVALS = ['monthly', 'quarterly', 'yearly', 'one_time']
+const CHIP_CLASS = { draft: 'info', active: 'ok', expired: 'bad', terminated: 'info' }
 
 function ContractChip({ c }) {
-    if (c.status === 'active' && c.is_expired) return <span className="platform-chip platform-chip-bad">Expired (grace)</span>
-    if (c.status === 'active' && c.is_expiring_soon) return <span className="platform-chip platform-chip-warn">Expiring soon</span>
-    const map = { draft: 'info', active: 'ok', expired: 'bad', terminated: 'info' }
-    return <span className={`platform-chip platform-chip-${map[c.status] || 'info'}`}>{c.status}</span>
-}
-
-function remainingLabel(c) {
-    if (c.status !== 'active') return '-'
-    const d = c.days_remaining
-    if (d === 0) return 'Ends today'
-    if (d > 0) return `${d} day${d === 1 ? '' : 's'} left`
-    return `${-d} day${d === -1 ? '' : 's'} overdue`
+    const { t } = useTranslation()
+    const chip = (key, cls) => <span className={`platform-chip platform-chip-${cls}`}>{t(`platform.contracts.chip.${key}`, { defaultValue: key })}</span>
+    if (c.status === 'active' && c.is_expired) return chip('expired_grace', 'bad')
+    if (c.status === 'active' && c.is_expiring_soon) return chip('expiring', 'warn')
+    return chip(c.status, CHIP_CLASS[c.status] || 'info')
 }
 
 export function ContractsSection() {
+    const { t } = useTranslation()
     const toast = useToast()
     const [items, setItems]   = useState([])
     const [schools, setSchools] = useState([])
@@ -37,15 +34,24 @@ export function ContractsSection() {
     const [form, setForm]     = useState(emptyForm())
     const [saving, setSaving] = useState(false)
     const [busyId, setBusyId] = useState(null)
+    const p = key => t(`platform.contracts.${key}`)
+
+    function remainingLabel(c) {
+        if (c.status !== 'active') return '-'
+        const d = c.days_remaining
+        if (d === 0) return p('endsToday')
+        if (d > 0) return t('platform.contracts.daysLeft', { count: d })
+        return t('platform.contracts.daysOverdue', { count: -d })
+    }
 
     const load = useCallback(async () => {
         setLoading(true)
         try {
             const [cs, schs] = await Promise.all([getContracts(), getPlatformSchools()])
             setItems(cs); setSchools(schs)
-        } catch (e) { toast.error(errorMessage(e, 'Could not load contracts.')) }
+        } catch (e) { toast.error(errorMessage(e, t('platform.contracts.loadFailed'))) }
         finally { setLoading(false) }
-    }, [toast])
+    }, [toast, t])
     useEffect(() => { load() }, [load])
 
     const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
@@ -53,13 +59,13 @@ export function ContractsSection() {
 
     async function submit(e) {
         e.preventDefault()
-        if (!form.client) { toast.error('Pick a school for the contract.'); return }
+        if (!form.client) { toast.error(p('pickSchool')); return }
         setSaving(true)
         try {
             await createContract({ ...form, amount: form.amount || '0' })
-            toast.success('Contract created (draft). Sign it to activate.')
+            toast.success(p('created'))
             setForm(emptyForm()); setAdding(false); load()
-        } catch (err) { toast.error(errorMessage(err, 'Could not create the contract.')) }
+        } catch (err) { toast.error(errorMessage(err, p('createFailed'))) }
         finally { setSaving(false) }
     }
 
@@ -69,14 +75,14 @@ export function ContractsSection() {
             const res = await fn()
             if (isNew) load(); else patchItem(res)
             toast.success(okMsg)
-        } catch (e) { toast.error(errorMessage(e, 'Action failed.')) }
+        } catch (e) { toast.error(errorMessage(e, t('platform.common.actionFailed'))) }
         finally { setBusyId(null) }
     }
 
     async function remove(c) {
         setBusyId(c.id)
-        try { await deleteContract(c.id); setItems(list => list.filter(i => i.id !== c.id)); toast.success('Contract deleted.') }
-        catch (e) { toast.error(errorMessage(e, 'Could not delete the contract.')) }
+        try { await deleteContract(c.id); setItems(list => list.filter(i => i.id !== c.id)); toast.success(p('deleted')) }
+        catch (e) { toast.error(errorMessage(e, p('deleteFailed'))) }
         finally { setBusyId(null) }
     }
 
@@ -84,68 +90,73 @@ export function ContractsSection() {
         <div className="card">
             <div className="card-content">
                 <div className="platform-panel-head">
-                    <h2>Contracts</h2>
-                    <button className="btn btn-primary btn-sm" onClick={() => setAdding(true)}>+ New contract</button>
+                    <h2>{p('title')}</h2>
+                    <button className="btn btn-primary btn-sm" onClick={() => setAdding(true)}>{p('newContract')}</button>
                 </div>
 
                 {adding && (
-                    <Modal title="New contract" icon="contract" size="lg" onClose={() => setAdding(false)} footer={
+                    <Modal title={p('newTitle')} icon="contract" size="lg" onClose={() => setAdding(false)} footer={
                         <>
-                            <button className="btn btn-outline" onClick={() => setAdding(false)}>Cancel</button>
-                            <button type="submit" form="contract-form" className="btn btn-primary" disabled={saving}>{saving ? 'Saving…' : 'Create contract'}</button>
+                            <button className="btn btn-outline" onClick={() => setAdding(false)}>{t('platform.common.cancel')}</button>
+                            <button type="submit" form="contract-form" className="btn btn-primary" disabled={saving}>{saving ? p('saving') : p('createSubmit')}</button>
                         </>
                     }>
                         <form id="contract-form" className="platform-form-grid" onSubmit={submit}>
-                            <label>School
+                            <label>{p('form.school')}
                                 <select className="form-input" value={form.client} onChange={e => set('client', e.target.value)} required>
-                                    <option value="">Select</option>
+                                    <option value="">{p('form.select')}</option>
                                     {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                                 </select>
                             </label>
-                            <label>Title<input className="form-input" required value={form.title} onChange={e => set('title', e.target.value)} placeholder="2026 Annual, Basic" /></label>
-                            <label>Plan
+                            <label>{p('form.title')}<input className="form-input" required value={form.title} onChange={e => set('title', e.target.value)} placeholder={p('form.titlePlaceholder')} /></label>
+                            <label>{p('form.plan')}
                                 <select className="form-input" value={form.plan} onChange={e => set('plan', e.target.value)}>
-                                    <option value="basic">Basic</option><option value="premium">Premium</option><option value="free">Free</option>
+                                    <option value="basic">{t('platform.common.plan.basic')}</option>
+                                    <option value="premium">{t('platform.common.plan.premium')}</option>
+                                    <option value="free">{t('platform.common.plan.free')}</option>
                                 </select>
                             </label>
-                            <label>Amount<input className="form-input" type="number" step="0.01" min="0" value={form.amount} onChange={e => set('amount', e.target.value)} /></label>
-                            <label>Currency<input className="form-input" maxLength={3} value={form.currency} onChange={e => set('currency', e.target.value.toUpperCase())} /></label>
-                            <label>Billing
+                            <label>{p('form.amount')}<input className="form-input" type="number" step="0.01" min="0" value={form.amount} onChange={e => set('amount', e.target.value)} /></label>
+                            <label>{p('form.currency')}<input className="form-input" maxLength={3} value={form.currency} onChange={e => set('currency', e.target.value.toUpperCase())} /></label>
+                            <label>{p('form.billing')}
                                 <select className="form-input" value={form.billing_interval} onChange={e => set('billing_interval', e.target.value)}>
-                                    {INTERVALS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+                                    {INTERVALS.map(v => <option key={v} value={v}>{t(`platform.common.interval.${v}`)}</option>)}
                                 </select>
                             </label>
-                            <label>Start<input className="form-input" type="date" required value={form.start_date} onChange={e => set('start_date', e.target.value)} /></label>
-                            <label>End<input className="form-input" type="date" required value={form.end_date} onChange={e => set('end_date', e.target.value)} /></label>
-                            <label>Grace (days)<input className="form-input" type="number" min="0" value={form.grace_days} onChange={e => set('grace_days', e.target.value)} /></label>
+                            <label>{p('form.start')}<input className="form-input" type="date" required value={form.start_date} onChange={e => set('start_date', e.target.value)} /></label>
+                            <label>{p('form.end')}<input className="form-input" type="date" required value={form.end_date} onChange={e => set('end_date', e.target.value)} /></label>
+                            <label>{p('form.grace')}<input className="form-input" type="number" min="0" value={form.grace_days} onChange={e => set('grace_days', e.target.value)} /></label>
                         </form>
                     </Modal>
                 )}
 
                 {loading ? (
-                    <p className="platform-muted">Loading…</p>
+                    <SkeletonList items={3} />
                 ) : items.length === 0 ? (
-                    <p className="platform-muted">No contracts yet. Create one and sign it to start tracking its lifecycle.</p>
+                    <p className="platform-muted">{p('empty')}</p>
                 ) : (
                     <div className="data-table-wrap">
                         <table className="data-table">
                             <thead>
-                                <tr><th>School</th><th>Contract</th><th>Amount</th><th>Term</th><th>Remaining</th><th>Status</th><th className="platform-col-action">Actions</th></tr>
+                                <tr>
+                                    <th>{p('cols.school')}</th><th>{p('cols.contract')}</th><th>{p('cols.amount')}</th><th>{p('cols.term')}</th>
+                                    <th>{p('cols.remaining')}</th><th>{p('cols.status')}</th><th className="platform-col-action">{p('cols.actions')}</th>
+                                </tr>
                             </thead>
                             <tbody>
                                 {items.map(c => (
                                     <tr key={c.id}>
                                         <td className="platform-strong">{c.school_name}</td>
-                                        <td>{c.title}<div className="platform-muted pf-subtle pf-capitalize">{c.plan} · {c.billing_interval.replace('_', ' ')}</div></td>
+                                        <td>{c.title}<div className="platform-muted pf-subtle pf-capitalize">{t(`platform.common.plan.${c.plan}`, { defaultValue: c.plan })} · {t(`platform.common.interval.${c.billing_interval}`, { defaultValue: c.billing_interval })}</div></td>
                                         <td>{money(c.amount, c.currency)}</td>
                                         <td className="platform-muted">{c.start_date} → {c.end_date}</td>
                                         <td>{remainingLabel(c)}</td>
                                         <td><ContractChip c={c} /></td>
                                         <td className="platform-col-action pf-nowrap">
-                                            {c.status === 'draft' && <button className="btn btn-primary btn-sm" disabled={busyId === c.id} onClick={() => run(c.id, () => signContract(c.id), 'Contract signed & active.')}>Sign</button>}
-                                            {c.status === 'active' && <button className="btn btn-outline btn-sm" disabled={busyId === c.id} onClick={() => run(c.id, () => renewContract(c.id), 'Contract renewed.', { isNew: true })}>Renew</button>}
-                                            {c.status === 'active' && <button className="btn btn-outline btn-sm platform-danger" disabled={busyId === c.id} onClick={() => run(c.id, () => terminateContract(c.id), 'Contract terminated.')}>Terminate</button>}
-                                            {(c.status === 'draft' || c.status === 'terminated' || c.status === 'expired') && <button className="btn btn-outline btn-sm platform-danger" disabled={busyId === c.id} onClick={() => remove(c)}>Delete</button>}
+                                            {c.status === 'draft' && <button className="btn btn-primary btn-sm" disabled={busyId === c.id} onClick={() => run(c.id, () => signContract(c.id), p('signed'))}>{p('sign')}</button>}
+                                            {c.status === 'active' && <button className="btn btn-outline btn-sm" disabled={busyId === c.id} onClick={() => run(c.id, () => renewContract(c.id), p('renewed'), { isNew: true })}>{p('renew')}</button>}
+                                            {c.status === 'active' && <button className="btn btn-outline btn-sm platform-danger" disabled={busyId === c.id} onClick={() => run(c.id, () => terminateContract(c.id), p('terminated'))}>{p('terminate')}</button>}
+                                            {(c.status === 'draft' || c.status === 'terminated' || c.status === 'expired') && <button className="btn btn-outline btn-sm platform-danger" disabled={busyId === c.id} onClick={() => remove(c)}>{p('delete')}</button>}
                                         </td>
                                     </tr>
                                 ))}

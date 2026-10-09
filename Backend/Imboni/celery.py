@@ -53,6 +53,16 @@ app.conf.beat_schedule = {
         'task': 'apps.audit.tasks.check_backup_freshness_task',
         'schedule': crontab(minute=30),
     },
+    # Every 5 minutes: record fees parents approved on their phones and then closed the page on
+    'settle-online-payments': {
+        'task': 'apps.finance.tasks.settle_online_payments_task',
+        'schedule': crontab(minute='*/5'),
+    },
+    # Every day at 08:00 — tell schools their subscription ends in 30, 15 or 3 days
+    'send-contract-expiry-reminders': {
+        'task': 'apps.tenants.tasks.send_contract_expiry_reminders_task',
+        'schedule': crontab(hour=8, minute=0),
+    },
     # Every day at 03:00 — expire past-grace contracts + auto-suspend uncovered schools
     'enforce-contract-lifecycle': {
         'task': 'apps.tenants.tasks.enforce_contract_lifecycle_task',

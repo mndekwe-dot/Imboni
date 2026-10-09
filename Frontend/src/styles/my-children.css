@@ -63,7 +63,7 @@
     right: 1rem;
     background: rgba(0, 0, 0, 0.2);
     padding: 4px 10px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     display: flex;
     align-items: center;
     gap: 6px;
@@ -108,7 +108,7 @@
     background: var(--muted);
     color: var(--muted-foreground);
     padding: 4px 12px;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     font-size: var(--text-sm);
     font-weight: 500;
 }
@@ -118,7 +118,7 @@
     background: var(--info-light, rgba(14, 165, 233, 0.08));
     border: 1px solid var(--info-border, rgba(14, 165, 233, 0.2));
     padding: 12px;
-    border-radius: 10px;
+    border-radius: var(--radius);
     display: flex;
     gap: 12px;
     align-items: center;
@@ -141,7 +141,7 @@
 .financial-brief {
     background: var(--muted);
     padding: 12px;
-    border-radius: 10px;
+    border-radius: var(--radius);
 }
 
 .financial-row {

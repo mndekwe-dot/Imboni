@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import '../../styles/components.css'
 import { StudentSearchPicker } from '../ui/StudentSearchPicker'
 import { searchDisStudents } from '../../api/discipline'
+import { ModalOverlay } from '../ui/ModalOverlay'
 
 const ROLE_OPTIONS = [
     { value: 'head_boy',        labelKey: 'modals.leader.roleHeadBoy'         },
@@ -49,7 +50,7 @@ export function LeaderModal({ leader, onClose, onSave }) {
     const cls = selectedStudent ? `${selectedStudent.grade || ''}${selectedStudent.section || ''}` : ''
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
@@ -98,7 +99,7 @@ export function LeaderModal({ leader, onClose, onSave }) {
                     {/* Notes */}
                     <div className="form-group">
                         <label className="form-label">{t('modals.leader.notesOptional')}</label>
-                        <input className="form-input" value={notes} onChange={e => setNotes(e.target.value)} placeholder={t('modals.leader.notesPlaceholder')} />
+                        <input className="form-input" value={notes} onChange={e => setNotes(e.target.value)} placeholder={t('modals.leader.notesPlaceholder')}  aria-label={t('modals.leader.notesPlaceholder')}/>
                     </div>
 
                     {error && <p className="dmod-error">{error}</p>}
@@ -112,6 +113,6 @@ export function LeaderModal({ leader, onClose, onSave }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     )
 }

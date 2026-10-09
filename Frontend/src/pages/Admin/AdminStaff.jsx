@@ -21,20 +21,11 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/admin.css'
 import '../../styles/tables.css'
-
-const ROLE_LABEL = {
-    teacher:    'Teacher',
-    dos:        'Director of Studies',
-    matron:     'Matron',
-    discipline: 'Discipline Master',
-    librarian:  'Librarian',
-    bursar:     'Bursar',
-    admin:      'Administrator',
-}
+import { ModalOverlay } from '../../components/ui/ModalOverlay'
 
 // Every role that signs in. The librarian and the bursar were missing, so a
 // school could not invite the two people who run the library and the money.
-const INVITE_ROLES = Object.entries(ROLE_LABEL).map(([value, label]) => ({ value, label }))
+const INVITE_ROLES = ['teacher', 'dos', 'matron', 'discipline', 'librarian', 'bursar', 'admin']
 
 const BLANK_INVITE = { first_name: '', last_name: '', email: '', role: 'teacher', phone_number: '' }
 
@@ -45,10 +36,10 @@ function inviteStatusClass(inv) {
     if (inv.status === 'cancelled')        return 'inactive'
     return 'pending'
 }
-function inviteStatusLabel(inv) {
-    if (inv.is_used)                       return 'Accepted'
-    if (inv.status === 'cancelled')        return 'Cancelled'
-    return 'Pending'
+function inviteStatusKey(inv) {
+    if (inv.is_used)                       return 'accepted'
+    if (inv.status === 'cancelled')        return 'cancelled'
+    return 'pending'
 }
 
 function InviteModal({ onClose, onSent }) {
@@ -66,7 +57,7 @@ function InviteModal({ onClose, onSent }) {
     async function handleSubmit(e) {
         e.preventDefault()
         if (!form.first_name.trim() || !form.last_name.trim() || !form.email.trim()) {
-            setError('First name, last name and email are required.')
+            setError(t('admin.staff.requiredFields'))
             return
         }
         setLoading(true)
@@ -77,14 +68,14 @@ function InviteModal({ onClose, onSent }) {
             setTimeout(onClose, 1800)
         } catch (err) {
             const msg = err?.response?.data
-            setError(typeof msg === 'string' ? msg : Object.values(msg || {}).flat().join(' ') || 'Failed to send invitation.')
+            setError(typeof msg === 'string' ? msg : Object.values(msg || {}).flat().join(' ') || t('admin.staff.inviteFailed'))
         } finally {
             setLoading(false)
         }
     }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <h2 className="modal-title">{t('admin.staff.inviteMember')}</h2>
@@ -97,7 +88,7 @@ function InviteModal({ onClose, onSent }) {
                         <span className="material-symbols-rounded adm-invite-success-icon" aria-hidden="true">mark_email_read</span>
                         <p className="adm-invite-success-title">{t('admin.staff.invitationSent')}</p>
                         <p className="adm-invite-success-note">
-                            An invitation link was sent to <strong>{form.email}</strong>
+                            {t('admin.staff.inviteLinkSentTo')} <strong>{form.email}</strong>
                         </p>
                     </div>
                 ) : (
@@ -119,12 +110,12 @@ function InviteModal({ onClose, onSent }) {
                         <div className="form-group form-group-0">
                             <label className="form-label" htmlFor="invite-role">{t('common.roleRequired')}</label>
                             <select id="invite-role" className="form-input" name="role" value={form.role} onChange={handleChange}>
-                                {INVITE_ROLES.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+                                {INVITE_ROLES.map(r => <option key={r} value={r}>{t(`admin.staff.roles.${r}`)}</option>)}
                             </select>
                         </div>
                         <div className="form-group form-group-0">
                             <label className="form-label" htmlFor="invite-phone">
-                                Phone <span className="u-muted u-fw-400">(optional)</span>
+                                {t('admin.staff.phone')} <span className="u-muted u-fw-400">{t('admin.staff.optional')}</span>
                             </label>
                             <input id="invite-phone" className="form-input" name="phone_number" value={form.phone_number} onChange={handleChange} placeholder="+250 7XX XXX XXX" />
                         </div>
@@ -133,13 +124,13 @@ function InviteModal({ onClose, onSent }) {
                             <button type="button" className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
                             <button type="submit" className="btn btn-primary" disabled={loading}>
                                 <span className="material-symbols-rounded" aria-hidden="true">send</span>
-                                {loading ? 'Sending…' : 'Send Invitation'}
+                                {loading ? t('admin.staff.sending') : t('admin.staff.send')}
                             </button>
                         </div>
                     </form>
                 )}
             </div>
-        </div>
+        </ModalOverlay>
     )
 }
 
@@ -165,7 +156,7 @@ export function AdminStaff() {
     function loadInvitations() {
         getInvitations().then(data => {
             setInvitations(Array.isArray(data) ? data : (data?.results ?? []))
-        }).catch(e => toast.error(errorMessage(e, 'Could not load invitations.')))
+        }).catch(e => toast.error(errorMessage(e, t('admin.staff.loadInvitationsFailed'))))
     }
 
     useEffect(() => {
@@ -177,32 +168,32 @@ export function AdminStaff() {
     async function handleResend(id) {
         try {
             await resendInvitation(id)
-            toast.success('Invitation resent.')
+            toast.success(t('admin.staff.resent'))
             loadInvitations()
         } catch (e) {
-            toast.error(errorMessage(e, 'Could not resend the invitation.'))
+            toast.error(errorMessage(e, t('admin.staff.resendFailed')))
         }
     }
     async function handleCancel(id) {
         try {
             await cancelInvitation(id)
-            toast.success('Invitation cancelled.')
+            toast.success(t('admin.staff.cancelled'))
             loadInvitations()
         } catch (e) {
-            toast.error(errorMessage(e, 'Could not cancel the invitation.'))
+            toast.error(errorMessage(e, t('admin.staff.cancelFailed')))
         }
     }
 
     const statCards = stats ? [
-        { icon: 'badge',    value: stats.total_teachers,  label: 'Total Teachers',  trend: 'All active',              colorClass: ''        },
-        { icon: 'work',     value: stats.full_time_count, label: 'Full-Time',        trend: `${stats.full_time_pct}%`, colorClass: 'info'    },
-        { icon: 'schedule', value: stats.part_time_count, label: 'Part-Time',        trend: `${stats.part_time_pct}%`, colorClass: 'success' },
-        { icon: 'group',    value: stats.student_teacher_ratio || '-', label: 'Student:Teacher', trend: stats.ratio_label || '', colorClass: 'warning' },
+        { icon: 'badge',    value: stats.total_teachers,  label: t('admin.staff.totalTeachers'),  trend: t('admin.staff.allActive'),              colorClass: ''        },
+        { icon: 'work',     value: stats.full_time_count, label: t('admin.staff.fullTime'),        trend: `${stats.full_time_pct}%`, colorClass: 'info'    },
+        { icon: 'schedule', value: stats.part_time_count, label: t('admin.staff.partTime'),        trend: `${stats.part_time_pct}%`, colorClass: 'success' },
+        { icon: 'group',    value: stats.student_teacher_ratio || '-', label: t('admin.staff.studentTeacher'), trend: stats.ratio_label || '', colorClass: 'warning' },
     ] : [
-        { icon: 'badge',    value: '-', label: 'Total Teachers',  trend: 'Loading…', colorClass: ''        },
-        { icon: 'work',     value: '-', label: 'Full-Time',        trend: 'Loading…', colorClass: 'info'    },
-        { icon: 'schedule', value: '-', label: 'Part-Time',        trend: 'Loading…', colorClass: 'success' },
-        { icon: 'group',    value: '-', label: 'Student:Teacher',  trend: 'Loading…', colorClass: 'warning' },
+        { icon: 'badge',    value: '-', label: t('admin.staff.totalTeachers'),  trend: t('common.loading'), colorClass: ''        },
+        { icon: 'work',     value: '-', label: t('admin.staff.fullTime'),        trend: t('common.loading'), colorClass: 'info'    },
+        { icon: 'schedule', value: '-', label: t('admin.staff.partTime'),        trend: t('common.loading'), colorClass: 'success' },
+        { icon: 'group',    value: '-', label: t('admin.staff.studentTeacher'),  trend: t('common.loading'), colorClass: 'warning' },
     ]
 
     const pendingCount = invitations.filter(i => !i.is_used && i.status !== 'cancelled').length
@@ -213,7 +204,7 @@ export function AdminStaff() {
                 <InviteModal onClose={() => setShowInvite(false)} onSent={loadInvitations} />
             )}
 
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
@@ -255,7 +246,7 @@ export function AdminStaff() {
                                         {invitations.length === 0 ? (
                                             <div className="u-center-text u-muted u-pad-lg">
                                                 <span className="material-symbols-rounded u-empty-icon" aria-hidden="true">mail_outline</span>
-                                                No invitations sent yet. Click <strong>Invite Staff</strong> to get started.
+                                                {t('admin.staff.noInvitations')} <strong>{t('admin.staff.invite')}</strong> {t('admin.staff.noInvitationsHint')}
                                             </div>
                                         ) : (
                                             <div className="data-table-wrap">
@@ -276,10 +267,10 @@ export function AdminStaff() {
                                                                     <div className="adm-name">{`${inv.first_name || ''} ${inv.last_name || ''}`.trim() || '-'}</div>
                                                                     <div className="adm-sub">{inv.email}</div>
                                                                 </td>
-                                                                <td>{ROLE_LABEL[inv.role] || inv.role || '-'}</td>
+                                                                <td>{INVITE_ROLES.includes(inv.role) ? t(`admin.staff.roles.${inv.role}`) : (inv.role || '-')}</td>
                                                                 <td>
                                                                     <span className={`adm-badge ${inviteStatusClass(inv)}`}>
-                                                                        {inviteStatusLabel(inv)}
+                                                                        {t(`admin.staff.inviteStatus.${inviteStatusKey(inv)}`)}
                                                                     </span>
                                                                 </td>
                                                                 <td className="adm-sent-cell">
@@ -288,10 +279,10 @@ export function AdminStaff() {
                                                                 <td>
                                                                     {!inv.is_used && inv.status !== 'cancelled' && (
                                                                         <div className="u-flex u-gap-035">
-                                                                            <button className="adm-btn" title="Resend invitation" onClick={() => handleResend(inv.id)}>
+                                                                            <button className="adm-btn" title={t('admin.staff.resend')} onClick={() => handleResend(inv.id)} aria-label={t('admin.staff.resend')}>
                                                                                 <span className="material-symbols-rounded" aria-hidden="true">forward_to_inbox</span>
                                                                             </button>
-                                                                            <button className="adm-btn u-destructive" title="Cancel invitation" onClick={() => handleCancel(inv.id)}>
+                                                                            <button className="adm-btn u-destructive" title={t('admin.staff.cancel')} onClick={() => handleCancel(inv.id)} aria-label={t('admin.staff.cancel')}>
                                                                                 <span className="material-symbols-rounded" aria-hidden="true">cancel</span>
                                                                             </button>
                                                                         </div>

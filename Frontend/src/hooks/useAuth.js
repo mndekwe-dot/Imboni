@@ -4,6 +4,7 @@ import { loginUser,logoutUser, verifyTwoFactorLogin } from "../api/auth";
 import { ROLE_HOME } from "../utils/roles";
 import { resetSchoolConfigCache } from "./schoolConfigCache";
 import { resetLibraryFeatureCache } from './libraryFeatureCache'
+import { resetSchoolModulesCache } from './schoolModulesCache'
 import { resetFinanceFeatureCache } from './financeFeatureCache'
 
 
@@ -69,6 +70,7 @@ export function useAuth(){
         // belongs to the school, and the next school to sign in here may be on
         // a different plan.
         resetLibraryFeatureCache()
+        resetSchoolModulesCache()
         resetFinanceFeatureCache()
         // Every role signs out to the generic /login, never back to its own
         // /login/<portal>, and `replace` takes the portal page out of history

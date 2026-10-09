@@ -8,6 +8,9 @@ import {
 
 vi.mock('../../api/finance', () => ({
     getFinanceAvailability: vi.fn(),
+    getOnlinePayments: vi.fn().mockResolvedValue([]),
+    matchStatement: vi.fn(),
+    applyStatement: vi.fn(),
     getPayments: vi.fn(),
     getDebtors: vi.fn(),
     getStudentFinance: vi.fn(),

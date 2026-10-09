@@ -4,6 +4,7 @@ import { Modal } from '../ui/Modal'
 import { StatCard } from '../layout/StatCard'
 import { getAssignmentStats } from '../../api/teacher'
 import { errorMessage } from '../../utils/errors'
+import { SkeletonList } from '../ui/Skeleton'
 
 /**
  * How the class did on one assignment.
@@ -51,7 +52,7 @@ export function AssignmentStatsModal({ assignment, onClose }) {
             }
         >
             {loading ? (
-                <p className="u-muted">{t('common.loading')}</p>
+                <SkeletonList items={3} />
             ) : !stats ? (
                 <p className="u-muted">{error}</p>
             ) : (

@@ -124,10 +124,10 @@ export function DataTable({
                     {data.length === 0 ? 'No results' : `Page ${safePage} of ${pageCount}`}
                 </span>
                 <div className="dt-pagination">
-                    <button className="dt-page-btn" disabled={safePage <= 1} onClick={() => setPage(1)} title="First page">
+                    <button className="dt-page-btn" disabled={safePage <= 1} onClick={() => setPage(1)} title="First page" aria-label="First page">
                         <span className="material-symbols-rounded" aria-hidden="true">first_page</span>
                     </button>
-                    <button className="dt-page-btn" disabled={safePage <= 1} onClick={() => setPage(p => p - 1)} title="Previous">
+                    <button className="dt-page-btn" disabled={safePage <= 1} onClick={() => setPage(p => p - 1)} title="Previous" aria-label="Previous">
                         <span className="material-symbols-rounded" aria-hidden="true">chevron_left</span>
                     </button>
                     {pages().map((p, i) =>
@@ -135,10 +135,10 @@ export function DataTable({
                             ? <span key={`ellipsis-`} className="dt-ellipsis">…</span>
                             : <button key={p} className={`dt-page-btn${p === safePage ? ' active' : ''}`} onClick={() => setPage(p)}>{p}</button>
                     )}
-                    <button className="dt-page-btn" disabled={safePage >= pageCount} onClick={() => setPage(p => p + 1)} title="Next">
+                    <button className="dt-page-btn" disabled={safePage >= pageCount} onClick={() => setPage(p => p + 1)} title="Next" aria-label="Next">
                         <span className="material-symbols-rounded" aria-hidden="true">chevron_right</span>
                     </button>
-                    <button className="dt-page-btn" disabled={safePage >= pageCount} onClick={() => setPage(pageCount)} title="Last page">
+                    <button className="dt-page-btn" disabled={safePage >= pageCount} onClick={() => setPage(pageCount)} title="Last page" aria-label="Last page">
                         <span className="material-symbols-rounded" aria-hidden="true">last_page</span>
                     </button>
                 </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { NavLink, Navigate, useNavigate } from 'react-router'
+import { Trans, useTranslation } from 'react-i18next'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { platformLogout, platformUser, isPlatformAuthed } from '../../api/platform'
 import logo from '../../assets/images/imboni-logo.webp'
@@ -17,24 +18,19 @@ import '../../styles/utilities.css'
 // which is why nothing is filtered out of this list. Buttons that a role cannot
 // use are hidden individually with `operatorCan`.
 const NAV = [
-    { to: '/platform',              icon: 'dashboard',      label: 'Overview', end: true },
-    { to: '/platform/applications', icon: 'inbox',          label: 'Applications' },
-    { to: '/platform/schools',      icon: 'apartment',      label: 'Schools'  },
-    { to: '/platform/contracts',    icon: 'contract',       label: 'Contracts' },
-    { to: '/platform/revenue',      icon: 'payments',       label: 'Revenue'  },
-    { to: '/platform/expenses',     icon: 'receipt_long',   label: 'Expenses' },
-    { to: '/platform/support',      icon: 'support_agent',  label: 'Support'  },
-    { to: '/platform/activity',     icon: 'history',        label: 'Activity' },
-    { to: '/platform/health',       icon: 'monitor_heart',  label: 'Health'   },
-    { to: '/platform/operators',    icon: 'shield_person',  label: 'Operators' },
+    { to: '/platform',              icon: 'dashboard',      key: 'overview', end: true },
+    { to: '/platform/applications', icon: 'inbox',          key: 'applications' },
+    { to: '/platform/schools',      icon: 'apartment',      key: 'schools'  },
+    { to: '/platform/contracts',    icon: 'contract',       key: 'contracts' },
+    { to: '/platform/revenue',      icon: 'payments',       key: 'revenue'  },
+    { to: '/platform/expenses',     icon: 'receipt_long',   key: 'expenses' },
+    { to: '/platform/support',      icon: 'support_agent',  key: 'support'  },
+    { to: '/platform/activity',     icon: 'history',        key: 'activity' },
+    { to: '/platform/health',       icon: 'monitor_heart',  key: 'health'   },
+    { to: '/platform/operators',    icon: 'shield_person',  key: 'operators' },
 ]
 
-// How an operator's own standing reads in the header, under their name.
-const ROLE_LABELS = {
-    support:    'Support',
-    commercial: 'Commercial',
-    operations: 'Operations',
-}
+const ROLES = ['support', 'commercial', 'operations']
 
 /**
  * PlatformLayout — the operator console shell, styled with the Imboni light
@@ -42,7 +38,11 @@ const ROLE_LABELS = {
  * platform's own nav, identity and sign-out. Also guards the route: no platform
  * token → bounce to /platform/login.
  */
-export function PlatformLayout({ title, subtitle, actions, children }) {
+export function PlatformLayout({ section, title, subtitle, actions, children }) {
+    const { t } = useTranslation()
+    // A section names its own heading; `title` and `subtitle` still override it.
+    title = title ?? (section && t(`platform.layout.titles.${section}`))
+    subtitle = subtitle ?? (section && t(`platform.layout.subtitles.${section}`))
     const navigate = useNavigate()
     const [mobileOpen, setMobileOpen] = useState(false)
     const me = platformUser()
@@ -62,24 +62,24 @@ export function PlatformLayout({ title, subtitle, actions, children }) {
 
     return (
         <div className="platform-portal">
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('platform.layout.skip')}</a>
             {mobileOpen && <div className="sidebar-overlay active" aria-hidden="true" onClick={() => setMobileOpen(false)} />}
             <div className="dashboard-layout">
                 <aside className={`sidebar${mobileOpen ? ' active' : ''}`}>
                     <header className="sidebar-logo">
                         <div className="logo-wrapper">
-                            <div className="sidebar-logo-icon"><img src={logo} alt="Imboni Logo" /></div>
+                            <div className="sidebar-logo-icon"><img src={logo} alt={t('platform.layout.logoAlt')} /></div>
                             <div className="sidebar-logo-text">
                                 <span className="sidebar-brand-name">Imboni</span>
-                                <span className="sidebar-brand-tagline">Operator Console</span>
+                                <span className="sidebar-brand-tagline">{t('platform.layout.tagline')}</span>
                             </div>
                         </div>
-                        <button className="toggle menu-toggle" aria-label="Close menu" onClick={() => setMobileOpen(false)}>
+                        <button className="toggle menu-toggle" aria-label={t('platform.layout.closeMenu')} onClick={() => setMobileOpen(false)}>
                             <span className="material-symbols-rounded" aria-hidden="true">close</span>
                         </button>
                     </header>
 
-                    <nav className="sidebar-nav" aria-label="Platform navigation">
+                    <nav className="sidebar-nav" aria-label={t('platform.layout.navLabel')}>
                         <ul className="nav-list primary-nav">
                             {NAV.map(item => (
                                 <li key={item.to}>
@@ -87,7 +87,7 @@ export function PlatformLayout({ title, subtitle, actions, children }) {
                                         className={({ isActive }) => 'sidebar-nav-item' + (isActive ? ' active' : '')}
                                         onClick={() => setMobileOpen(false)}>
                                         <span className="material-symbols-rounded" aria-hidden="true">{item.icon}</span>
-                                        <span>{item.label}</span>
+                                        <span>{t(`platform.layout.nav.${item.key}`)}</span>
                                     </NavLink>
                                 </li>
                             ))}
@@ -96,7 +96,7 @@ export function PlatformLayout({ title, subtitle, actions, children }) {
                             <li>
                                 <button className="sidebar-nav-item" onClick={signOut}>
                                     <span className="material-symbols-rounded" aria-hidden="true">logout</span>
-                                    <span>Sign out</span>
+                                    <span>{t('platform.layout.signOut')}</span>
                                 </button>
                             </li>
                         </ul>
@@ -105,7 +105,7 @@ export function PlatformLayout({ title, subtitle, actions, children }) {
 
                 <main className="dashboard-main" id="main-content">
                     <header className="dashboard-header">
-                        <button className="mobile-menu-btn" aria-label="Open menu" onClick={() => setMobileOpen(true)}>
+                        <button className="mobile-menu-btn" aria-label={t('platform.layout.openMenu')} onClick={() => setMobileOpen(true)}>
                             <span className="material-symbols-rounded" aria-hidden="true">menu</span>
                         </button>
                         <div className="dashboard-header-title">
@@ -117,9 +117,9 @@ export function PlatformLayout({ title, subtitle, actions, children }) {
                             {actions}
                             <div className="header-user">
                                 <div className="header-user-info">
-                                    <span className="header-user-name">{me?.name || 'Operator'}</span>
+                                    <span className="header-user-name">{me?.name || t('platform.layout.operator')}</span>
                                     <span className="header-user-role">
-                                        {ROLE_LABELS[me?.role] || me?.email || 'Platform'}
+                                        {ROLES.includes(me?.role) ? t(`platform.layout.roles.${me.role}`) : (me?.email || t('platform.layout.platform'))}
                                     </span>
                                 </div>
                                 <span className="header-user-av admin-av" aria-hidden="true">{initials}</span>
@@ -137,11 +137,10 @@ export function PlatformLayout({ title, subtitle, actions, children }) {
                                 <div className="u-row">
                                     <span className="material-symbols-rounded u-banner-icon" aria-hidden="true">lock</span>
                                     <div>
-                                        <p className="u-strong u-mb-xs">Two-factor is not set up yet</p>
+                                        <p className="u-strong u-mb-xs">{t('platform.layout.mfaTitle')}</p>
                                         <p className="u-muted u-sm">
-                                            Your account holds the Operations role, so provisioning,
-                                            restricting and suspending schools stay closed until you
-                                            enrol. Set it up under <NavLink to="/platform/operators">Operators</NavLink>.
+                                            <Trans i18nKey="platform.layout.mfaBody"
+                                                components={{ ops: <NavLink to="/platform/operators" /> }} />
                                         </p>
                                     </div>
                                 </div>

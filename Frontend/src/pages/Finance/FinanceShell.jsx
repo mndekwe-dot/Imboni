@@ -14,6 +14,7 @@ import '../../styles/components.css'
 import '../../styles/tables.css'
 import '../../styles/finance.css'
 import { formatAmount } from '../../utils/money'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 export { formatAmount }
 
@@ -49,7 +50,7 @@ export function FinanceShell({ title, subtitle, actions, children }) {
                     <DashboardContent>
                         {enabled === false
                             ? <FinanceNotInPlan />
-                            : loading ? <p className="u-pad u-muted">{t('common.loading')}</p>
+                            : loading ? <SkeletonList items={3} />
                                 : children}
                     </DashboardContent>
                 </main>

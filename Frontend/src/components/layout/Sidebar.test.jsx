@@ -6,6 +6,8 @@ import { Sidebar } from './Sidebar'
 const mockLogout = vi.fn()
 const mockBadges = vi.fn()
 vi.mock('../../api/navBadges', () => ({ getNavBadges: (...a) => mockBadges(...a) }))
+let schoolModules = null
+vi.mock('../../hooks/useSchoolModules', () => ({ useSchoolModules: () => ({ modules: schoolModules }) }))
 vi.mock('../../hooks/useAuth', () => ({
   useAuth: () => ({ logout: mockLogout }),
 }))
@@ -34,6 +36,7 @@ describe('Sidebar', () => {
     mockLogout.mockClear()
     localStorage.clear()   // the collapse choice persists between mounts now
     branding = { schoolName: '', logo: null, loaded: true }
+    schoolModules = null
   })
 
   it('renders nav items and secondary items', () => {
@@ -181,5 +184,35 @@ describe('Sidebar', () => {
       expect(await screen.findByText('Messages')).toBeInTheDocument()
       expect(screen.queryByText(/waiting/)).not.toBeInTheDocument()
     })
+  })
+
+  it('hides a part the operator switched off, but not on a maybe', () => {
+    const items = [
+      { to: '/discipline', labelKey: 'nav.dashboard', icon: 'dashboard', end: true },
+      { to: '/discipline/boarding', labelKey: 'nav.boarding', icon: 'hotel', feature: 'boarding' },
+    ]
+    const { unmount } = renderWithRouter(<Sidebar navItems={items} secondaryItems={[]} />)
+    expect(screen.getByText('Boarding')).toBeInTheDocument()   // answer unknown: stay visible
+    unmount()
+
+    schoolModules = { boarding: false, matron: true, library: true }
+    renderWithRouter(<Sidebar navItems={items} secondaryItems={[]} />)
+    expect(screen.queryByText('Boarding')).not.toBeInTheDocument()
+    expect(screen.getByText('Dashboard')).toBeInTheDocument()
+  })
+
+  it('offers a switch to each other portal a person holds, and not to the one they are in', () => {
+    localStorage.setItem('imboni_user', JSON.stringify({ role: 'teacher', extra_roles: ['dos'], first_name: 'A' }))
+    renderWithRouter(<Sidebar navItems={navItems} secondaryItems={secondaryItems} />, { route: '/teacher/classes' })
+    expect(screen.getByText('Switch to Director of Studies')).toBeInTheDocument()
+    expect(screen.queryByText('Switch to Teacher')).not.toBeInTheDocument()
+    localStorage.removeItem('imboni_user')
+  })
+
+  it('shows no switcher to someone with a single role', () => {
+    localStorage.setItem('imboni_user', JSON.stringify({ role: 'teacher', first_name: 'A' }))
+    renderWithRouter(<Sidebar navItems={navItems} secondaryItems={secondaryItems} />)
+    expect(screen.queryByText(/^Switch to/)).not.toBeInTheDocument()
+    localStorage.removeItem('imboni_user')
   })
 })

@@ -28,11 +28,14 @@ import '../../styles/components.css'
 import '../../styles/teacher.css'
 import { useToast } from '../../context/ToastContext'
 import { partialLoad, errorMessage } from '../../utils/errors'
+import { ModalOverlay } from '../../components/ui/ModalOverlay'
+import { asButton } from '../../utils/a11y'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 function barColor(v) {
-    if (v >= 80) return '#10b981'
-    if (v >= 70) return '#003d7a'
-    return '#f59e0b'
+    if (v >= 80) return 'var(--success)'
+    if (v >= 70) return 'var(--primary)'
+    return 'var(--warning)'
 }
 
 function relTime(ts, translate) {
@@ -47,7 +50,7 @@ function relTime(ts, translate) {
 function ScheduleCard({ time, room, className, subject, status, statusClass, cardClass, showMark, onMark, onClick }) {
     const { t } = useTranslation()
     return (
-        <div className={`schedule-card ${cardClass} cursor-ptr`} onClick={onClick}>
+        <div className={`schedule-card ${cardClass} cursor-ptr`} {...asButton(onClick)}>
             <div className="schedule-info">
                 <div className="schedule-time">
                     <div className="schedule-time-main">{time}</div>
@@ -173,7 +176,7 @@ function CreateTaskModal({ onClose, onCreated }) {
     }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
@@ -194,7 +197,7 @@ function CreateTaskModal({ onClose, onCreated }) {
                             onChange={e => setTitle(e.target.value)}
                             placeholder={t('teacher.dashboard.taskPlaceholder')}
                             autoFocus
-                        />
+                         aria-label={t('teacher.dashboard.taskPlaceholder')}/>
                     </div>
 
                     <div className="form-group">
@@ -230,7 +233,7 @@ function CreateTaskModal({ onClose, onCreated }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     )
 }
 
@@ -373,7 +376,7 @@ export function TeacherDashboard() {
 
                         {loading ? (
                             <div className="dash-card">
-                                <p className="u-muted">{t('common.loading')}</p>
+                                <SkeletonList items={3} />
                             </div>
                         ) : (
                             <>
@@ -477,9 +480,9 @@ export function TeacherDashboard() {
                                                     </ResponsiveContainer>
                                                     <div className="chart-legend-row">
                                                         {[
-                                                            ['#10b981', t('teacher.dashboard.legendExcellent')],
-                                                            ['#003d7a', t('teacher.dashboard.legendGood')],
-                                                            ['#f59e0b', t('teacher.dashboard.legendAttention')],
+                                                            ['var(--success)', t('teacher.dashboard.legendExcellent')],
+                                                            ['var(--primary)', t('teacher.dashboard.legendGood')],
+                                                            ['var(--warning)', t('teacher.dashboard.legendAttention')],
                                                         ].map(([color, label]) => (
                                                             <div key={color} className="chart-legend-item">
                                                                 <span className="chart-legend-dot-sq" style={{ background: color }} />

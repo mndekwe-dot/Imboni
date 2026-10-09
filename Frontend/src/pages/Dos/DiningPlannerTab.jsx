@@ -60,7 +60,7 @@ function SittingManager({ sittings, onCreate, onUpdate, onDelete }) {
                             {t('common.active')}
                         </label>
                         <button className="btn-icon-clean dos-danger-text" title={t('dos.dining.deleteSitting')}
-                                onClick={() => onDelete(s.id)}>
+                                onClick={() => onDelete(s.id)} aria-label={t('dos.dining.deleteSitting')}>
                             <span className="material-symbols-rounded u-fs-095" aria-hidden="true">delete</span>
                         </button>
                     </div>
@@ -68,7 +68,7 @@ function SittingManager({ sittings, onCreate, onUpdate, onDelete }) {
 
                 <div className="dset-lesson-add mt-1">
                     <input className="form-input dset-input-lesson" placeholder={t('dos.dining.namePlaceholder')}
-                           value={draft.name} onChange={e => setDraft({ ...draft, name: e.target.value })} />
+                           value={draft.name} onChange={e => setDraft({ ...draft, name: e.target.value })}  aria-label={t('dos.dining.namePlaceholder')}/>
                     <select className="form-select" aria-label={t('common.meal')} value={draft.meal}
                             onChange={e => setDraft({ ...draft, meal: e.target.value })}>
                         {MEALS.map(m => <option key={m.value} value={m.value}>{t(m.labelKey)}</option>)}

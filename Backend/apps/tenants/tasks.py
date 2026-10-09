@@ -118,3 +118,12 @@ def enforce_contract_lifecycle_task():
     result = enforce_contract_lifecycle()
     logger.info('Contract lifecycle: %s', result)
     return result
+
+
+@shared_task
+def send_contract_expiry_reminders_task():
+    """Daily (Celery beat): remind schools their subscription ends in 30, 15 and 3 days."""
+    from .lifecycle import send_expiry_reminders
+    result = send_expiry_reminders()
+    logger.info('Contract reminders: %s', result)
+    return result

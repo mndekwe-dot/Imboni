@@ -29,6 +29,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/dos.css'
 import '../../styles/discipline.css'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -141,7 +142,7 @@ function StudentAttendanceTab({ sections }) {
 
                 <div className="card-content">
                     {error   && <p className="att-state-error">{error}</p>}
-                    {!error && loading && <p className="att-state">Loading…</p>}
+                    {!error && loading && <SkeletonList items={3} />}
                     {!error && !loading && students.length === 0 && (
                         <p className="att-state">
                             No students enrolled for the selected class and term.
@@ -309,7 +310,7 @@ function TeacherAttendanceTab() {
                 </div>
 
                 <div className="card-content">
-                    {!error && loading && <p className="att-state">Loading…</p>}
+                    {!error && loading && <SkeletonList items={3} />}
                     {!error && !loading && teachers.length === 0 && (
                         <p className="att-state">{t('dos.attendance.noTeachers')}</p>
                     )}

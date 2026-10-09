@@ -121,15 +121,15 @@ const KB = n => `${(n / 1024).toFixed(1)} KB`
 async function main() {
     mkdirSync(OUT, { recursive: true })
 
-    // ── Inter, as one variable file per subset ────────────────────────────────
+    // ── Geist, as one variable file per subset ────────────────────────────────
     // The full 100..900 axis costs the same bytes as naming individual weights:
     // Google ships one variable file per subset either way.
-    const interCss = await css('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap')
+    const interCss = await css('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap')
     const ranges = {}
     for (const subset of ['latin', 'latin-ext']) {
-        const size = await download(subsetUrl(interCss, subset), `inter-${subset}.woff2`)
+        const size = await download(subsetUrl(interCss, subset), `geist-${subset}.woff2`)
         ranges[subset] = subsetRange(interCss, subset)
-        console.log(`  inter-${subset}.woff2`.padEnd(28) + KB(size))
+        console.log(`  geist-${subset}.woff2`.padEnd(28) + KB(size))
     }
 
     // ── Material Symbols, subset to the icons we render ───────────────────────

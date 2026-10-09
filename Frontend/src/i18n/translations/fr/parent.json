@@ -65,11 +65,15 @@
   },
   "noChildren": "Aucun enfant n'est encore lié à votre compte.",
   "results": {
+    "generating": "Préparation…",
     "noAssessments": "Aucune évaluation enregistrée pour le moment.",
     "noChildren": "Aucun enfant n'est encore rattaché à votre compte.",
+    "noReportCard": "Aucun résultat approuvé pour ce trimestre : pas de bulletin à télécharger.",
     "noReviews": "Aucune appréciation pour le moment.",
     "recentAssessments": "Évaluations et projets récents",
     "recentFor": "Résultats récents de {{name}}",
+    "reportCard": "Bulletin (PDF)",
+    "reportCardFailed": "Impossible de préparer le bulletin.",
     "subtitle": "Suivi des performances et bulletins du trimestre",
     "summative": "Performance sommative",
     "teacherReviews": "Appréciations des enseignants",
@@ -79,5 +83,40 @@
   "timetable": {
     "subtitle": "Consultez l'emploi du temps hebdomadaire de votre enfant",
     "title": "Emploi du temps de la classe"
+  },
+  "exeat": {
+    "title": "Sortie de l’école (exéat)",
+    "request": "Demander une sortie",
+    "intro": "Demandez que votre enfant puisse quitter l’internat. Le bureau de l’école doit encore l’approuver.",
+    "none": "Aucune demande de sortie.",
+    "reason": "Pourquoi {{name}} doit-il sortir ?",
+    "send": "Envoyer la demande",
+    "sent": "Demande envoyée au bureau de l’école.",
+    "sendFailed": "Impossible d’envoyer la demande.",
+    "leaves": "Départ",
+    "back": "Retour avant",
+    "cancel": "Annuler"
+  },
+  "pay": {
+    "owing": "Reste à payer ce trimestre : {{amount}}",
+    "button": "Payer par mobile money",
+    "title": "Payer les frais scolaires",
+    "intro": "Vous recevrez une demande sur votre téléphone pour approuver le paiement. Imboni ne voit jamais votre code PIN.",
+    "amount": "Montant à payer",
+    "phone": "Numéro mobile money",
+    "send": "Envoyer la demande à mon téléphone",
+    "waiting": "Vérifiez votre téléphone et approuvez le paiement avec votre code PIN…",
+    "success": "Payé. Reçu {{receipt}}. Merci.",
+    "failed": "Le paiement n’a pas abouti : {{reason}}",
+    "close": "Fermer",
+    "failedStart": "Impossible de lancer le paiement.",
+    "review": "Votre argent est arrivé et le bureau de l’école va le confirmer sous peu.",
+    "recent": "Paiements en ligne récents",
+    "status": {
+      "pending": "En attente d’approbation",
+      "successful": "Payé",
+      "failed": "Non payé",
+      "needs_review": "Reçu : le bureau confirme"
+    }
   }
 }

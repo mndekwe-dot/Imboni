@@ -5,6 +5,8 @@ import { ListSection } from '../../components/ui/ListSection'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { DataTable } from '../../components/ui/DataTable'
 import { Modal } from '../../components/ui/Modal'
+import { StatementModal } from './FinanceStatement'
+import { OnlinePaymentsReview } from './OnlinePaymentsReview'
 import { StudentSearchPicker } from '../../components/ui/StudentSearchPicker'
 import { ClassFilter } from '../../components/ui/ClassFilter'
 import { openDocument } from '../../api/documents'
@@ -16,6 +18,7 @@ import {
     getDebtors, getPayments, getStudentFinance, recordPayment, reversePayment,
 } from '../../api/finance'
 import { FinanceShell, Money, formatAmount, categoryName } from './FinanceShell'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 const METHODS = ['cash', 'momo', 'bank', 'cheque', 'waiver', 'other']
 
@@ -34,6 +37,7 @@ export function FinancePayments() {
     const [loading, setLoading]   = useState(true)
     const [taking, setTaking]     = useState(false)
     const [receipt, setReceipt]   = useState(null)
+    const [importing, setImporting] = useState(false)
 
     const [klass, setKlass] = useState({ grade: '', stream: '' })
 
@@ -76,6 +80,9 @@ export function FinancePayments() {
                 />
             )}
             {receipt && <ReceiptModal payment={receipt} onClose={() => setReceipt(null)} />}
+            {importing && <StatementModal onClose={() => setImporting(false)} onDone={load} />}
+
+            <OnlinePaymentsReview />
 
             <ClassFilter grade={klass.grade} stream={klass.stream}
                 onChange={setKlass} disabled={loading} />
@@ -84,6 +91,10 @@ export function FinancePayments() {
                 <button className="btn btn-primary" onClick={() => setTaking(true)}>
                     <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span>
                     {t('finance.payments.take')}
+                </button>
+                <button className="btn btn-outline" onClick={() => setImporting(true)}>
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">upload_file</span>
+                    {t('finance.payments.importStatement')}
                 </button>
                 <div className="toolbar-spacer" />
                 {/* Printing the receipt book is the cash-up: the same rows,
@@ -132,7 +143,7 @@ export function FinancePayments() {
                     </tr>
                 )}
             />
-            {loading && <p className="u-pad u-muted">{t('common.loading')}</p>}
+            {loading && <SkeletonList items={3} />}
         </FinanceShell>
     )
 }
@@ -373,8 +384,8 @@ function ReceiptModal({ payment, onClose }) {
     // The server renders this one. A receipt printed from the browser is a
     // two-column table with no letterhead, no balance and nowhere to sign --
     // the parent is being handed a document, not a screenshot.
-    function print() {
-        openDocument(`/imboni/finance/payments/${payment.id}/receipt/`)
+    function print(paper) {
+        openDocument(`/imboni/finance/payments/${payment.id}/receipt/`, paper ? { paper } : {})
     }
 
     return (
@@ -385,9 +396,12 @@ function ReceiptModal({ payment, onClose }) {
             footer={
                 <>
                     <button className="btn btn-outline" onClick={onClose}>{t('common.close')}</button>
-                    <button className="btn btn-primary" onClick={print}>
+                    {/* A school with a till-roll printer at the desk prints there; the A4 letterhead is for the file. */}
+                    <button className="btn btn-outline" onClick={() => print('58mm')}>{t('finance.payments.printRoll58')}</button>
+                    <button className="btn btn-outline" onClick={() => print('80mm')}>{t('finance.payments.printRoll80')}</button>
+                    <button className="btn btn-primary" onClick={() => print()}>
                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">print</span>
-                        {t('common.print')}
+                        {t('finance.payments.printA4')}
                     </button>
                 </>
             }

@@ -4,6 +4,7 @@ import { ParentChildren } from './ParentChildren'
 import { getMyChildren, getChildCard, getChildFees, getChildDocuments, getConsentRequests, respondToConsent } from '../../api/parent'
 
 vi.mock('../../api/parent', () => ({
+  getChildPay: vi.fn().mockResolvedValue({ enabled: false }),
   getMyChildren: vi.fn(),
   getChildCard: vi.fn(),
   getChildFees: vi.fn(),

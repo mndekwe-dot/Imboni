@@ -41,6 +41,7 @@ class StaffMemberSerializer(serializers.ModelSerializer):
     department_code = serializers.SerializerMethodField()
     has_account     = serializers.SerializerMethodField()
     account_role    = serializers.SerializerMethodField()
+    account_extra_roles = serializers.SerializerMethodField()
     salary          = serializers.SerializerMethodField()
 
     class Meta:
@@ -48,7 +49,7 @@ class StaffMemberSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'first_name', 'last_name', 'full_name', 'staff_no', 'job_title',
                   'department', 'department_name', 'department_code', 'employment_type', 'phone',
                   'email', 'national_id', 'start_date', 'end_date', 'is_active', 'note',
-                  'has_account', 'account_role', 'salary', 'updated_at']
+                  'has_account', 'account_role', 'account_extra_roles', 'salary', 'updated_at']
         read_only_fields = ['id', 'user', 'updated_at']
 
     def get_department_name(self, obj):
@@ -62,6 +63,9 @@ class StaffMemberSerializer(serializers.ModelSerializer):
 
     def get_account_role(self, obj):
         return obj.user.role if obj.user_id else ''
+
+    def get_account_extra_roles(self, obj):
+        return list(obj.user.extra_roles or []) if obj.user_id else []
 
     def get_salary(self, obj):
         salary = getattr(obj, 'salary', None)

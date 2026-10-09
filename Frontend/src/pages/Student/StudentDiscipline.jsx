@@ -85,7 +85,7 @@ function reportBadge(type) {
     switch (type) {
         case 'positive':    return { bg: 'var(--success-light)',     color: 'var(--success)',     label: 'Positive'    }
         case 'achievement': return { bg: 'var(--success-light)',     color: 'var(--success)',     label: 'Achievement' }
-        case 'warning':     return { bg: 'rgba(245,158,11,0.12)',    color: '#f59e0b',            label: 'Warning'     }
+        case 'warning':     return { bg: 'rgba(245,158,11,0.12)',    color: 'var(--warning)',            label: 'Warning'     }
         case 'incident':    return { bg: 'var(--destructive-light)', color: 'var(--destructive)', label: 'Negative'    }
         default:            return { bg: '',                         color: '',                   label: type          }
     }

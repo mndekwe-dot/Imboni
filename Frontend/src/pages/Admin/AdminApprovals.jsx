@@ -17,16 +17,17 @@ import '../../styles/components.css'
 import '../../styles/admin.css'
 import '../../styles/tables.css'
 import '../../styles/discipline.css'
+import { ModalOverlay } from '../../components/ui/ModalOverlay'
 
 const STATUS_TABS = ['pending', 'approved', 'rejected']
 
 function gradeColor(grade) {
     if (!grade) return 'var(--muted-foreground)'
     const g = grade.toUpperCase()
-    if (g === 'A' || g === 'A+') return '#16a34a'
-    if (g === 'B')               return '#2563eb'
-    if (g === 'C')               return '#ca8a04'
-    return '#dc2626'
+    if (g === 'A' || g === 'A+') return 'var(--success)'
+    if (g === 'B')               return 'var(--info)'
+    if (g === 'C')               return 'var(--warning)'
+    return 'var(--destructive)'
 }
 
 function RejectModal({ result, onClose, onDone }) {
@@ -55,7 +56,7 @@ function RejectModal({ result, onClose, onDone }) {
     }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <h2 className="modal-title">{t('admin.approvals.rejectTitle')}</h2>
@@ -76,7 +77,7 @@ function RejectModal({ result, onClose, onDone }) {
                             onChange={e => { setReason(e.target.value); setError('') }}
                             placeholder={t('admin.approvals.rejectReasonPlaceholder')}
                             autoFocus
-                        />
+                         aria-label={t('admin.approvals.rejectReasonPlaceholder')}/>
                     </div>
                     {error && <p className="form-error-text">{error}</p>}
                     <div className="u-row-sm u-justify-end">
@@ -88,7 +89,7 @@ function RejectModal({ result, onClose, onDone }) {
                     </div>
                 </form>
             </div>
-        </div>
+        </ModalOverlay>
     )
 }
 
@@ -126,10 +127,10 @@ function ResultRow({ result, selected, onSelect, onApprove, onReject, status }) 
             {status === 'pending' && (
                 <td>
                     <div className="u-flex u-gap-035">
-                        <button className="adm-btn u-success" title={t('common.approve')} onClick={() => onApprove(result.id)}>
+                        <button className="adm-btn u-success" title={t('common.approve')} onClick={() => onApprove(result.id)} aria-label={t('common.approve')}>
                             <span className="material-symbols-rounded" aria-hidden="true">check_circle</span>
                         </button>
-                        <button className="adm-btn u-destructive" title={t('common.reject')} onClick={() => onReject(result)}>
+                        <button className="adm-btn u-destructive" title={t('common.reject')} onClick={() => onReject(result)} aria-label={t('common.reject')}>
                             <span className="material-symbols-rounded" aria-hidden="true">cancel</span>
                         </button>
                     </div>

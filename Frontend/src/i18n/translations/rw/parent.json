@@ -65,11 +65,15 @@
   },
   "noChildren": "Nta mwana urahuzwa na konti yawe.",
   "results": {
+    "generating": "Birategurwa…",
     "noAssessments": "Nta bizamini byanditswe.",
     "noChildren": "Nta mwana ufitanye isano na konti yawe.",
+    "noReportCard": "Nta manota yemejwe muri iki gihembwe, nta raporo yo gukuramo.",
     "noReviews": "Nta bitekerezo birahaboneka.",
     "recentAssessments": "Ibizamini n'imishinga biheruka",
     "recentFor": "Amanota aheruka ya {{name}}",
+    "reportCard": "Raporo y’amanota (PDF)",
+    "reportCardFailed": "Ntibishobotse gutegura raporo.",
     "subtitle": "Gukurikirana imikorere na raporo z'igihembwe",
     "summative": "Imikorere y'igihembwe",
     "teacherReviews": "Ibitekerezo by'abarimu",
@@ -79,5 +83,40 @@
   "timetable": {
     "subtitle": "Reba gahunda y'icyumweru y'umwana wawe",
     "title": "Gahunda y'ishuri"
+  },
+  "exeat": {
+    "title": "Uruhushya rwo gusohoka mu ishuri",
+    "request": "Saba uruhushya",
+    "intro": "Saba ko umwana wawe yemererwa gusohoka mu icumbi. Ibiro by’ishuri biracyakeneye kubyemeza.",
+    "none": "Nta busabe bw’uruhushya burahari.",
+    "reason": "Kuki {{name}} akeneye gusohoka?",
+    "send": "Ohereza ubusabe",
+    "sent": "Ubusabe bwoherejwe ku biro by’ishuri.",
+    "sendFailed": "Ntibishobotse kohereza ubusabe.",
+    "leaves": "Asohoka",
+    "back": "Agaruka bitarenze",
+    "cancel": "Bireke"
+  },
+  "pay": {
+    "owing": "Ukirimo muri iki gihembwe: {{amount}}",
+    "button": "Ishyura na mobile money",
+    "title": "Ishyura amafaranga y’ishuri",
+    "intro": "Uzabona ubutumwa kuri telefone yawe wemeza kwishyura. Imboni ntihabona PIN yawe.",
+    "amount": "Amafaranga yo kwishyura",
+    "phone": "Nimero ya mobile money",
+    "send": "Ohereza ubutumwa kuri telefone yanjye",
+    "waiting": "Reba kuri telefone yawe wemeze kwishyura ukoresheje PIN yawe…",
+    "success": "Wishyuye. Inyemezabwishyu {{receipt}}. Murakoze.",
+    "failed": "Kwishyura ntibyagenze neza: {{reason}}",
+    "close": "Funga",
+    "failedStart": "Ntibishobotse gutangira kwishyura.",
+    "review": "Amafaranga yawe yageze kandi ibiro by’ishuri biraza kubyemeza vuba.",
+    "recent": "Ubwishyu bwa vuba bwakorewe kuri interineti",
+    "status": {
+      "pending": "Hategerejwe kwemezwa",
+      "successful": "Byishyuwe",
+      "failed": "Ntibyishyuwe",
+      "needs_review": "Byakiriwe: ibiro birabyemeza"
+    }
   }
 }

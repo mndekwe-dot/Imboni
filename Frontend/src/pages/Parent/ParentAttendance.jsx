@@ -7,6 +7,7 @@ import { useSessionUser } from '../../hooks/useSessionUser'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { AttendanceRecord } from '../../components/attendance/AttendanceRecord'
 import { parentNavItems, parentSecondaryItems } from './parentNav'
+import { ExeatRequestPanel } from './ParentExeat'
 import {
     getMyChildren, getChildAttendanceStats, getChildAttendanceCalendar,
 } from '../../api/parent'
@@ -15,6 +16,7 @@ import '../../styles/components.css'
 import '../../styles/parent.css'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 const toList = d => Array.isArray(d) ? d : (d?.results ?? [])
 
@@ -94,11 +96,14 @@ export function ParentAttendance() {
 
                     <DashboardContent>
                         {loading ? (
-                            <p className="u-pad u-muted">Loading…</p>
+                            <SkeletonList items={3} />
                         ) : !child ? (
                             <p className="u-pad u-muted">No children linked to your account yet.</p>
                         ) : (
-                            <AttendancePanel key={child.id} childId={child.id} />
+                            <>
+                                <AttendancePanel key={child.id} childId={child.id} />
+                                <ExeatRequestPanel key={`exeat-${child.id}`} child={child} />
+                            </>
                         )}
                     </DashboardContent>
                 </main>

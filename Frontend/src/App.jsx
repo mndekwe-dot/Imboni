@@ -10,6 +10,8 @@ import { useSyncStoredLanguage } from './hooks/useLanguage';
 import { LandingPage } from './pages/LandingPage';
 import { LogIn } from './pages/login';
 import { NotFound } from './pages/NotFound';
+import { SupportSession } from './pages/SupportSession';
+import { SupportBanner } from './components/SupportBanner';
 import { PortalLogin } from './pages/PortalLogin';
 import { PlatformLogin } from './pages/Platform/PlatformLogin';
 import { PlatformLayout } from './pages/Platform/PlatformLayout';
@@ -140,6 +142,7 @@ const DosSettings         = load(() => import('./pages/Dos/DosSettings'), 'DosSe
 // ── Matron ──
 const MatronDashboard     = load(() => import('./pages/Matron/MatronDashboard'), 'MatronDashboard');
 const MatronHealth        = load(() => import('./pages/Matron/MatronHealth'), 'MatronHealth');
+const MatronPharmacy      = load(() => import('./pages/Matron/MatronPharmacy'), 'MatronPharmacy');
 const MatronIncidents     = load(() => import('./pages/Matron/MatronIncidents'), 'MatronIncidents');
 const MatronMessages      = load(() => import('./pages/Matron/MatronMessages'), 'MatronMessages');
 const MatronStudents      = load(() => import('./pages/Matron/MatronStudents'), 'MatronStudents');
@@ -155,6 +158,7 @@ const AdminAnnouncements  = load(() => import('./pages/Admin/AdminAnnouncements'
 const AdminMessages       = load(() => import('./pages/Admin/AdminMessages'), 'AdminMessages');
 const AdminSettings       = load(() => import('./pages/Admin/AdminSettings'), 'AdminSettings');
 const AdminBilling        = load(() => import('./pages/Admin/AdminBilling'), 'AdminBilling');
+const AdminAudit          = load(() => import('./pages/Admin/AdminAudit'), 'AdminAudit');
 const AdminSupport        = load(() => import('./pages/Admin/AdminSupport'), 'AdminSupport');
 
 // ── Shared ──
@@ -186,6 +190,7 @@ function App() {
     {/* Keyboard users can jump past the sidebar straight to page content.
         Every portal page renders <main id="main-content">. */}
     <a href="#main-content" className="skip-link">Skip to main content</a>
+    <SupportBanner />
     <Suspense fallback={<RouteFallback />}>
     <Routes>
       <Route path="/" element={<LandingPage />} />
@@ -257,16 +262,16 @@ function App() {
       } />
       {/* ── Platform (vendor) console — all schools; served on the bare domain ── */}
       <Route path="/platform/login" element={<PlatformLogin />} />
-      <Route path="/platform" element={<PlatformLayout title="Overview" subtitle="Your platform at a glance"><OverviewSection /></PlatformLayout>} />
-      <Route path="/platform/applications" element={<PlatformLayout title="Applications" subtitle="Schools applying to join Imboni"><ApplicationsSection /></PlatformLayout>} />
-      <Route path="/platform/schools" element={<PlatformLayout title="Schools" subtitle="All tenant schools"><SchoolsSection /></PlatformLayout>} />
-      <Route path="/platform/contracts" element={<PlatformLayout title="Contracts" subtitle="Agreements & their lifecycle"><ContractsSection /></PlatformLayout>} />
-      <Route path="/platform/revenue" element={<PlatformLayout title="Revenue" subtitle="Payments received from schools"><RevenueSection /></PlatformLayout>} />
-      <Route path="/platform/expenses" element={<PlatformLayout title="Expenses" subtitle="Services & bills you pay for"><ExpensesSection /></PlatformLayout>} />
-      <Route path="/platform/support" element={<PlatformLayout title="Support" subtitle="Tickets raised by schools"><TicketsSection /></PlatformLayout>} />
-      <Route path="/platform/activity" element={<PlatformLayout title="Activity" subtitle="Who did what, above the schools"><ActivitySection /></PlatformLayout>} />
-      <Route path="/platform/health" element={<PlatformLayout title="Health" subtitle="Health of all of Imboni"><HealthSection /></PlatformLayout>} />
-      <Route path="/platform/operators" element={<PlatformLayout title="Operators" subtitle="Who works here, and what they may do"><OperatorsSection /></PlatformLayout>} />
+      <Route path="/platform" element={<PlatformLayout section="overview"><OverviewSection /></PlatformLayout>} />
+      <Route path="/platform/applications" element={<PlatformLayout section="applications"><ApplicationsSection /></PlatformLayout>} />
+      <Route path="/platform/schools" element={<PlatformLayout section="schools"><SchoolsSection /></PlatformLayout>} />
+      <Route path="/platform/contracts" element={<PlatformLayout section="contracts"><ContractsSection /></PlatformLayout>} />
+      <Route path="/platform/revenue" element={<PlatformLayout section="revenue"><RevenueSection /></PlatformLayout>} />
+      <Route path="/platform/expenses" element={<PlatformLayout section="expenses"><ExpensesSection /></PlatformLayout>} />
+      <Route path="/platform/support" element={<PlatformLayout section="support"><TicketsSection /></PlatformLayout>} />
+      <Route path="/platform/activity" element={<PlatformLayout section="activity"><ActivitySection /></PlatformLayout>} />
+      <Route path="/platform/health" element={<PlatformLayout section="health"><HealthSection /></PlatformLayout>} />
+      <Route path="/platform/operators" element={<PlatformLayout section="operators"><OperatorsSection /></PlatformLayout>} />
 
       {/* ── Public registration routes ── */}
       <Route path="/register/:uid/:token" element={<TeacherRegistration />} />
@@ -371,6 +376,7 @@ function App() {
       {/* ── Matron routes ── */}
       <Route path="/matron" element={<ProtectedRoute role="matron"><MatronDashboard /></ProtectedRoute>} />
       <Route path="/matron/health" element={<ProtectedRoute role="matron"><MatronHealth /></ProtectedRoute>} />
+      <Route path="/matron/pharmacy" element={<ProtectedRoute role="matron"><MatronPharmacy /></ProtectedRoute>} />
       <Route path="/matron/incidents" element={<ProtectedRoute role="matron"><MatronIncidents /></ProtectedRoute>} />
       <Route path="/matron/messages" element={<ProtectedRoute role="matron"><MatronMessages /></ProtectedRoute>} />
       <Route path="/matron/students" element={<ProtectedRoute role="matron"><MatronStudents /></ProtectedRoute>} />
@@ -384,7 +390,8 @@ function App() {
       <Route path="/admin/announcements" element={<ProtectedRoute role="admin"><AdminAnnouncements /></ProtectedRoute>} />
       <Route path="/admin/messages" element={<ProtectedRoute role="admin"><AdminMessages /></ProtectedRoute>} />
       <Route path="/admin/settings" element={<ProtectedRoute role="admin"><AdminSettings /></ProtectedRoute>} />
-      <Route path="/admin/audit" element={<Navigate to="/admin" replace />} />
+      <Route path="/support-session" element={<SupportSession />} />
+      <Route path="/admin/audit" element={<ProtectedRoute role="admin"><AdminAudit /></ProtectedRoute>} />
       <Route path="/admin/billing" element={<ProtectedRoute role="admin"><AdminBilling /></ProtectedRoute>} />
       <Route path="/admin/support" element={<ProtectedRoute role="admin"><AdminSupport /></ProtectedRoute>} />
       {/* ── Shared routes ── */}

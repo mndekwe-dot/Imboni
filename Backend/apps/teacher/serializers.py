@@ -168,6 +168,8 @@ class TeacherAttendanceStudentSerializer(serializers.Serializer):
     initials     = serializers.CharField()
     status       = serializers.CharField(allow_null=True)   # present|absent|late|excused|null
     notes        = serializers.CharField(allow_blank=True)
+    on_exeat     = serializers.BooleanField(default=False)    # signed out at the gate today
+    in_sick_bay  = serializers.BooleanField(default=False)    # admitted to the sick bay today
 
 
 class AttendanceRecordInputSerializer(serializers.Serializer):

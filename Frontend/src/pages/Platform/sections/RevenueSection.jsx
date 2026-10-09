@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Modal } from '../../../components/ui/Modal'
 import { StatCard } from '../../../components/layout/StatCard'
 import { getPayments, createPayment, deletePayment, getPlatformSchools } from '../../../api/platform'
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
+import { SkeletonList } from '../../../components/ui/Skeleton'
 
 const money = (v, c) => `${c || 'USD'} ${Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`
 const usd = (v) => `$${Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -11,8 +13,10 @@ const today = () => new Date().toISOString().slice(0, 10)
 const emptyForm = () => ({ client: '', amount: '', currency: 'USD', plan: 'basic', status: 'succeeded', received_at: today(), note: '' })
 
 const STATUS_CLS = { succeeded: 'ok', pending: 'warn', failed: 'bad', refunded: 'info' }
+const STATUSES = ['succeeded', 'pending', 'failed', 'refunded']
 
 export function RevenueSection() {
+    const { t } = useTranslation()
     const toast = useToast()
     const [payments, setPayments] = useState([])
     const [schools, setSchools]   = useState([])
@@ -21,15 +25,16 @@ export function RevenueSection() {
     const [form, setForm]         = useState(emptyForm())
     const [saving, setSaving]     = useState(false)
     const [busyId, setBusyId]     = useState(null)
+    const r = key => t(`platform.revenue.${key}`)
 
     const load = useCallback(async () => {
         setLoading(true)
         try {
             const [pays, schs] = await Promise.all([getPayments(), getPlatformSchools()])
             setPayments(pays); setSchools(schs)
-        } catch (e) { toast.error(errorMessage(e, 'Could not load revenue.')) }
+        } catch (e) { toast.error(errorMessage(e, t('platform.revenue.loadFailed'))) }
         finally { setLoading(false) }
-    }, [toast])
+    }, [toast, t])
     useEffect(() => { load() }, [load])
 
     const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
@@ -46,10 +51,10 @@ export function RevenueSection() {
             const payload = { ...form, amount: form.amount || '0' }
             if (!payload.client) delete payload.client
             await createPayment(payload)
-            toast.success('Payment recorded.')
+            toast.success(r('recorded'))
             setForm(emptyForm()); setAdding(false)
             load()
-        } catch (err) { toast.error(errorMessage(err, 'Could not record the payment.')) }
+        } catch (err) { toast.error(errorMessage(err, r('recordFailed'))) }
         finally { setSaving(false) }
     }
 
@@ -58,76 +63,81 @@ export function RevenueSection() {
         try {
             await deletePayment(p.id)
             setPayments(list => list.filter(x => x.id !== p.id))
-            toast.success('Payment removed.')
-        } catch (e) { toast.error(errorMessage(e, 'Could not remove the payment.')) }
+            toast.success(r('removed'))
+        } catch (e) { toast.error(errorMessage(e, r('removeFailed'))) }
         finally { setBusyId(null) }
     }
 
     return (
         <>
             <div className="platform-cards pf-mb">
-                <StatCard icon="account_balance" value={usd(total)} label="Total received" colorClass="success" />
-                <StatCard icon="trending_up" value={usd(monthTotal)} label="This month" colorClass="success" />
+                <StatCard icon="account_balance" value={usd(total)} label={r('totalReceived')} colorClass="success" />
+                <StatCard icon="trending_up" value={usd(monthTotal)} label={r('thisMonth')} colorClass="success" />
             </div>
 
             <div className="card">
                 <div className="card-content">
                     <div className="platform-panel-head">
-                        <h2>Payments received</h2>
-                        <button className="btn btn-primary btn-sm" onClick={() => setAdding(true)}>+ Record payment</button>
+                        <h2>{r('title')}</h2>
+                        <button className="btn btn-primary btn-sm" onClick={() => setAdding(true)}>{r('record')}</button>
                     </div>
 
                     {adding && (
-                        <Modal title="Record a payment" icon="payments" size="lg" onClose={() => setAdding(false)} footer={
+                        <Modal title={r('recordTitle')} icon="payments" size="lg" onClose={() => setAdding(false)} footer={
                             <>
-                                <button className="btn btn-outline" onClick={() => setAdding(false)}>Cancel</button>
-                                <button type="submit" form="payment-form" className="btn btn-primary" disabled={saving}>{saving ? 'Saving…' : 'Record payment'}</button>
+                                <button className="btn btn-outline" onClick={() => setAdding(false)}>{t('platform.common.cancel')}</button>
+                                <button type="submit" form="payment-form" className="btn btn-primary" disabled={saving}>{saving ? r('saving') : r('save')}</button>
                             </>
                         }>
                             <form id="payment-form" className="platform-form-grid" onSubmit={submit}>
-                                <label>School
+                                <label>{r('form.school')}
                                     <select className="form-input" value={form.client} onChange={e => set('client', e.target.value)}>
-                                        <option value="">Select</option>
+                                        <option value="">{r('form.select')}</option>
                                         {schools.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                                     </select>
                                 </label>
-                                <label>Amount<input className="form-input" type="number" step="0.01" min="0" required value={form.amount} onChange={e => set('amount', e.target.value)} /></label>
-                                <label>Currency<input className="form-input" maxLength={3} value={form.currency} onChange={e => set('currency', e.target.value.toUpperCase())} /></label>
-                                <label>Plan
+                                <label>{r('form.amount')}<input className="form-input" type="number" step="0.01" min="0" required value={form.amount} onChange={e => set('amount', e.target.value)} /></label>
+                                <label>{r('form.currency')}<input className="form-input" maxLength={3} value={form.currency} onChange={e => set('currency', e.target.value.toUpperCase())} /></label>
+                                <label>{r('form.plan')}
                                     <select className="form-input" value={form.plan} onChange={e => set('plan', e.target.value)}>
-                                        <option value="basic">Basic</option><option value="premium">Premium</option><option value="free">Free</option>
+                                        <option value="basic">{t('platform.common.plan.basic')}</option>
+                                        <option value="premium">{t('platform.common.plan.premium')}</option>
+                                        <option value="free">{t('platform.common.plan.free')}</option>
                                     </select>
                                 </label>
-                                <label>Status
+                                <label>{r('form.status')}
                                     <select className="form-input" value={form.status} onChange={e => set('status', e.target.value)}>
-                                        <option value="succeeded">Succeeded</option><option value="pending">Pending</option><option value="failed">Failed</option><option value="refunded">Refunded</option>
+                                        {STATUSES.map(s => <option key={s} value={s}>{r(`status.${s}`)}</option>)}
                                     </select>
                                 </label>
-                                <label>Date<input className="form-input" type="date" value={form.received_at} onChange={e => set('received_at', e.target.value)} /></label>
+                                <label>{r('form.date')}<input className="form-input" type="date" value={form.received_at} onChange={e => set('received_at', e.target.value)} /></label>
                             </form>
                         </Modal>
                     )}
 
                     {loading ? (
-                        <p className="platform-muted">Loading…</p>
+                        <SkeletonList items={3} />
                     ) : payments.length === 0 ? (
-                        <p className="platform-muted">No payments yet. They&apos;ll appear automatically once Stripe is live, or record one manually.</p>
+                        <p className="platform-muted">{r('empty')}</p>
                     ) : (
                         <div className="data-table-wrap">
                             <table className="data-table">
                                 <thead>
-                                    <tr><th>Date</th><th>School</th><th>Plan</th><th>Amount</th><th>Status</th><th className="platform-col-action">Action</th></tr>
+                                    <tr>
+                                        <th>{r('cols.date')}</th><th>{r('cols.school')}</th><th>{r('cols.plan')}</th><th>{r('cols.amount')}</th>
+                                        <th>{r('cols.status')}</th><th className="platform-col-action">{r('cols.action')}</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
                                     {payments.map(p => (
                                         <tr key={p.id}>
                                             <td>{(p.received_at || '').slice(0, 10)}</td>
                                             <td className="platform-strong">{p.school_name || '-'}</td>
-                                            <td className="pf-capitalize">{p.plan || '-'}</td>
+                                            <td className="pf-capitalize">{p.plan ? t(`platform.common.plan.${p.plan}`, { defaultValue: p.plan }) : '-'}</td>
                                             <td>{money(p.amount, p.currency)}</td>
-                                            <td><span className={`platform-chip platform-chip-${STATUS_CLS[p.status] || 'info'}`}>{p.status}</span></td>
+                                            <td><span className={`platform-chip platform-chip-${STATUS_CLS[p.status] || 'info'}`}>{t(`platform.revenue.status.${p.status}`, { defaultValue: p.status })}</span></td>
                                             <td className="platform-col-action">
-                                                <button className="btn btn-outline btn-sm platform-danger" disabled={busyId === p.id} onClick={() => remove(p)}>Delete</button>
+                                                <button className="btn btn-outline btn-sm platform-danger" disabled={busyId === p.id} onClick={() => remove(p)}>{r('delete')}</button>
                                             </td>
                                         </tr>
                                     ))}

@@ -27,7 +27,11 @@ def _term_label(term):
 
 # ── Money in ──────────────────────────────────────────────────────────────────
 
-def receipt_pdf(payment):
+# Paper widths a receipt can be printed on, in mm. `a4` is the full letterhead.
+THERMAL_PAPER = {'80mm': 80, '58mm': 58}
+
+
+def receipt_pdf(payment, paper='a4'):
     """
     One receipt, for the parent standing at the desk.
 
@@ -58,6 +62,13 @@ def receipt_pdf(payment):
         lines=lines,
         total=sum((line['payment'].amount for line in lines), ZERO),
     )
+    if paper in THERMAL_PAPER:
+        # The narrow roll: smaller type, no letterhead, one column.
+        width = THERMAL_PAPER[paper]
+        context.update(paper_width=width, font_pt=7.5 if width == 58 else 8.5,
+                       title_pt=10 if width == 58 else 12)
+        return pdf_response('documents/finance_receipt_thermal.html', context,
+                            f'receipt-{payment.receipt_no}-{paper}', inline=True)
     return pdf_response('documents/finance_receipt.html', context,
                         f'receipt-{payment.receipt_no}', inline=True)
 

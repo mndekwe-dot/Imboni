@@ -33,6 +33,10 @@ class Client(TenantMixin):
     on_trial = models.BooleanField(default=True)
     created_on = models.DateField(auto_now_add=True)
 
+    # Parts of the product the operator has switched off for this school (see
+    # modules.py). A list of module names; empty means everything the plan allows.
+    disabled_modules = models.JSONField(default=list, blank=True)
+
     # Stripe billing links (Phase 3) — set when the school subscribes.
     stripe_customer_id = models.CharField(max_length=64, blank=True, default='')
     stripe_subscription_id = models.CharField(max_length=64, blank=True, default='')
@@ -321,6 +325,24 @@ class SchoolApplication(models.Model):
 
     def __str__(self):
         return f'{self.school_name} ({self.status})'
+
+
+class ContractReminder(models.Model):
+    """
+    That a school was told its contract ends in about ``days_before`` days.
+
+    The reminder job runs daily and must be safe to run twice, or after a
+    missed day: this row is how it knows what has already been said.
+    """
+    contract = models.ForeignKey('Contract', on_delete=models.CASCADE, related_name='reminders')
+    days_before = models.PositiveSmallIntegerField()
+    sent_at = models.DateTimeField(auto_now_add=True)
+    # False for thresholds that were skipped because the contract was already
+    # closer than that when it was first seen - recorded so they are not sent late.
+    delivered = models.BooleanField(default=True)
+
+    class Meta:
+        unique_together = [('contract', 'days_before')]
 
 
 class Contract(models.Model):

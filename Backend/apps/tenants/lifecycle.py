@@ -111,3 +111,68 @@ def enforce_contract_lifecycle():
 
     return {'expired': expired, 'suspended': suspended,
             'restricted': restricted, 'demos_expired': demos_expired}
+
+
+# ── Telling the school before it happens ──────────────────────────────────────
+
+REMINDER_DAYS = (30, 15, 3)
+
+
+def _tell_school_admins(client, contract, days_left):
+    """Notify (in-app, and by email where they allow it) the school's administrators."""
+    from apps.authentication.models import User
+    from apps.notifications.services import notify_users
+
+    when = f'{contract.end_date:%d %B %Y}'
+    title = 'Your Imboni subscription is ending soon'
+    message = (
+        f'Your subscription ("{contract.title}") ends on {when}, in {days_left} day'
+        f'{"" if days_left == 1 else "s"}. After that the school becomes read-only, '
+        'and is suspended once the grace period passes. Please arrange the renewal '
+        'with Imboni to avoid interruption.'
+    )
+    with schema_context(client.schema_name):
+        admins = list(User.objects.filter(role='admin', is_active=True))
+        return notify_users(admins, title, message, 'announcement', send_email=True)
+
+
+def send_expiry_reminders(today=None):
+    """
+    Warn each school as its contract nears its end: at 30, 15 and 3 days.
+
+    Idempotent: a reminder is recorded when sent, so running twice in a day does
+    not repeat it. Resilient: if a day was missed (or a contract was only
+    entered with ten days left) the closest reminder still goes out once, and
+    the larger ones that are now meaningless are recorded as skipped rather than
+    sent late. Returns ``{'sent': n, 'skipped': n}``.
+    """
+    from .models import Contract, ContractReminder
+
+    today = today or timezone.localdate()
+    sent = skipped = 0
+
+    with schema_context(get_public_schema_name()):
+        horizon = today + timedelta(days=max(REMINDER_DAYS))
+        contracts = (Contract.objects
+                     .filter(status='active', end_date__gte=today, end_date__lte=horizon)
+                     .select_related('client'))
+        for contract in contracts:
+            days_left = (contract.end_date - today).days
+            due = [d for d in REMINDER_DAYS if days_left <= d]
+            if not due:
+                continue
+            closest = min(due)
+            done = set(ContractReminder.objects.filter(contract=contract).values_list('days_before', flat=True))
+            # Larger thresholds already passed: note them so they are never sent late.
+            for d in due:
+                if d != closest and d not in done:
+                    ContractReminder.objects.create(contract=contract, days_before=d, delivered=False)
+                    skipped += 1
+            if closest in done or contract.client is None:
+                continue
+            _tell_school_admins(contract.client, contract, days_left)
+            ContractReminder.objects.create(contract=contract, days_before=closest)
+            sent += 1
+            logger.info('Reminded %s: contract %s ends in %s days', contract.client.schema_name,
+                        contract.id, days_left)
+    return {'sent': sent, 'skipped': skipped}

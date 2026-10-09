@@ -413,3 +413,52 @@ class TestWeeklyDigestCommand:
 
         assert Notification.objects.count() == 0
         assert 'would send to' in out.getvalue()
+
+
+@pytest.mark.django_db
+class TestChildReportCard:
+    """A parent can download their own child's report card, and nobody else's."""
+
+    def _approved_result(self, student, term):
+        from apps.authentication.factories import SubjectFactory
+        from apps.results.models import Result
+        return Result.objects.create(
+            student=student, subject=SubjectFactory(), term=term, status='approved',
+            class_test_marks=20, exam_score=50, final_score=70,
+        )
+
+    def test_parent_gets_a_pdf_for_their_own_child(self, api_client):
+        parent = UserFactory(role='parent')
+        child = StudentFactory()
+        term = AcademicTermFactory(is_current=True)
+        ParentStudentRelationshipFactory(parent=parent, student=child)
+        self._approved_result(child, term)
+
+        api_client.force_authenticate(parent)
+        response = api_client.get(f'/imboni/parents/{child.id}/report-card/')
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response['Content-Type'] == 'application/pdf'
+        assert response.content.startswith(b'%PDF')
+
+    def test_parent_cannot_download_another_familys_report_card(self, api_client):
+        parent = UserFactory(role='parent')
+        stranger = StudentFactory()
+        term = AcademicTermFactory(is_current=True)
+        self._approved_result(stranger, term)
+
+        api_client.force_authenticate(parent)
+        response = api_client.get(f'/imboni/parents/{stranger.id}/report-card/')
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_no_approved_results_means_no_report_card(self, api_client):
+        parent = UserFactory(role='parent')
+        child = StudentFactory()
+        AcademicTermFactory(is_current=True)
+        ParentStudentRelationshipFactory(parent=parent, student=child)
+
+        api_client.force_authenticate(parent)
+        response = api_client.get(f'/imboni/parents/{child.id}/report-card/')
+
+        assert response.status_code == status.HTTP_404_NOT_FOUND

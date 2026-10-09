@@ -8,6 +8,7 @@ import { carryArrears, getArrears } from '../../api/finance'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { Money } from './FinanceShell'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 /**
  * Money families still owe from terms that have finished, and the button that
@@ -72,7 +73,7 @@ export function ArrearsPanel() {
 
             <ListSection icon="history" title={t('finance.income.arrearsTitle')}
                 count={loading ? null : <Money value={arrears.total} />}>
-                {loading ? <p className="u-muted">{t('common.loading')}</p> : (
+                {loading ? <SkeletonList items={3} /> : (
                     <>
                         <p className="u-muted u-sm">{t('finance.income.arrearsNote')}</p>
                         <ul className="row-list mt-1">

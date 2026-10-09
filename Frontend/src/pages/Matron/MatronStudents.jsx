@@ -10,6 +10,7 @@ import { ClassPicker } from '../../components/ui/ClassPicker'
 import { DataTable } from '../../components/ui/DataTable'
 import { SearchBar } from '../../components/ui/SearchBar'
 import { MatronStudentModal } from '../../components/modals/MatronStudentModal'
+import { MedicalBadges } from '../../components/ui/MedicalBadges'
 import { useSchoolBranding } from '../../hooks/useSchoolBranding'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { useNotifications } from '../../hooks/useNotifications'
@@ -23,6 +24,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/matron.css'
 import '../../styles/pages.css'
+import { asRow } from '../../utils/a11y'
 
 /**
  * The boarding roll.
@@ -59,13 +61,13 @@ function toRow(s) {
  * on the row to tab to.
  */
 function StudentRow({ student, onOpen }) {
-    const { initials, name, studentCode, year, classBadge, room, dormitory, boardingType } = student
+    const { initials, name, studentCode, year, classBadge, room, dormitory, boardingType, medicalFlags } = student
     return (
         <tr
             data-year={year}
             data-name={name.toLowerCase()}
             className="row-clickable"
-            onClick={() => onOpen(student)}
+            {...asRow(() => onOpen(student))}
         >
             <td>
                 <div className="stu-cell">
@@ -75,6 +77,7 @@ function StudentRow({ student, onOpen }) {
                             {name}
                         </button>
                         <div className="stu-id">{studentCode}</div>
+                        <MedicalBadges flags={medicalFlags} />
                     </div>
                 </div>
             </td>
@@ -125,6 +128,7 @@ export function MatronStudents() {
         room: s.room_number,
         dormitory: s.dormitory,
         boardingType: s.boarding_type,
+        medicalFlags: s.medical_flags || [],
     })), [students])
 
     // Houses the roll actually contains, so the filter can never offer a
@@ -206,7 +210,8 @@ export function MatronStudents() {
     return (
         <>
             {openStudent && (
-                <MatronStudentModal student={openStudent} onClose={() => setOpenStudent(null)} />
+                <MatronStudentModal student={openStudent} onClose={() => setOpenStudent(null)}
+                    onMedicalChange={(id, flags) => setStudents(prev => prev.map(s => (s.id === id ? { ...s, medical_flags: flags } : s)))} />
             )}
             <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>

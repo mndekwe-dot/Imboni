@@ -47,12 +47,13 @@ class MatronStudentSerializer(serializers.ModelSerializer):
     section = serializers.SerializerMethodField()
     dormitory = serializers.SerializerMethodField()
     room_number = serializers.SerializerMethodField()
+    medical_flags = serializers.JSONField(source='student.medical_flags', read_only=True)
 
     class Meta:
         model = BoardingStudent
         fields = [
             'id', 'student_pk', 'student_code', 'full_name', 'grade_label', 'grade', 'section',
-            'dormitory', 'room_number', 'boarding_type', 'bed_number',
+            'dormitory', 'room_number', 'boarding_type', 'bed_number', 'medical_flags',
         ]
 
     def get_student_pk(self, obj):

@@ -34,3 +34,28 @@ describe('Select', () => {
     expect(screen.queryByText('Option B')).not.toBeInTheDocument()
   })
 })
+
+describe('Select keyboard', () => {
+  it('opens with ArrowDown, moves with arrows, picks with Enter and returns focus to the trigger', () => {
+    const onChange = vi.fn()
+    render(<Select value="" onChange={onChange} options={options} />)
+    const trigger = screen.getByRole('button')
+    fireEvent.keyDown(trigger, { key: 'ArrowDown' })
+    expect(screen.getByRole('listbox')).toBeInTheDocument()
+    expect(document.activeElement).toBe(screen.getByRole('option', { name: 'Option A' }))
+    fireEvent.keyDown(screen.getByRole('listbox'), { key: 'ArrowDown' })
+    expect(document.activeElement).toBe(screen.getByRole('option', { name: 'Option B' }))
+    fireEvent.keyDown(screen.getByRole('listbox'), { key: 'Enter' })
+    expect(onChange).toHaveBeenCalledWith('b')
+    expect(document.activeElement).toBe(trigger)
+  })
+
+  it('closes on Escape without choosing', () => {
+    const onChange = vi.fn()
+    render(<Select value="" onChange={onChange} options={options} />)
+    fireEvent.click(screen.getByRole('button'))
+    fireEvent.keyDown(screen.getByRole('listbox'), { key: 'Escape' })
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument()
+    expect(onChange).not.toHaveBeenCalled()
+  })
+})

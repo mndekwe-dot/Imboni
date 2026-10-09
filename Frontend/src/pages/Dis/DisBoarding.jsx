@@ -24,6 +24,7 @@ import { TabGroup } from '../../components/ui/TabGroup'
 import { StudentSearchPicker } from '../../components/ui/StudentSearchPicker'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage, partialLoad } from '../../utils/errors'
+import { ModalOverlay } from '../../components/ui/ModalOverlay'
 
 const BOARDING_TYPE_LABEL = {
     full_boarder:   'Full Boarder',
@@ -96,7 +97,7 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
         : record ? `${record.grade || ''}${record.section || ''}` : ''
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
@@ -176,11 +177,11 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
                     <div className="form-row-2">
                         <div className="form-group">
                             <label className="form-label">{t('common.roomNumber')} *</label>
-                            <input className="form-input" name="room_number" value={form.room_number} onChange={handleChange} placeholder="e.g. 12A" />
+                            <input className="form-input" name="room_number" value={form.room_number} onChange={handleChange} placeholder="e.g. 12A"  aria-label="e.g. 12A"/>
                         </div>
                         <div className="form-group">
                             <label className="form-label">{t('modals.dormitory.bedsPerRoom')}</label>
-                            <input className="form-input" name="bed_number" value={form.bed_number} onChange={handleChange} placeholder="e.g. 3" />
+                            <input className="form-input" name="bed_number" value={form.bed_number} onChange={handleChange} placeholder="e.g. 3"  aria-label="e.g. 3"/>
                         </div>
                     </div>
 
@@ -192,7 +193,7 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
 
                     <div className="form-group">
                         <label className="form-label">{t('common.notesOptionalLabel')}</label>
-                        <input className="form-input" name="notes" value={form.notes} onChange={handleChange} placeholder={t('dis.boarding.notesPlaceholder')} />
+                        <input className="form-input" name="notes" value={form.notes} onChange={handleChange} placeholder={t('dis.boarding.notesPlaceholder')}  aria-label={t('dis.boarding.notesPlaceholder')}/>
                     </div>
 
                     {error && <p className="dis-modal-err">{error}</p>}
@@ -206,7 +207,7 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     )
 }
 

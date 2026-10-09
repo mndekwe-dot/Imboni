@@ -5,6 +5,7 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
 import { DataTable } from '../../components/ui/DataTable'
+import { MedicalBadges } from '../../components/ui/MedicalBadges'
 import { disNavItems, disSecondaryItems } from './disNav'
 import { getDisDining, createDisDining, patchDisDining, deleteDisDining, searchDisStudents } from '../../api/discipline'
 import '../../styles/layout.css'
@@ -15,6 +16,7 @@ import { StatCard } from '../../components/layout/StatCard'
 import { StudentSearchPicker } from '../../components/ui/StudentSearchPicker'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { ModalOverlay } from '../../components/ui/ModalOverlay'
 
 const PLAN_TYPES = [
     { value: 'full_board',  labelKey: 'dis.dining.fullBoard'  },
@@ -68,7 +70,7 @@ function DiningModal({ plan, onClose, onSave }) {
     }
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
+        <ModalOverlay onClose={onClose}>
             <div className="modal-box modal-box-sm" onClick={e => e.stopPropagation()}>
                 <div className="modal-header">
                     <div className="modal-header-left">
@@ -145,7 +147,7 @@ function DiningModal({ plan, onClose, onSave }) {
                     </button>
                 </div>
             </div>
-        </div>
+        </ModalOverlay>
     )
 }
 
@@ -154,7 +156,7 @@ function DiningModal({ plan, onClose, onSave }) {
 function DiningRow({ plan, onEdit, onDelete }) {
     const { t } = useTranslation()
     const [confirmDelete, setConfirmDelete] = useState(false)
-    const { student_name, student_id, plan_type, term_name, dietary_flags = [], allergies } = plan
+    const { student_name, student_id, plan_type, term_name, dietary_flags = [], allergies, medical_flags = [] } = plan
     const label = planLabel(t, plan_type)
     const cls   = PLAN_TYPE_CLS[plan_type] || ''
 
@@ -165,9 +167,10 @@ function DiningRow({ plan, onEdit, onDelete }) {
             <td><span className={`badge${cls ? ' badge-' + cls : ''}`}>{label}</span></td>
             <td className="text-muted">{term_name || '-'}</td>
             <td>
-                {dietary_flags.length === 0 && !allergies ? <span className="dis-dash">-</span> : (
+                {dietary_flags.length === 0 && !allergies && medical_flags.length === 0 ? <span className="dis-dash">-</span> : (
                     <div className="u-row-sm u-wrap">
                         {dietary_flags.map(f => <span key={f} className="badge badge-soft-destructive">{t(`dis.dining.flags.${f}`)}</span>)}
+                        <MedicalBadges flags={medical_flags} />
                         {allergies && <span className="cell-sub">{allergies}</span>}
                     </div>
                 )}
