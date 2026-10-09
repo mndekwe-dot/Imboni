@@ -23,6 +23,7 @@ import { useToast } from '../../context/ToastContext'
 import { partialLoad } from '../../utils/errors'
 import { useDebouncedValue } from '../../hooks/useDebouncedValue'
 import { ModalOverlay } from '../../components/ui/ModalOverlay'
+import { SkeletonText } from '../../components/ui/Skeleton'
 
 function initials(name = '') {
     return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
@@ -123,8 +124,8 @@ function StudentDetailModal({ student, onClose }) {
                 </div>
 
                 {loading ? (
-                    <div className="modal-body u-center-text u-muted u-pad">
-                        {t('admin.students.loadingProfile')}
+                    <div className="modal-body">
+                        <SkeletonText lines={6} label={t('admin.students.loadingProfile')} />
                     </div>
                 ) : (
                     <div className="modal-body adm-student-body">

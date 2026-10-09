@@ -15,6 +15,7 @@ import '../../styles/student.css'
 import { StatCard } from '../../components/layout/StatCard'
 import { useToast } from '../../context/ToastContext'
 import { partialLoad } from '../../utils/errors'
+import '../../styles/tables.css'
 
 // The Student pages named colours (blue, teal, orange, amber, purple) where
 // the rest of the app names meanings. purple was never even defined in

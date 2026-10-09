@@ -5,7 +5,7 @@ import {
 } from '../../../api/platform'
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
-import { SkeletonList } from '../../../components/ui/Skeleton'
+import { SkeletonList, SkeletonText } from '../../../components/ui/Skeleton'
 
 const STATUS_CLS = { open: 'warn', in_progress: 'info', resolved: 'ok', closed: 'bad' }
 const PRIORITY_CLS = { low: 'info', normal: 'info', high: 'warn', urgent: 'bad' }
@@ -25,7 +25,7 @@ function SchoolContext({ data }) {
     const c = (key, vars) => t(`platform.tickets.ctx.${key}`, vars)
     const statusWord = s => t(`platform.tickets.status.${s}`, { defaultValue: String(s).replace('_', ' ') })
 
-    if (!data) return <p className="platform-muted pf-tight">{c('loading')}</p>
+    if (!data) return <SkeletonText lines={5} label={c('loading')} />
     if (!data.school) {
         return <p className="platform-muted pf-tight">{c('gone')}</p>
     }

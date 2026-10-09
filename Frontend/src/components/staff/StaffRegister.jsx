@@ -155,9 +155,12 @@ export function StaffRegister({ onSalary, reloadKey = 0 }) {
                         </td>
                     </tr>
                 )}
+                loading={loading}
+                loadingLabel={t('common.loading')}
+                skeletonAvatar
                 emptyIcon="badge"
-                emptyTitle={loading ? t('common.loading') : t('staff.empty')}
-                emptyDesc={loading ? '' : t('staff.emptyDesc')}
+                emptyTitle={t('staff.empty')}
+                emptyDesc={t('staff.emptyDesc')}
             />
         </>
     )

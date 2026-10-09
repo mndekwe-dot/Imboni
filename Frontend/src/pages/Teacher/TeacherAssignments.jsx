@@ -27,6 +27,7 @@ import { SubmissionReviewModal } from '../../components/assignments/SubmissionRe
 import { AssignmentStatsModal } from '../../components/assignments/AssignmentStatsModal'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { SkeletonTable } from '../../components/ui/Skeleton'
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const STATUS_TABS = [
@@ -140,7 +141,7 @@ function GradeModal({ assignment, onClose }) {
                 </div>
             }>
             {loading ? (
-                <p className="u-muted">{t('teacher.assignments.loadingRoster')}</p>
+                <SkeletonTable rows={5} cols={3} label={t('teacher.assignments.loadingRoster')} />
             ) : !sheet?.students?.length ? (
                 <p className="u-muted">{t('teacher.assignments.noStudentsIn', { class: assignment.class_name })}</p>
             ) : (
@@ -208,7 +209,7 @@ function SubmissionsModal({ assignment, onClose, onReview }) {
         <Modal title={t('teacher.assignments.submissionsTitle', { title: assignment.title })} icon="fact_check" onClose={onClose} size="wide"
             footer={<div className="modal-footer-row"><button className="btn btn-outline" onClick={onClose}>{t('common.close')}</button></div>}>
             {loading ? (
-                <p className="u-muted">{t('teacher.assignments.loadingSubmissions')}</p>
+                <SkeletonTable rows={4} cols={4} label={t('teacher.assignments.loadingSubmissions')} />
             ) : subs.length === 0 ? (
                 <p className="u-muted">{t('teacher.assignments.noSubmissions')}</p>
             ) : (
@@ -600,7 +601,7 @@ export function TeacherAssignments() {
                         </div>
 
                         {loading ? (
-                            <EmptyState icon="sync" title={t('teacher.assignments.loadingAssignments')} description={t('teacher.assignments.fetching')} />
+                            <SkeletonTable rows={5} cols={5} label={t('teacher.assignments.loadingAssignments')} />
                         ) : visible.length > 0 ? (
                             <div className="asgn-list-wrap">
                                 <div className="asgn-list-header">

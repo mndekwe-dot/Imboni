@@ -29,6 +29,7 @@ import { errorMessage } from '../../utils/errors'
 import { saveWithClashCheck } from '../../utils/examClash'
 import { confirmDialog } from '../../utils/confirm'
 import { asButton } from '../../utils/a11y'
+import { SkeletonCards } from '../../components/ui/Skeleton'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -728,7 +729,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
 
                                         {/* ── Month calendar ── */}
                                         {examsLoading ? (
-                                            <p className="empty-note padded">{t('dos.scheduling.loadingExams')}</p>
+                                            <SkeletonCards count={1} lines={9} label={t('dos.scheduling.loadingExams')} />
                                         ) : (
                                             <div className="es-cal-month-wrap">
 

@@ -18,6 +18,7 @@ import '../../styles/admin.css'
 import '../../styles/tables.css'
 import '../../styles/discipline.css'
 import { ModalOverlay } from '../../components/ui/ModalOverlay'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 const STATUS_TABS = ['pending', 'approved', 'rejected']
 
@@ -326,7 +327,7 @@ export function AdminApprovals() {
                             </div>
                             <div className="card-content u-p-0">
                                 {loading ? (
-                                    <p className="u-muted u-pad">Loading…</p>
+                                    <SkeletonList items={5} />
                                 ) : results.length === 0 ? (
                                     <div className="u-center-text u-muted u-pad-xl">
                                         <span className="material-symbols-rounded u-empty-icon-lg" aria-hidden="true">

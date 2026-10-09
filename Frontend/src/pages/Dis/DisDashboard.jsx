@@ -18,6 +18,7 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { confirmDialog } from '../../utils/confirm'
+import { SkeletonList, SkeletonTable } from '../../components/ui/Skeleton'
 
 const TYPE_META = {
     incident:    { cls: 'negative', key: 'typeIncident'    },
@@ -197,7 +198,7 @@ export function DisDashboard() {
                                 </div>
                                 <div className="card-content">
                                     {loading ? (
-                                        <p className="dis-card-empty">{t('dis.dashboard.loading')}</p>
+                                        <SkeletonTable rows={4} cols={4} label={t('dis.dashboard.loading')} />
                                     ) : incidents.length === 0 ? (
                                         <p className="dis-card-empty">{t('dis.dashboard.noRecentIncidents')}</p>
                                     ) : (
@@ -314,7 +315,7 @@ export function DisDashboard() {
                                     </div>
                                     <div className="card-content">
                                         {loading ? (
-                                            <p className="u-muted">{t('dis.dashboard.loading')}</p>
+                                            <SkeletonList items={3} flush label={t('dis.dashboard.loading')} />
                                         ) : staff.length === 0 ? (
                                             <p className="u-muted">{t('dis.dashboard.noStaff')}</p>
                                         ) : (

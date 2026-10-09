@@ -106,3 +106,6 @@
     border-bottom: 1px solid var(--border);
 }
 .skel-chart-bar { flex: 1; border-radius: var(--radius-sm) var(--radius-sm) 0 0; }
+
+/* A heading placeholder: sits on the heading's baseline, about a name's width. */
+.skel-heading { display: inline-block; width: 11rem; max-width: 60%; height: 1.1em; vertical-align: middle; }

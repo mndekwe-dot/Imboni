@@ -4,6 +4,8 @@ import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { StatCard } from '../layout/StatCard'
+import '../../styles/admin.css'
+import { SkeletonCards } from '../../components/ui/Skeleton'
 
 /**
  * The school's year groups and streams — the one editor for all three portals.
@@ -191,7 +193,7 @@ export function SchoolStructureEditor({ showStats = true }) {
 
     useEffect(() => { if (!loading) setDraft(config) }, [loading, config])
 
-    if (loading || draft === null) return <p className="adm-set-note">{t('common.loading')}</p>
+    if (loading || draft === null) return <SkeletonCards count={2} lines={4} label={t('common.loading')} />
     if (error && !draft.length)    return <p className="adm-danger">{t('common.errorPrefix')}: {error}</p>
 
     const totalYears   = draft.reduce((sum, sec) => sum + sec.years.length, 0)

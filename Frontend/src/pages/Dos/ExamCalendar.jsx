@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react'
 import { formatWeekdayShortUTC } from '../../utils/date'
+import '../../styles/tables.css'
 
 /*
   Drag-and-drop exam rescheduling.

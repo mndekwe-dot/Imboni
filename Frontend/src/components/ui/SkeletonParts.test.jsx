@@ -107,3 +107,11 @@ describe('SkeletonPage', () => {
         expect(screen.getByRole('status')).toHaveTextContent('Loading students…')
     })
 })
+
+describe('SkeletonPage with no stat strip', () => {
+    it.each(['dashboard', 'table', 'settings'])('%s still announces loading exactly once at stats=0', variant => {
+        const { container } = render(<SkeletonPage variant={variant} stats={0} label="Loading classes…" />)
+        expect(container.querySelectorAll('[role="status"]')).toHaveLength(1)
+        expect(container.querySelector('[role="status"]')).toHaveTextContent('Loading classes…')
+    })
+})

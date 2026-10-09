@@ -15,6 +15,7 @@ import '../../styles/components.css'
 import '../../styles/student.css'
 import { useToast } from '../../context/ToastContext'
 import { partialLoad } from '../../utils/errors'
+import { SkeletonCards } from '../../components/ui/Skeleton'
 
 const CATEGORY_ICON = {
     urgent:   'priority_high',
@@ -144,7 +145,7 @@ export function StudentAnnouncements() {
                         </div>
 
                         {loading ? (
-                            <p className="u-pad u-muted">{t('student.announcements.loading')}</p>
+                            <SkeletonCards count={3} lines={3} label={t('student.announcements.loading')} />
                         ) : visible.length === 0 ? (
                             <p className="u-pad u-muted">
                                 {chip === 'All'

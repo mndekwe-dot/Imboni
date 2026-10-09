@@ -16,7 +16,7 @@ import { getDebtors, getStudentFinance, saveStudentAccount } from '../../api/fin
 import { Money, formatAmount, categoryName } from './FinanceShell'
 import { badge } from '../../utils/tone'
 import { RemindersModal } from './FinanceReminders'
-import { SkeletonList } from '../../components/ui/Skeleton'
+import { SkeletonList, SkeletonTitle } from '../../components/ui/Skeleton'
 
 /** Who owes what, worst first — the list the office actually works from. */
 export function DebtorsPanel() {
@@ -184,7 +184,7 @@ function StudentAccountModal({ id, onClose, onSaved }) {
 
     return (
         <Modal
-            title={data?.student?.name || t('common.loading')}
+            title={data?.student?.name || <SkeletonTitle />}
             icon="account_balance_wallet"
             size="wide"
             onClose={onClose}

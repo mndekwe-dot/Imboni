@@ -16,7 +16,7 @@ import {
 } from '../../api/library'
 import { printPdf } from '../../api/documents'
 import { LibraryShell } from './LibraryShell'
-import { SkeletonList } from '../../components/ui/Skeleton'
+import { SkeletonList, SkeletonTitle } from '../../components/ui/Skeleton'
 
 const CATEGORIES = ['all', 'textbook', 'fiction', 'nonfiction', 'reference', 'periodical', 'other']
 
@@ -326,7 +326,7 @@ function BookDetail({ bookId, onClose, onDeleted, onCopyAdded }) {
 
     return (
         <Modal
-            title={book?.title || t('common.loading')}
+            title={book?.title || <SkeletonTitle />}
             icon="menu_book"
             size="wide"
             onClose={onClose}

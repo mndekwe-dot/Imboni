@@ -18,6 +18,7 @@ import '../../styles/components.css'
 import '../../styles/student.css'
 import { useToast } from '../../context/ToastContext'
 import { partialLoad, errorMessage } from '../../utils/errors'
+import { SkeletonCards, SkeletonList } from '../../components/ui/Skeleton'
 
 const TAB_ACTIVITIES = 'activities'
 const TAB_EVENTS     = 'events'
@@ -155,7 +156,7 @@ export function StudentActivities() {
                         {/* Tab: Extracurricular Activities */}
                         {mainTab === TAB_ACTIVITIES && (
                             loading ? (
-                                <p className="u-pad u-muted">{t('student.activities.loadingActivities')}</p>
+                                <SkeletonCards count={3} lines={2} label={t('student.activities.loadingActivities')} />
                             ) : (enrolled.length === 0 && available.length === 0) ? (
                                 <EmptyState
                                     icon="sports_soccer"
@@ -194,7 +195,7 @@ export function StudentActivities() {
                         {/* Tab: Upcoming Events */}
                         {mainTab === TAB_EVENTS && (
                             loading ? (
-                                <p className="u-pad u-muted">{t('student.activities.loadingEvents')}</p>
+                                <SkeletonList items={3} label={t('student.activities.loadingEvents')} />
                             ) : events.length === 0 ? (
                                 <EmptyState
                                     icon="event"

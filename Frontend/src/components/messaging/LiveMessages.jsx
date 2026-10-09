@@ -14,6 +14,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/pages.css'
 import { ModalOverlay } from '../ui/ModalOverlay'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 const POLL_MS = 20000
 
@@ -227,7 +228,7 @@ export function LiveMessages({
 
                                 <div className="conv-list">
                                     {loadingConvs ? (
-                                        <p className="lm-note">{t('common.loading')}</p>
+                                        <SkeletonList items={5} flush label={t('common.loading')} />
                                     ) : conversations.length === 0 ? (
                                         <p className="lm-note">
                                             {t('messaging.noConversations')}
@@ -286,7 +287,7 @@ export function LiveMessages({
 
                                             <div className="thread-body" ref={threadBodyRef}>
                                                 {loadingThread && messages.length === 0 ? (
-                                                    <p className="lm-thread-note">{t('common.loading')}</p>
+                                                    <SkeletonList items={3} flush label={t('common.loading')} />
                                                 ) : messages.length === 0 ? (
                                                     <p className="lm-thread-note">No messages yet. Say hello.</p>
                                                 ) : messages.map(m => (

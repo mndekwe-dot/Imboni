@@ -27,6 +27,7 @@ import '../../styles/components.css'
 import '../../styles/admin.css'
 import '../../styles/dos.css'
 import '../../styles/discipline.css'
+import { SkeletonCards } from '../../components/ui/Skeleton'
 
 // ── Nav items ─────────────────────────────────────────────────────────────────
 
@@ -188,7 +189,7 @@ function SchoolInfoSection() {
         finally { setSaving(false) }
     }
 
-    if (settingsLoading) return <p className="adm-set-note">{t('common.loading')}</p>
+    if (settingsLoading) return <SkeletonCards count={2} lines={5} label={t('common.loading')} />
 
     return (
         <div className="u-flex u-col u-gap-125">

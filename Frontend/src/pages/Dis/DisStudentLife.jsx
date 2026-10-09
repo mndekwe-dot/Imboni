@@ -29,6 +29,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
 import '../../styles/tables.css'
+import { SkeletonCards, SkeletonList } from '../../components/ui/Skeleton'
 
 /**
  * Clubs, activities and student leadership.
@@ -512,7 +513,7 @@ export function DisStudentLife() {
                                     count={actLoading ? null : t('dis.activities.clubCount', { count: visibleActivities.length })}
                                 >
                                     {actLoading ? (
-                                        <p className="u-muted">{t('dis.studentLife.loadingActivities')}</p>
+                                        <SkeletonCards count={3} lines={2} label={t('dis.studentLife.loadingActivities')} />
                                     ) : visibleActivities.length === 0 ? (
                                         <EmptyState
                                             icon="emoji_events"
@@ -605,7 +606,7 @@ export function DisStudentLife() {
                                         count={leadLoading ? null : t('dis.studentLife.prefectCount', { count: prefects.length })}
                                     >
                                         {leadLoading ? (
-                                            <p className="u-muted">{t('dis.studentLife.loadingLeaders')}</p>
+                                            <SkeletonList items={3} flush label={t('dis.studentLife.loadingLeaders')} />
                                         ) : prefects.length === 0 ? (
                                             <EmptyState
                                                 icon="military_tech"

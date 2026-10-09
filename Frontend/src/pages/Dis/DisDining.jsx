@@ -291,32 +291,31 @@ export function DisDining() {
                             </div>
                         </div>
 
-                        {loading ? (
-                            <p className="u-pad u-muted">{t('dis.dining.loading')}</p>
-                        ) : (
-                            <DataTable
-                                title={t('dis.dining.plans')}
-                                data={visible}
-                                columns={[
-                                    t('common.student'), t('common.admissionNo'),
-                                    t('dis.dining.planType'), t('common.term'), t('dis.dining.dietary'), t('common.actions'),
-                                ]}
-                                renderRow={(p, i) => (
-                                    <DiningRow
-                                        key={p.id || i}
-                                        plan={p}
-                                        onEdit={setEditingPlan}
-                                        onDelete={handleDelete}
-                                    />
-                                )}
-                                emptyIcon="restaurant"
-                                emptyTitle={t('dis.dining.noPlans')}
-                                emptyDesc={filter === 'all'
-                                    ? t('dis.dining.noPlansDesc')
-                                    : t('dis.dining.noPlansOfType', { type: planLabel(t, filter) })}
-                                onClearFilters={filter !== 'all' ? () => setFilter('all') : undefined}
-                            />
-                        )}
+                        <DataTable
+                            loading={loading}
+                            loadingLabel={t('dis.dining.loading')}
+                            skeletonAvatar
+                            title={t('dis.dining.plans')}
+                            data={visible}
+                            columns={[
+                                t('common.student'), t('common.admissionNo'),
+                                t('dis.dining.planType'), t('common.term'), t('dis.dining.dietary'), t('common.actions'),
+                            ]}
+                            renderRow={(p, i) => (
+                                <DiningRow
+                                    key={p.id || i}
+                                    plan={p}
+                                    onEdit={setEditingPlan}
+                                    onDelete={handleDelete}
+                                />
+                            )}
+                            emptyIcon="restaurant"
+                            emptyTitle={t('dis.dining.noPlans')}
+                            emptyDesc={filter === 'all'
+                                ? t('dis.dining.noPlansDesc')
+                                : t('dis.dining.noPlansOfType', { type: planLabel(t, filter) })}
+                            onClearFilters={filter !== 'all' ? () => setFilter('all') : undefined}
+                        />
 
                     </DashboardContent>
                 </main>

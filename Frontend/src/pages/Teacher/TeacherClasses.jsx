@@ -20,7 +20,7 @@ import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { sectionsFromClasses } from '../../utils/classes'
 import { useToast } from '../../context/ToastContext'
 import { partialLoad } from '../../utils/errors'
-import { SkeletonList } from '../../components/ui/Skeleton'
+import { SkeletonList, SkeletonTable } from '../../components/ui/Skeleton'
 
 const CARD_BG = ['var(--info-surface)', 'var(--success-surface)', 'var(--cat-violet-surface)', 'var(--warning-surface)', 'var(--primary-surface)', 'var(--cat-rose-surface)']
 
@@ -395,7 +395,7 @@ function ResultsModal({ cls, onClose }) {
                     </div>
                 </div>
                 {loadingRows ? (
-                    <p className="u-muted">{t('teacher.classes.loadingScores')}</p>
+                    <SkeletonTable rows={6} cols={3} label={t('teacher.classes.loadingScores')} />
                 ) : (
                     <div className="score-table-body">
                         <div className="score-table-head score-grid-2">
@@ -694,7 +694,7 @@ export function TeacherClasses() {
                                 </div>
                                 <div className="classes-wrap-body">
                                     {loadingClasses ? (
-                                        <p className="tc-load-pad">{t('common.loadingClasses')}</p>
+                                        <SkeletonList items={4} flush label={t('common.loadingClasses')} />
                                     ) : classesError ? (
                                         <div className="tc-load-err">
                                             <span className="material-symbols-rounded tc-load-err-icon" aria-hidden="true">error</span>
@@ -752,8 +752,11 @@ export function TeacherClasses() {
                                         t('common.actions'),
                                     ]}
                                     renderRow={s => <StudentRow key={s.student_id} student={s} onView={setProfile} />}
+                                    loading={loadingStudents}
+                                    loadingLabel={t('common.loadingStudents')}
+                                    skeletonAvatar
                                     emptyIcon="people"
-                                    emptyTitle={loadingStudents ? t('common.loadingStudents') : t('teacher.classes.noStudents')}
+                                    emptyTitle={t('teacher.classes.noStudents')}
                                     emptyDesc={t('teacher.students.noMatch')}
                                     onClearFilters={filtersActive ? clearFilters : undefined}
                                 />

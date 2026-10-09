@@ -22,6 +22,7 @@ import { useMatronDormitory } from '../../hooks/useMatronDormitory'
 import { downloadCsv } from '../../utils/exportTable'
 import { formatDate } from '../../utils/date'
 import { StatCard } from '../../components/layout/StatCard'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 
 const conditionKeys = {
@@ -229,7 +230,7 @@ function MedicationChecklist({ students }) {
                 )}
 
                 {!checklist ? (
-                    <p className="u-muted">{t('matron.health.loadingChecklist')}</p>
+                    <SkeletonList items={3} flush label={t('matron.health.loadingChecklist')} />
                 ) : items.length === 0 ? (
                     <p className="u-muted">{t('matron.health.noMedications')}</p>
                 ) : (

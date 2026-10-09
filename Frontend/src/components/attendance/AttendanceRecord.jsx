@@ -14,6 +14,7 @@ import { errorMessage } from '../../utils/errors'
 import { formatDate, formatWeekday, weekdayShortNames } from '../../utils/date'
 import '../../styles/timetable.css'
 import { SkeletonList } from '../ui/Skeleton'
+import '../../styles/tables.css'
 
 /**
  * One person's attendance: the term figures, then a week or a month of days,

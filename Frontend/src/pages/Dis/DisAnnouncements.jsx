@@ -18,6 +18,7 @@ import { formatDateShort } from '../../utils/date'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { confirmDialog } from '../../utils/confirm'
+import { SkeletonCards } from '../../components/ui/Skeleton'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -361,7 +362,7 @@ export function DisAnnouncements() {
 
                                     {/* List */}
                                     {loading ? (
-                                        <p className="empty-note padded">{t('announcements.loading')}</p>
+                                        <SkeletonCards count={3} lines={3} label={t('announcements.loading')} />
                                     ) : filtered.length === 0 ? (
                                         <div className="list-empty">
                                             <span className="material-symbols-rounded list-empty-icon" aria-hidden="true">campaign</span>

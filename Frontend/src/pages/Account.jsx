@@ -28,6 +28,7 @@ import { adminNavItems, adminSecondaryItems } from './Admin/adminNav'
 import { librarianNavItems, librarianSecondaryItems } from './Library/librarianNav'
 import { bursarNavItems, bursarSecondaryItems } from './Finance/bursarNav'
 import { TabGroup } from '../components/ui/TabGroup'
+import { SkeletonList } from '../components/ui/Skeleton'
 
 // Lookup table — given a role string, returns the correct sidebar nav items.
 // Each portal exports its own nav from its own file — one source of truth.
@@ -528,7 +529,7 @@ export function Account() {
                                     </div>
                                     <div className="card-content">
                                         {prefs === null ? (
-                                            <p className="u-muted u-sm">{t('common.loading')}</p>
+                                            <SkeletonList items={4} avatar={false} flush label={t('common.loading')} />
                                         ) : (
                                             <div className="notif-list">
                                                 {/* One row per delivery channel, because that is what
@@ -597,7 +598,7 @@ export function Account() {
                                         </div>
                                         <div className="card-content">
                                             {children === null ? (
-                                                <p className="u-muted u-sm">{t('account.loadingChildren')}</p>
+                                                <SkeletonList items={2} flush label={t('account.loadingChildren')} />
                                             ) : children.length === 0 ? (
                                                 <p className="u-muted u-sm">{t('account.noChildren')}</p>
                                             ) : (
