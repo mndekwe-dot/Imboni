@@ -126,13 +126,13 @@ export function AdminDashboard() {
                                         activities.map((item, i) => {
                                             const meta = ACTIVITY_ICON[item.activity_type] || { icon: 'info', cls: 'info' }
                                             return (
-                                                <div key={i} className="activity-item">
-                                                    <span className={`activity-icon ${meta.cls}`}>
+                                                <div key={i} className="adm-activity-item">
+                                                    <span className={`adm-activity-icon ${meta.cls}`}>
                                                         <span className="material-symbols-rounded" aria-hidden="true">{meta.icon}</span>
                                                     </span>
-                                                    <div className="activity-details">
-                                                        <p className="activity-title">{item.description}</p>
-                                                        <p className="activity-time">{item.time_ago}</p>
+                                                    <div className="adm-activity-details">
+                                                        <p className="adm-activity-title">{item.description}</p>
+                                                        <p className="adm-activity-time">{item.time_ago}</p>
                                                     </div>
                                                 </div>
                                             )
@@ -183,7 +183,7 @@ export function AdminDashboard() {
                                 <h2 className="card-title">Quick Actions</h2>
                             </div>
                             <div className="card-content">
-                                <div className="action-buttons">
+                                <div className="adm-action-buttons">
                                     <button className="btn btn-primary" onClick={() => navigate('/admin/staff')}>
                                         <span className="material-symbols-rounded" aria-hidden="true">person_add</span>
                                         Manage Staff
