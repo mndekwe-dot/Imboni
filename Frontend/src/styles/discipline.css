@@ -59,20 +59,7 @@
 
 /* ── Incident / discipline points ── */
 .disc-points-pos { color: var(--success);      font-weight: 700; font-size: var(--text-sm); }
-.disc-points-neg { color: var(--destructive);  font-weight: 700; font-size: var(--text-sm); }
-
-.incident-type-tag {
-  font-size: var(--text-caption);
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: var(--radius);
-  text-transform: uppercase;
-}
-.incident-type-tag.positive { background: var(--success-light);     color: var(--success); }
-.incident-type-tag.negative { background: var(--destructive-light); color: var(--destructive); }
-.incident-type-tag.warning  { background: rgba(245,158,11,0.12);    color: #f59e0b; }
-
-/* ── Staff card (matrons & patrons) ── */
+.disc-points-neg { color: var(--destructive);  font-weight: 700; font-size: var(--text-sm); }/* ── Staff card (matrons & patrons) ── */
 .staff-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));

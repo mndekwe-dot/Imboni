@@ -27,6 +27,19 @@ function initials(name = '') {
     return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('')
 }
 
+/* The students API sends `full_name` and `student_code` (STU-001). `student_id`
+ * is the database UUID: an identifier for requests, never something to show.
+ * Reading `name` / `first_name` here left every row nameless and fell back to
+ * printing the UUID. */
+function studentName(s) {
+    if (!s) return ''
+    return s.full_name || s.name || `${s.first_name || ''} ${s.last_name || ''}`.trim()
+}
+
+function studentCode(s) {
+    return s?.student_code || ''
+}
+
 function gradeLabel(grade, section) {
     if (!grade) return '-'
     return classLabel(grade, section)
@@ -67,7 +80,6 @@ function StudentDetailModal({ student, onClose }) {
     const [loading,    setLoading]    = useState(true)
 
     const id   = student.id || student.student_id
-    const name = student.name || `${student.first_name || ''} ${student.last_name || ''}`.trim()
 
     useEffect(() => {
         Promise.all([
@@ -81,8 +93,9 @@ function StudentDetailModal({ student, onClose }) {
         }).finally(() => setLoading(false))
     }, [id, toast])
 
+    const name   = studentName(detail) || studentName(student)
     const cls    = gradeLabel(detail?.grade ?? student.grade, detail?.section ?? student.section)
-    const sid    = detail?.student_id || detail?.student_code || student.student_id || student.student_code || '-'
+    const sid    = studentCode(detail) || studentCode(student) || '-'
     const dorm   = detail?.dormitory || detail?.house || student.dormitory || student.house || '-'
     const status = detail?.status || (student.is_active !== false ? 'active' : 'inactive')
     const gpa    = detail?.current_gpa ?? student.current_gpa
@@ -195,10 +208,10 @@ function StudentDetailModal({ student, onClose }) {
 
 function StudentRow({ student, onView }) {
     const { t } = useTranslation()
-    const name   = student.name || `${student.first_name || ''} ${student.last_name || ''}`.trim()
+    const name   = studentName(student)
     const cls    = gradeLabel(student.grade, student.section)
     const active = student.status === 'active' || student.is_active !== false
-    const id     = student.student_id || student.student_code || '-'
+    const id     = studentCode(student) || '-'
 
     return (
         <tr>
@@ -265,9 +278,9 @@ export function AdminStudents() {
     ]
 
     const filtered = studentList.filter(s => {
-        const name = (s.name || `${s.first_name || ''} ${s.last_name || ''}`).toLowerCase()
+        const name = studentName(s).toLowerCase()
         const q    = search.toLowerCase()
-        const matchSearch = !q || name.includes(q) || (s.student_id || s.student_code || '').toLowerCase().includes(q)
+        const matchSearch = !q || name.includes(q) || studentCode(s).toLowerCase().includes(q)
         const matchClass  = !classVal || (s.section || '').toUpperCase() === classVal.toUpperCase()
         return matchSearch && matchClass
     })
