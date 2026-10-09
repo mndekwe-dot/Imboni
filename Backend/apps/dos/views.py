@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from django.utils import timezone
 from django.db.models import Avg, Count, Q
 from rest_framework.views import APIView
+from rest_framework.pagination import PageNumberPagination
 from apps.common.branding import frontend_url
 from rest_framework.response import Response
 
@@ -674,6 +675,20 @@ class StudentListCreateView(APIView):
     """
     permission_classes = [IsDOSOrAdmin]
 
+    # What ?ordering= may name, mapped to the real columns. Anything else is
+    # ignored rather than trusted.
+    ORDERINGS = {
+        'name':   ('user__last_name', 'user__first_name'),
+        'grade':  ('grade', 'section'),
+        'status': ('status',),
+        'code':   ('student_id',),
+    }
+
+    class Pagination(PageNumberPagination):
+        page_size = 25
+        page_size_query_param = 'page_size'
+        max_page_size = 200
+
     def get(self, request):
         from apps.attendance.models import AttendanceSummary
 
@@ -682,7 +697,18 @@ class StudentListCreateView(APIView):
         grade  = request.query_params.get('grade', '').strip()
         status = request.query_params.get('status', '').strip()
 
-        students = Student.objects.select_related('user').order_by('grade', 'section', 'user__last_name')
+        # Ordering is a whitelist, never a raw field name from the URL: an
+        # arbitrary `ordering` would let a caller sort by (and so probe) any
+        # column, password hash included. `id` is the tie-breaker so paging is
+        # stable when two students share a name or class.
+        ordering = request.query_params.get('ordering', '').strip()
+        descending = ordering.startswith('-')
+        sort_keys = self.ORDERINGS.get(ordering.lstrip('-'))
+        if sort_keys:
+            order = [('-' + k if descending else k) for k in sort_keys]
+        else:
+            order = ['grade', 'section', 'user__last_name', 'user__first_name']
+        students = Student.objects.select_related('user').order_by(*order, 'id')
 
         if grade:
             students = students.filter(grade=grade)
@@ -696,13 +722,43 @@ class StudentListCreateView(APIView):
                 Q(grade__icontains=search)
             )
 
+        # Optional paging, additive: with neither parameter the response is the
+        # same plain array it always was, so nothing already calling this
+        # changes. Ask for ?page= or ?page_size= and only that page is built and
+        # sent (and only that page's marks are looked up).
+        paged = 'page' in request.query_params or 'page_size' in request.query_params
+        paginator = None
+        if paged:
+            paginator = self.Pagination()
+            students = paginator.paginate_queryset(students, request, view=self)
+        else:
+            students = list(students)
+
+        # One query for every student's average and one for their attendance,
+        # instead of two per student. Evaluated for exactly the students being
+        # returned, so a page of 25 costs the same as a roster of 25.
+        ids = [s.id for s in students]
+        averages = {}
+        latest_attendance = {}
+        if term and ids:
+            averages = {
+                row['student']: row['avg']
+                for row in (Result.objects.filter(term=term, student_id__in=ids)
+                            .order_by().values('student').annotate(avg=Avg('final_score')))
+            }
+            # Newest month first per student; the first one seen is the latest.
+            for summary in (AttendanceSummary.objects
+                            .filter(student_id__in=ids, year=term.start_date.year)
+                            .order_by('student_id', '-month')):
+                latest_attendance.setdefault(summary.student_id, summary)
+
         data = []
         for s in students:
             name_parts = s.full_name.split()
             initials   = ''.join(p[0].upper() for p in name_parts[:2]) if name_parts else '?'
 
-            avg_raw = Result.objects.filter(student=s, term=term).aggregate(avg=Avg('final_score'))['avg'] if term else None
-            att_obj = AttendanceSummary.objects.filter(student=s, year=term.start_date.year).order_by('-month').first() if term else None
+            avg_raw = averages.get(s.id)
+            att_obj = latest_attendance.get(s.id)
 
             data.append({
                 'student_id':      s.id,
@@ -718,7 +774,8 @@ class StudentListCreateView(APIView):
                 'enrollment_date': s.enrollment_date,
             })
 
-        return Response(DOSStudentSerializer(data, many=True).data)
+        body = DOSStudentSerializer(data, many=True).data
+        return paginator.get_paginated_response(body) if paginator else Response(body)
 
     def post(self, request):
         from django.utils.crypto import get_random_string
