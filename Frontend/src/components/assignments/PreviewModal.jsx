@@ -92,7 +92,7 @@ export function PreviewModal({ assignment, questions, onClose }) {
 
                     return (
                         <div key={q.id} className="preview-q"
-                            style={{ '--preview-q-border': revealed && studentAns !== undefined ? (isCorrect ? 'var(--success)' : '#dc2626') : 'var(--border)' }}>
+                            style={{ '--preview-q-border': revealed && studentAns !== undefined ? (isCorrect ? 'var(--success)' : 'var(--destructive)') : 'var(--border)' }}>
                             <div className="preview-q-head">
                                 <span className="preview-q-title">{qi + 1}. {q.text || t('teacher.assignments.emptyQuestion')}</span>
                                 <span className="preview-q-points">{t('teacher.assignments.pointCount', { count: q.points })}</span>

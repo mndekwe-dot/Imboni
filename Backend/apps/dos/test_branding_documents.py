@@ -132,3 +132,64 @@ class TestPrintedDocuments:
         })
         assert 'Green Hills Secondary' in html
         assert 'Imboni School' not in html
+
+
+@pytest.mark.django_db
+class TestLinksAndEmails:
+    def test_emailed_links_point_at_the_schools_own_address(self, settings):
+        from apps.common.branding import frontend_url
+        settings.FRONTEND_URL = 'https://imboni.rw'
+        url = frontend_url()
+        # The harness school is served from the test host, never the bare domain.
+        assert url.startswith('https://') and 'imboni.rw' not in url
+
+    def test_a_local_http_port_is_kept(self, settings):
+        from apps.common.branding import frontend_url
+        settings.FRONTEND_URL = 'http://localhost:5173'
+        url = frontend_url()
+        assert url.startswith('http://') and url.endswith(':5173')
+
+    def test_a_password_reset_is_from_the_school_and_links_to_it(self, api_client, settings):
+        from django.core import mail
+        from apps.authentication.models import User
+        settings.FRONTEND_URL = 'https://imboni.rw'
+        setting = SchoolSetting.get_setting()
+        setting.school_name = 'Green Hills Secondary'
+        setting.save()
+        User.objects.create_user(username='t1', email='t1@example.com', password='x-Pass-12345', first_name='Eric')
+
+        out = api_client.post('/imboni/auth/password-reset/', {'email': 't1@example.com'}, format='json')
+
+        assert out.status_code == 200
+        message = mail.outbox[-1]
+        assert 'Green Hills Secondary' in message.subject
+        html = message.alternatives[0][0]
+        assert 'Green Hills Secondary' in html
+        assert 'https://imboni.rw/reset-password/' not in html and '/reset-password/' in html
+
+
+@pytest.mark.django_db
+class TestInstallableApp:
+    def test_the_manifest_is_named_for_the_school(self, client, setting):
+        setting.school_name = 'Green Hills Secondary'
+        setting.save()
+        out = client.get('/imboni/dos/manifest.webmanifest')
+        assert out.status_code == 200
+        assert out['Content-Type'].startswith('application/manifest+json')
+        body = out.json()
+        assert body['name'] == 'Green Hills Secondary' and body['short_name'] == 'Green Hills'
+        assert body['icons'][0]['src'] == '/icon-192.png'     # no logo yet: the product's own mark
+
+    def test_with_a_logo_the_icons_are_the_schools_own(self, client, setting):
+        setting.logo.save('mark.png', png_upload(size=(300, 120)), save=True)
+        body = client.get('/imboni/dos/manifest.webmanifest').json()
+        assert body['icons'][0]['src'].startswith('/imboni/dos/branding/icon/')
+        out = client.get('/imboni/dos/branding/icon/192/')
+        assert out.status_code == 200 and out['Content-Type'] == 'image/png'
+        image = Image.open(io.BytesIO(out.content))
+        assert image.size == (192, 192)
+
+    def test_there_is_no_icon_without_a_logo_or_for_an_odd_size(self, client, setting):
+        assert client.get('/imboni/dos/branding/icon/192/').status_code == 404
+        setting.logo.save('mark.png', png_upload(), save=True)
+        assert client.get('/imboni/dos/branding/icon/100/').status_code == 404

@@ -24,10 +24,10 @@ const STATUS_TABS = ['pending', 'approved', 'rejected']
 function gradeColor(grade) {
     if (!grade) return 'var(--muted-foreground)'
     const g = grade.toUpperCase()
-    if (g === 'A' || g === 'A+') return '#16a34a'
-    if (g === 'B')               return '#2563eb'
-    if (g === 'C')               return '#ca8a04'
-    return '#dc2626'
+    if (g === 'A' || g === 'A+') return 'var(--success)'
+    if (g === 'B')               return 'var(--info)'
+    if (g === 'C')               return 'var(--warning)'
+    return 'var(--destructive)'
 }
 
 function RejectModal({ result, onClose, onDone }) {

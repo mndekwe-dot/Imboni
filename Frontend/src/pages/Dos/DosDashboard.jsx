@@ -343,12 +343,12 @@ export function DosDashboard() {
                                             >
                                                 <defs>
                                                     <linearGradient id="attGrad" x1="0" y1="0" x2="0" y2="1">
-                                                        <stop offset="5%" stopColor="#0f9d63" stopOpacity={0.2} />
-                                                        <stop offset="95%" stopColor="#0f9d63" stopOpacity={0} />
+                                                        <stop offset="5%" stopColor="var(--success)" stopOpacity={0.2} />
+                                                        <stop offset="95%" stopColor="var(--success)" stopOpacity={0} />
                                                     </linearGradient>
                                                     <linearGradient id="perfGrad" x1="0" y1="0" x2="0" y2="1">
-                                                        <stop offset="5%" stopColor="#1657a0" stopOpacity={0.2} />
-                                                        <stop offset="95%" stopColor="#1657a0" stopOpacity={0} />
+                                                        <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.2} />
+                                                        <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
                                                     </linearGradient>
                                                 </defs>
                                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
@@ -370,7 +370,7 @@ export function DosDashboard() {
                                                     type="monotone"
                                                     dataKey="attendance"
                                                     name={t('dos.dashboard.attendance')}
-                                                    stroke="#0f9d63"
+                                                    stroke="var(--success)"
                                                     strokeWidth={2}
                                                     fill="url(#attGrad)"
                                                     dot={false}
@@ -380,7 +380,7 @@ export function DosDashboard() {
                                                     type="monotone"
                                                     dataKey="performance"
                                                     name={t('dos.dashboard.performance')}
-                                                    stroke="#1657a0"
+                                                    stroke="var(--primary)"
                                                     strokeWidth={2}
                                                     fill="url(#perfGrad)"
                                                     dot={false}
@@ -389,7 +389,7 @@ export function DosDashboard() {
                                             </AreaChart>
                                         </ResponsiveContainer>
                                         <div className="chart-legend-row">
-                                            {[['#0f9d63', t('dos.dashboard.attendance')], ['#1657a0', t('dos.dashboard.performance')]].map(([color, label]) => (
+                                            {[['var(--success)', t('dos.dashboard.attendance')], ['var(--primary)', t('dos.dashboard.performance')]].map(([color, label]) => (
                                                 <div key={label} className="chart-legend-item">
                                                     <span className="chart-legend-dot" style={{ background: color }} />
                                                     {label}
@@ -518,7 +518,7 @@ export function DosDashboard() {
                                             iconSize={10}
                                             wrapperStyle={{ fontSize: '0.78rem', paddingTop: '0.75rem' }}
                                         />
-                                        <Bar dataKey="avg_score" name={t('dos.dashboard.avgScore')} fill="#1657a0" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                                        <Bar dataKey="avg_score" name={t('dos.dashboard.avgScore')} fill="var(--primary)" radius={[4, 4, 0, 0]} maxBarSize={32} />
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>

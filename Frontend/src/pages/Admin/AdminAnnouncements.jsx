@@ -38,8 +38,8 @@ const CATEGORY_OPTIONS = [
 
 const CAT_STYLE = {
     urgent:   { borderColor: 'var(--destructive)',   badge: 'var(--destructive-light)',   text: 'var(--destructive)',   icon: 'priority_high'  },
-    academic: { borderColor: '#3b82f6',              badge: '#dbeafe',                    text: '#2563eb',              icon: 'school'         },
-    event:    { borderColor: '#8b5cf6',              badge: '#ede9fe',                    text: '#7c3aed',              icon: 'emoji_events'   },
+    academic: { borderColor: 'var(--info)',              badge: 'var(--info-surface)',                    text: 'var(--info-text)',              icon: 'school'         },
+    event:    { borderColor: 'var(--cat-violet)',              badge: 'var(--cat-violet-surface)',                    text: 'var(--cat-violet-text)',              icon: 'emoji_events'   },
     general:  { borderColor: 'var(--muted-foreground)', badge: 'var(--muted)',            text: 'var(--muted-foreground)', icon: 'campaign'    },
 }
 

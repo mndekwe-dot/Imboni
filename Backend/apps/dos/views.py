@@ -1,10 +1,13 @@
 from datetime import timedelta
 from django.core.exceptions import ValidationError as DjangoValidationError
+import json
 import logging
 from django.db import transaction
+from django.http import HttpResponse
 from django.utils import timezone
 from django.db.models import Avg, Count, Q
 from rest_framework.views import APIView
+from apps.common.branding import frontend_url
 from rest_framework.response import Response
 
 from apps.authentication.models import User  # used for teaching_staff count
@@ -2334,6 +2337,63 @@ class SchoolBrandingView(APIView):
         })
 
 
+class SchoolManifestView(APIView):
+    """
+    GET /imboni/dos/manifest.webmanifest  -- the installable app, named for the school.
+
+    Installing the portal puts an icon and a name on a phone or a desktop. With
+    the product's own manifest every school's shortcut said "Imboni School" with
+    the Imboni mark. This one carries the school's own name and, when it has
+    uploaded one, its logo. Unauthenticated for the same reason as branding: the
+    browser fetches it before anyone has signed in.
+    """
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+
+    def get(self, request):
+        from apps.common.branding import school_branding, logo_icon_png
+        name = school_branding()['name']
+        has_logo = logo_icon_png(192) is not None
+        icons = ([
+            {'src': '/imboni/dos/branding/icon/192/', 'sizes': '192x192', 'type': 'image/png'},
+            {'src': '/imboni/dos/branding/icon/512/', 'sizes': '512x512', 'type': 'image/png'},
+            {'src': '/imboni/dos/branding/icon/512/', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'maskable'},
+        ] if has_logo else [
+            {'src': '/icon-192.png', 'sizes': '192x192', 'type': 'image/png'},
+            {'src': '/icon-512.png', 'sizes': '512x512', 'type': 'image/png'},
+            {'src': '/icon-512-maskable.png', 'sizes': '512x512', 'type': 'image/png', 'purpose': 'maskable'},
+        ])
+        body = {
+            'name': name,
+            'short_name': name[:12].strip() or 'Imboni',
+            'description': 'School management portals for students, parents and staff',
+            'start_url': '/',
+            'scope': '/',
+            'display': 'standalone',
+            'theme_color': '#003d7a',
+            'background_color': '#ffffff',
+            'icons': icons,
+        }
+        return HttpResponse(json.dumps(body), content_type='application/manifest+json')
+
+
+class SchoolBrandingIconView(APIView):
+    """GET /imboni/dos/branding/icon/<size>/ -- the logo as a square PNG (192 or 512)."""
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+
+    def get(self, request, size):
+        from apps.common.branding import logo_icon_png
+        if size not in (192, 512):
+            return Response(status=http_status.HTTP_404_NOT_FOUND)
+        png = logo_icon_png(size)
+        if png is None:
+            return Response(status=http_status.HTTP_404_NOT_FOUND)
+        response = HttpResponse(png, content_type='image/png')
+        response['Cache-Control'] = 'public, max-age=3600'
+        return response
+
+
 # ---------------------------------------------------------------------------
 # Subject Management
 # ---------------------------------------------------------------------------
@@ -2523,7 +2583,7 @@ class StudentInviteView(APIView):
             first_name=s_first, last_name=s_last, email=s_email,
             role='student', class_obj=class_obj,
         )
-        link = f"{settings.FRONTEND_URL}/register/{student_inv.uid}/{s_raw}/"
+        link = f"{frontend_url()}/register/{student_inv.uid}/{s_raw}/"
         channels = dispatch_invitation(student_inv, link)
         student_inv.channels_sent = channels
         student_inv.delivery_status = 'sent' if channels else 'failed'
@@ -2539,7 +2599,7 @@ class StudentInviteView(APIView):
             email=p_email, phone_number=p_phone,
             role='parent', linked_email=s_email,
         )
-        link = f"{settings.FRONTEND_URL}/register/{parent_inv.uid}/{p_raw}/"
+        link = f"{frontend_url()}/register/{parent_inv.uid}/{p_raw}/"
         channels = dispatch_invitation(parent_inv, link)
         parent_inv.channels_sent = channels
         parent_inv.delivery_status = 'sent' if channels else 'failed'
@@ -2645,7 +2705,7 @@ class StudentBulkInviteView(APIView):
                     first_name=s_first, last_name=s_last, email=s_email,
                     role='student', class_obj=row_class_obj,
                 )
-                link     = f"{settings.FRONTEND_URL}/register/{student_inv.uid}/{s_raw}/"
+                link     = f"{frontend_url()}/register/{student_inv.uid}/{s_raw}/"
                 channels = dispatch_invitation(student_inv, link)
                 student_inv.channels_sent   = channels
                 student_inv.delivery_status = 'sent' if channels else 'failed'
@@ -2657,7 +2717,7 @@ class StudentBulkInviteView(APIView):
                     email=p_email, phone_number=p_phone,
                     role='parent', linked_email=s_email,
                 )
-                link     = f"{settings.FRONTEND_URL}/register/{parent_inv.uid}/{p_raw}/"
+                link     = f"{frontend_url()}/register/{parent_inv.uid}/{p_raw}/"
                 channels = dispatch_invitation(parent_inv, link)
                 parent_inv.channels_sent   = channels
                 parent_inv.delivery_status = 'sent' if channels else 'failed'

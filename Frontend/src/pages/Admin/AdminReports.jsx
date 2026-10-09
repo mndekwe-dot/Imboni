@@ -24,8 +24,8 @@ import '../../styles/admin.css'
 import { useToast } from '../../context/ToastContext'
 import { partialLoad } from '../../utils/errors'
 
-const GRADE_COLORS = ['#003d7a', '#2563eb', '#0ea5e9', '#10b981', '#f59e0b', '#f97316']
-const PIE_COLORS   = { Excellent: '#10b981', Good: '#003d7a', Average: '#f59e0b', 'Below Average': '#dc2626' }
+const GRADE_COLORS = ['var(--primary)', 'var(--info)', 'var(--cat-indigo)', 'var(--success)', 'var(--warning)', 'var(--destructive)']
+const PIE_COLORS   = { Excellent: 'var(--success)', Good: 'var(--primary)', Average: 'var(--warning)', 'Below Average': 'var(--destructive)' }
 
 function ChartCard({ title, desc, children, loading }) {
     return (
@@ -70,12 +70,12 @@ function WeeklyTrendChart({ data }) {
             <AreaChart data={data} margin={{ top: 16, right: 8, left: -20, bottom: 0 }}>
                 <defs>
                     <linearGradient id="attGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%"  stopColor="#10b981" stopOpacity={0.18} />
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0}    />
+                        <stop offset="5%"  stopColor="var(--success)" stopOpacity={0.18} />
+                        <stop offset="95%" stopColor="var(--success)" stopOpacity={0}    />
                     </linearGradient>
                     <linearGradient id="perfGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%"  stopColor="#003d7a" stopOpacity={0.18} />
-                        <stop offset="95%" stopColor="#003d7a" stopOpacity={0}    />
+                        <stop offset="5%"  stopColor="var(--primary)" stopOpacity={0.18} />
+                        <stop offset="95%" stopColor="var(--primary)" stopOpacity={0}    />
                     </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
@@ -83,8 +83,8 @@ function WeeklyTrendChart({ data }) {
                 <YAxis domain={[60, 100]} tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} tickFormatter={v => `${v}%`} />
                 <Tooltip formatter={(v, name) => [`${v}%`, name === 'attendance' ? 'Attendance' : 'Performance']} />
                 <Legend formatter={v => v === 'attendance' ? 'Attendance' : 'Performance'} iconSize={8} wrapperStyle={{ fontSize: '0.75rem' }} />
-                <Area type="monotone" dataKey="attendance"  stroke="#10b981" fill="url(#attGrad)"  strokeWidth={2} dot={false} />
-                <Area type="monotone" dataKey="performance" stroke="#003d7a" fill="url(#perfGrad)" strokeWidth={2} dot={false} />
+                <Area type="monotone" dataKey="attendance"  stroke="var(--success)" fill="url(#attGrad)"  strokeWidth={2} dot={false} />
+                <Area type="monotone" dataKey="performance" stroke="var(--primary)" fill="url(#perfGrad)" strokeWidth={2} dot={false} />
             </AreaChart>
         </ResponsiveContainer>
     )
@@ -146,7 +146,7 @@ function SubjectChart({ data }) {
                 <XAxis type="number" tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} />
                 <YAxis type="category" dataKey="subject_name" tick={{ fontSize: 10, fill: 'var(--muted-foreground)' }} axisLine={false} tickLine={false} width={90} />
                 <Tooltip formatter={(v) => [v, 'Teachers']} />
-                <Bar dataKey="teacher_count" fill="#003d7a" radius={[0, 6, 6, 0]} maxBarSize={22}>
+                <Bar dataKey="teacher_count" fill="var(--primary)" radius={[0, 6, 6, 0]} maxBarSize={22}>
                     <LabelList dataKey="teacher_count" position="right" style={{ fontSize: 10, fontWeight: 600, fill: 'var(--foreground)' }} />
                 </Bar>
             </BarChart>

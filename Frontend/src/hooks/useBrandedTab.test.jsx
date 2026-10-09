@@ -12,7 +12,7 @@ describe('useBrandedTab', () => {
         __resetBrandingCache()
         getSchoolBranding.mockReset()
         document.title = 'Imboni'
-        document.head.innerHTML = '<title>Imboni</title><link rel="icon" href="/icon-192.png">'
+        document.head.innerHTML = '<title>Imboni</title><link rel="icon" href="/icon-192.png"><link rel="manifest" href="/manifest.webmanifest">'
     })
 
     it('puts the school name and logo on the tab, and puts the originals back', async () => {
@@ -22,7 +22,10 @@ describe('useBrandedTab', () => {
         await waitFor(() => expect(document.title).toBe('Green Hills Secondary'))
         expect(document.querySelector('link[rel~="icon"]').getAttribute('href')).toBe('https://x/logo.png')
 
+        expect(document.querySelector('link[rel="manifest"]').getAttribute('href')).toBe('/imboni/dos/manifest.webmanifest')
+
         unmount()
+        expect(document.querySelector('link[rel="manifest"]').getAttribute('href')).toBe('/manifest.webmanifest')
         expect(document.title).toBe('Imboni')
         expect(document.querySelector('link[rel~="icon"]').getAttribute('href')).toBe('/icon-192.png')
     })
@@ -33,5 +36,6 @@ describe('useBrandedTab', () => {
         await new Promise(r => setTimeout(r, 20))
         expect(document.title).toBe('Imboni')
         expect(document.querySelector('link[rel~="icon"]').getAttribute('href')).toBe('/icon-192.png')
+        expect(document.querySelector('link[rel="manifest"]').getAttribute('href')).toBe('/manifest.webmanifest')
     })
 })

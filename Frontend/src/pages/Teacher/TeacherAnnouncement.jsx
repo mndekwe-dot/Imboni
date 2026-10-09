@@ -52,7 +52,7 @@ const CATEGORY_ICON = {
 const CATEGORY_COLOR = {
     urgent:   'var(--destructive)',
     academic: 'var(--primary)',
-    event:    '#7c3aed',
+    event:    'var(--cat-violet)',
     general:  'var(--success)',
 }
 
@@ -82,9 +82,9 @@ function AnnouncementCard({ ann, onEdit, onDelete, onPublish, busy }) {
         : ann.target_audience === 'parents' ? 'Parents' : 'All Classes'
 
     return (
-        <div className="ann-item ta-item" style={{ '--ta-accent': isDraft ? '#f59e0b' : color }}>
+        <div className="ann-item ta-item" style={{ '--ta-accent': isDraft ? 'var(--warning)' : color }}>
             <div className="ann-item-top">
-                <div className="ann-item-icon" style={{ background: `${isDraft ? '#f59e0b' : color}18`, color: isDraft ? '#f59e0b' : color }}>
+                <div className="ann-item-icon" style={{ background: `color-mix(in srgb, ${isDraft ? 'var(--warning)' : color} 10%, transparent)`, color: isDraft ? 'var(--warning-text)' : color }}>
                     <span className="material-symbols-rounded" aria-hidden="true">{isDraft ? 'draft' : icon}</span>
                 </div>
                 <div className="ann-item-head">

@@ -225,8 +225,8 @@ export function StudentResults() {
                                                         cursor={{ stroke: 'var(--border)', strokeWidth: 1 }}
                                                     />
                                                     <Line type="monotone" dataKey="average" name={t('student.results.myAverage')}
-                                                        stroke="#0891b2" strokeWidth={2}
-                                                        dot={{ r: 4, fill: '#0891b2', strokeWidth: 2, stroke: 'var(--card, #fff)' }} />
+                                                        stroke="var(--info)" strokeWidth={2}
+                                                        dot={{ r: 4, fill: 'var(--info)', strokeWidth: 2, stroke: 'var(--card, #fff)' }} />
                                                 </LineChart>
                                             </ResponsiveContainer>
                                         </div>

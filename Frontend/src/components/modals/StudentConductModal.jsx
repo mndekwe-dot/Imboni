@@ -35,11 +35,11 @@ const TYPE_META = {
 }
 
 const CONDUCT_COLORS = {
-    A: { bg: '#dcfce7', color: '#15803d', labelKey: 'modals.conduct.gradeExcellent'        },
-    B: { bg: '#dbeafe', color: '#1d4ed8', labelKey: 'modals.conduct.gradeGood'             },
-    C: { bg: '#fef9c3', color: '#92400e', labelKey: 'modals.conduct.gradeSatisfactory'     },
-    D: { bg: '#fee2e2', color: '#b91c1c', labelKey: 'modals.conduct.gradeNeedsImprovement' },
-    F: { bg: '#fce7f3', color: '#9d174d', labelKey: 'modals.conduct.gradeUnsatisfactory'   },
+    A: { bg: 'var(--success-surface)', color: 'var(--success-text)', labelKey: 'modals.conduct.gradeExcellent'        },
+    B: { bg: 'var(--info-surface)', color: 'var(--info-text)', labelKey: 'modals.conduct.gradeGood'             },
+    C: { bg: 'var(--warning-surface)', color: 'var(--warning-text)', labelKey: 'modals.conduct.gradeSatisfactory'     },
+    D: { bg: 'var(--destructive-surface)', color: 'var(--destructive-text)', labelKey: 'modals.conduct.gradeNeedsImprovement' },
+    F: { bg: 'var(--cat-rose-surface)', color: 'var(--cat-rose-text)', labelKey: 'modals.conduct.gradeUnsatisfactory'   },
 }
 
 function todayISO() {
