@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from . import report_views
+from . import marks_progress
 from . import exam_paper_views
 from .scheduling import api as scheduling_api
 from .scheduling import periods_api, timetable_api
@@ -51,6 +52,8 @@ urlpatterns = [
 
     # ── Results Approval ────────────────────────────────────────────────────
     path('dos/results/',                    views.DOSResultsListView.as_view(),       name='dos-results-list'),
+    path('dos/results/progress/',           marks_progress.MarksProgressView.as_view(), name='dos-marks-progress'),
+    path('dos/results/remind/',             marks_progress.RemindTeachersView.as_view(), name='dos-marks-remind'),
     path('dos/results/bulk-reject/',        views.DOSResultBulkRejectView.as_view(),  name='dos-results-bulk-reject'),
     path('dos/results/bulk-approve/',       views.DOSResultBulkApproveView.as_view(), name='dos-results-bulk-approve'),
     path('dos/results/<uuid:pk>/approve/',  views.DOSResultApproveView.as_view(),     name='dos-result-approve'),
