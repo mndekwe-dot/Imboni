@@ -28,6 +28,18 @@ log_format imboni_noqs '$remote_addr - $remote_user [$time_local] '
                        '"$request_method $uri $server_protocol" '
                        '$status $body_bytes_sent "$http_referer" "$http_user_agent"';
 
+# Do not advertise the nginx version on every response and error page.
+server_tokens off;
+
+# A flood guard in FRONT of Django's own throttles, for the routes an attacker
+# would hammer: sign-in, second factor, password reset, registration and the
+# school lookups. Per client address, as nginx sees it (it is the edge, so this
+# cannot be spoofed with X-Forwarded-For). Generous on purpose: a whole school
+# can sit behind one address and sign in together at the start of a day. This
+# stops machines, not people.
+limit_req_zone $binary_remote_addr zone=imboni_auth:10m rate=120r/m;
+limit_req_status 429;
+
 upstream imboni_backend {
     server backend:8000;
 }
@@ -80,6 +92,8 @@ server {
 
     access_log /var/log/nginx/access.log imboni_noqs;
 
+    include /etc/nginx/conf.d/security-headers.inc;
+
     # CSV imports and media uploads.
     client_max_body_size 25m;
 
@@ -107,6 +121,7 @@ server {
     # Must be JSON and must not be the SPA fallback below.
     location = /.well-known/web-app-origin-association {
         default_type application/json;
+        include /etc/nginx/conf.d/security-headers.inc;
         add_header Cache-Control "public, max-age=3600";
         return 200 '{"web_apps":[{"web_app_identity":"https://${IMBONI_DOMAIN}/"}]}';
     }
@@ -114,6 +129,26 @@ server {
     # ---- SPA: client-side routing fallback ---------------------------------
     location / {
         try_files $uri $uri/ /index.html;
+    }
+
+    # ---- Sensitive routes: flood-limited, then proxied -----------------------
+    # A regex location wins over the plain /imboni/ prefix below, so these get
+    # the limit and everything else under /imboni/ is untouched. `burst` lets a
+    # classroom sign in together; `nodelay` serves the burst at once and only
+    # rejects what exceeds it, with 429.
+    location ~ ^/imboni/(auth/(login|2fa/login|password-reset|password-reset/confirm|register/complete|token/refresh)|platform/auth/login|find-school|school-by-code|onboarding/signup)/?$ {
+        limit_req zone=imboni_auth burst=60 nodelay;
+        proxy_pass http://imboni_backend;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+        # One source of truth for these four: the shared snippet above.
+        proxy_hide_header Strict-Transport-Security;
+        proxy_hide_header X-Content-Type-Options;
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header Referrer-Policy;
     }
 
     # ---- Backend / API reverse proxy ---------------------------------------
@@ -131,6 +166,10 @@ server {
         proxy_set_header Connection $connection_upgrade;
         # WebSockets are long-lived and mostly idle; the client pings every 25s.
         proxy_read_timeout 300s;
+        proxy_hide_header Strict-Transport-Security;
+        proxy_hide_header X-Content-Type-Options;
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header Referrer-Policy;
     }
 
     # Django admin lives at /django-admin/ — /admin/* belongs to the React
@@ -142,6 +181,10 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Real-IP $remote_addr;
+        proxy_hide_header Strict-Transport-Security;
+        proxy_hide_header X-Content-Type-Options;
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header Referrer-Policy;
     }
 
     location /static/ {
@@ -151,6 +194,10 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Real-IP $remote_addr;
+        proxy_hide_header Strict-Transport-Security;
+        proxy_hide_header X-Content-Type-Options;
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header Referrer-Policy;
     }
 
     # Pictures that are public by design: the school logo shows on the sign-in
@@ -162,13 +209,13 @@ server {
     # guess a filename. Those stay behind the proxy block below.
     location ^~ /media/school-logos/ {
         alias /srv/media/school-logos/;
-        add_header X-Content-Type-Options "nosniff" always;
+        include /etc/nginx/conf.d/security-headers.inc;
         add_header Cache-Control "public, max-age=86400";
         try_files $uri =404;
     }
     location ^~ /media/avatars/ {
         alias /srv/media/avatars/;
-        add_header X-Content-Type-Options "nosniff" always;
+        include /etc/nginx/conf.d/security-headers.inc;
         add_header Cache-Control "public, max-age=86400";
         try_files $uri =404;
     }
@@ -180,5 +227,9 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Real-IP $remote_addr;
+        proxy_hide_header Strict-Transport-Security;
+        proxy_hide_header X-Content-Type-Options;
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header Referrer-Policy;
     }
 }

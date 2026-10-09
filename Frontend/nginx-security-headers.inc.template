@@ -1,0 +1,31 @@
+# Security headers, shared by every response nginx itself serves.
+#
+# This is a template (envsubst fills in ${IMBONI_DOMAIN}) rendered to
+# /etc/nginx/conf.d/security-headers.inc and `include`d where it is needed. It
+# is a file rather than inline add_header lines because of how nginx inherits
+# them: a `location` that sets ANY add_header of its own silently drops every
+# one inherited from the server block. Including this file in each such
+# location is what keeps the headers on the media and well-known responses.
+
+# Browsers will only ever talk HTTPS to this domain and its schools.
+add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+add_header X-Content-Type-Options "nosniff" always;
+# The app is never framed (the installed Windows app is a window, not a frame).
+add_header X-Frame-Options "DENY" always;
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+# Nothing here needs the camera, microphone, location or payment sheet.
+add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()" always;
+add_header Cross-Origin-Opener-Policy "same-origin" always;
+
+# Content-Security-Policy: scripts, styles and fonts come from this origin only.
+#   style-src 'unsafe-inline'  React sets style="" on elements (progress bars,
+#                              charts, dynamic widths); inline STYLE cannot run
+#                              code, unlike inline script, which stays blocked.
+#   img-src data: blob:        question pictures are data URIs; previews are blobs.
+#   connect-src wss://...      the notification WebSocket, plus optional Sentry.
+#   frame-ancestors 'none'     nobody may embed the app (clickjacking).
+#   object-src 'none'          no plugins.
+# If a page ever breaks after a deploy, the browser console names the exact
+# directive that blocked it. To observe without enforcing, rename the header to
+# Content-Security-Policy-Report-Only.
+add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; media-src 'self' blob:; connect-src 'self' wss://${IMBONI_DOMAIN} wss://*.${IMBONI_DOMAIN} https://*.sentry.io https://*.ingest.sentry.io; worker-src 'self'; manifest-src 'self'; frame-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" always;
