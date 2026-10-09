@@ -19,6 +19,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.authentication.permissions import IsParent, IsStudent, IsTeacher
+from apps.common.uploads import MATERIAL_TYPES, check_content
 from apps.results.models import AcademicTerm
 
 from .models import ClassAssignment, SubjectTeacherAssignment, TeachingMaterial
@@ -101,6 +102,8 @@ class TeachingMaterialWriteSerializer(serializers.ModelSerializer):
         if value.size > MAX_FILE_BYTES:
             raise serializers.ValidationError(
                 'The file is larger than 25 MB. Share a link to it instead.')
+        # The extension is only what the uploader typed; the bytes must agree.
+        check_content(value, MATERIAL_TYPES)
         return value
 
     def validate(self, attrs):

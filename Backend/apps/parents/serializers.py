@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from apps.common.uploads import validate_document
 from django.contrib.auth.password_validation import validate_password
 
 from apps.student.models import Student, Fee, StudentDocument
@@ -106,6 +107,7 @@ class StudentDocumentSerializer(serializers.ModelSerializer):
         model = StudentDocument
         fields = ['id', 'title', 'document_type', 'file', 'uploaded_by_name', 'created_at']
         read_only_fields = ['id', 'created_at']
+        extra_kwargs = {'file': {'validators': [validate_document]}}
 
 
 class AddParentToStudentSerializer(serializers.Serializer):

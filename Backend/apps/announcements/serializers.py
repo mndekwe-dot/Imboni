@@ -1,5 +1,6 @@
 from django.utils import timezone
 from rest_framework import serializers
+from apps.common.uploads import validate_document
 from .models import Announcement
 
 
@@ -41,6 +42,7 @@ class AnnouncementWriteSerializer(serializers.ModelSerializer):
             'target_grade', 'status', 'published_at', 'expires_at',
             'attachment',
         ]
+        extra_kwargs = {'attachment': {'validators': [validate_document]}}
 
     def validate(self, data):
         # Auto-set published_at when publishing now and it wasn't provided
