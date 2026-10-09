@@ -54,6 +54,54 @@ describe('AdminStudents', () => {
     expect(screen.getByText('540')).toBeInTheDocument()
   })
 
+  /* The fixture above is hand-written, and it is not what the API sends. The
+     real list (DOSStudentSerializer) has `full_name`, `initials` and
+     `student_code`, and `student_id` is the database UUID. This page read
+     `name` / `first_name` instead, so every row had no name, a blank avatar and
+     the UUID where the student's code belongs. These use the real shape. */
+  describe('with the real students API response shape', () => {
+    const UUID = '0d2b620a-c344-4f17-9a3a-f99343132583'
+    const REAL = [{
+      student_id: UUID, student_code: 'STU-001', full_name: 'Amina Uwase', initials: 'AU',
+      grade: '1', grade_label: 'S1', section: 'A', status: 'active',
+      avg_performance: 74.2, attendance_rate: 96, enrollment_date: '2026-01-12',
+    }]
+
+    beforeEach(() => {
+      getAdminStudents.mockResolvedValue(REAL)
+      getAdminStudentStats.mockResolvedValue(STATS)
+    })
+
+    it('shows the name and code, and never the UUID', async () => {
+      renderWithRouter(<AdminStudents />)
+
+      expect(await screen.findByText('Amina Uwase')).toBeInTheDocument()
+      expect(screen.getByText('STU-001')).toBeInTheDocument()
+      expect(screen.queryByText(UUID)).toBeNull()
+    })
+
+    it('gives the avatar the initials', async () => {
+      renderWithRouter(<AdminStudents />)
+      await screen.findByText('Amina Uwase')
+      expect(document.querySelector('tbody .adm-av')).toHaveTextContent('AU')
+    })
+
+    it('finds a student by name or by code', async () => {
+      renderWithRouter(<AdminStudents />)
+      await screen.findByText('Amina Uwase')
+      const box = screen.getByPlaceholderText('Search students…')
+
+      fireEvent.change(box, { target: { value: 'amina' } })
+      expect(screen.getByText('Amina Uwase')).toBeInTheDocument()
+
+      fireEvent.change(box, { target: { value: 'stu-001' } })
+      expect(screen.getByText('Amina Uwase')).toBeInTheDocument()
+
+      fireEvent.change(box, { target: { value: 'nobody' } })
+      expect(screen.queryByText('Amina Uwase')).toBeNull()
+    })
+  })
+
   it('filters the table by search text', async () => {
     getAdminStudents.mockResolvedValue(STUDENTS)
     getAdminStudentStats.mockResolvedValue(STATS)

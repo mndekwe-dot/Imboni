@@ -1896,16 +1896,7 @@ body.tm-panel-open { overflow: hidden; }
 
 /* ===============================================
    ATTENDANCE — MODE TOGGLE BAR
-   =============================================== */
-
-.att-mode-bar {
-  display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-}
-
-/* .att-mode-btn is now defined in components.css alongside the other
+   =============================================== *//* .att-mode-btn is now defined in components.css alongside the other
    controls that do this job, so the whole family is edited in one place. */
 
 /* ===============================================
@@ -1971,7 +1962,6 @@ body.tm-panel-open { overflow: hidden; }
 
 @media (max-width: 800px) {
   .analytics-grid { grid-template-columns: 1fr; }
-  .att-mode-bar { gap: 0.375rem; }
 }
 
 /* The announcements composer and broadcast list moved to announcements.css:
@@ -1992,9 +1982,7 @@ body.tm-panel-open { overflow: hidden; }
 .es-panel { display:none; }
 .es-panel.active { display:block; }
 
-/* Status badges */
-.badge-draft     { background:var(--surface-3); color:var(--muted-foreground); }
-.badge-published { background:var(--success-surface);  color:var(--success-text); }
+/* Status badges */.badge-published { background:var(--success-surface);  color:var(--success-text); }
 .badge-upcoming  { background:var(--info-surface);  color: var(--info-text); }
 .badge-ongoing   { background:var(--warning-surface);  color:var(--warning-text); }
 .badge-done      { background:var(--success-surface);  color:var(--success-text); }
@@ -2028,13 +2016,7 @@ body.tm-panel-open { overflow: hidden; }
 /* Search / filter row */
 .es-search-row { display:flex; gap:.75rem; flex-wrap:wrap; align-items:center; margin-bottom:.75rem; }
 
-/* Card header right-side actions */
-.es-card-actions { display:flex; gap:.5rem; align-items:center; }
-
-/* Auto-generate preview summary */
-.es-gen-summary { display:flex; gap:.5rem; align-items:center; flex-wrap:wrap; }
-
-/* Narrow numeric input (duty-post staff count) */
+/* Card header right-side actions *//* Auto-generate preview summary *//* Narrow numeric input (duty-post staff count) */
 .dset-input-narrow { width:5rem; flex:0 0 auto; }
 
 /* Drag-and-drop exam calendar */
@@ -2061,9 +2043,7 @@ body.tm-panel-open { overflow: hidden; }
                  color:var(--info); padding:.2rem .55rem; border-radius: var(--radius-full); font-size: var(--text-caption); font-weight:500; }
 .es-time-chip .material-symbols-rounded { font-size: var(--icon-sm); }
 .es-room-chip { display:inline-flex; align-items:center; gap:.2rem; background:rgba(107,114,128,.08);
-                 color:var(--muted-foreground); padding:.2rem .5rem; border-radius: var(--radius-full); font-size: var(--text-caption); }
-.es-nowrap { white-space:nowrap; }
-.es-row-actions { display:flex; align-items:center; gap:.4rem; }
+                 color:var(--muted-foreground); padding:.2rem .5rem; border-radius: var(--radius-full); font-size: var(--text-caption); }.es-row-actions { display:flex; align-items:center; gap:.4rem; }
 
 /* .es-icon-btn is now defined in components.css alongside the other
    controls that do this job, so the whole family is edited in one place. */
