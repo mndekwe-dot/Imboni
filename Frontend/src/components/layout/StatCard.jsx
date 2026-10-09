@@ -9,6 +9,10 @@
  *   trend       — optional sub-text
  *   trendClass  — 'positive' | 'negative' | ''
  *   colorClass  — 'success' | 'warning' | 'red' | 'info' | '' (default = portal accent)
+ *   loading     — the figure has not arrived. Keeps the real tile (icon, label,
+ *                 size) and shows bars where the value and trend will be, so
+ *                 the strip does not reflow when the numbers land. Replaces the
+ *                 old habit of passing value '-' and trend 'Loading…'.
  *   className   — one extra modifier for a page that needs a tweak. Reach for
  *                 this before copying the tile; nine copies of this markup is
  *                 how the portals drifted apart in the first place.
@@ -48,16 +52,25 @@ function sizeClass(node) {
     return value.length >= 10 ? ' is-long' : ''
 }
 
-export function StatCard({ icon, value, label, trend, trendClass = '', colorClass = '', className = '' }) {
+export function StatCard({ icon, value, label, trend, trendClass = '', colorClass = '', className = '', loading = false }) {
     return (
-        <div className={`portal-stat-card${colorClass ? ' ' + colorClass : ''}${className ? ' ' + className : ''}`}>
+        <div
+            className={`portal-stat-card${colorClass ? ' ' + colorClass : ''}${className ? ' ' + className : ''}${loading ? ' is-loading' : ''}`}
+            aria-busy={loading || undefined}
+        >
             <div className={`portal-stat-icon${colorClass ? ' ' + colorClass : ''}`}>
                 <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>
             </div>
             <div className="portal-stat-body">
-                <div className={`portal-stat-value${sizeClass(value)}`}>{value}</div>
+                {loading ? (
+                    <div className="skel skel-stat-value" aria-hidden="true" />
+                ) : (
+                    <div className={`portal-stat-value${sizeClass(value)}`}>{value}</div>
+                )}
                 <div className="portal-stat-label">{label}</div>
-                {trend && (
+                {loading ? (
+                    <div className="skel skel-stat-trend" aria-hidden="true" />
+                ) : trend && (
                     <div className={`portal-stat-trend${trendClass ? ' ' + trendClass : ''}`}>{trend}</div>
                 )}
             </div>

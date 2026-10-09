@@ -67,3 +67,21 @@
 .skel-table td { padding: 0.7rem 0.75rem; }
 
 .skel-page { padding: 1.5rem; }
+
+/* The real stat tile with bars where its figure and trend will be. The label
+   and icon stay, so the tile is the right size and nothing moves on arrival. */
+.skel-stat-value { width: 4.5rem; height: 2rem; margin-bottom: 0.4rem; }
+.skel-stat-trend { width: 7rem;   height: 0.75rem; margin-top: 0.35rem; }
+
+/* Rows for a page's OWN table body: the real <thead> stays on screen, so the
+   columns are right by construction and cannot drift from the page. */
+.skel-cell { height: 0.85rem; }
+.skel-cell-avatar { display: flex; align-items: center; gap: 0.75rem; }
+.skel-cell-avatar .skel-avatar { width: 2rem; height: 2rem; }
+
+/* A page-shaped placeholder inside the real dashboard shell. */
+.skel-stack-lg { display: flex; flex-direction: column; gap: 1.5rem; }
+.skel-two-col  { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; }
+.skel-toolbar  { display: flex; gap: 0.75rem; align-items: center; }
+.skel-pill     { height: 2.25rem; width: 9rem; border-radius: var(--radius); }
+.skel-search   { height: 2.25rem; flex: 1; max-width: 18rem; border-radius: var(--radius); }
