@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { StudentsNeedingAttention } from './StudentsNeedingAttention'
 import { getDosDashboardStats, getDosRecentActivity, getDosPerformanceByGrade, getDosWeeklyTrend, getDosTasks, createDosTask, updateDosTask, deleteDosTask } from '../../api/dos'
 import { toList } from '../../api/client'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, LineChart, Line, Area, AreaChart } from 'recharts'
@@ -38,6 +39,7 @@ function TrendTooltip({ active, payload, label }) {
 }
 
 function GradeTooltip({ active, payload, label }) {
+    const { t } = useTranslation()
     if (!active || !payload?.length) return null
     const up = payload.length === 2 && payload[1].value >= payload[0].value
     return (
@@ -52,7 +54,7 @@ function GradeTooltip({ active, payload, label }) {
             ))}
             {payload.length === 2 && (
                 <div className={up ? 'chart-tooltip-compare-up' : 'chart-tooltip-compare-down'}>
-                    {up ? '▲' : '▼'} {Math.abs(payload[1].value - payload[0].value)}% vs Term 1
+                    {up ? '▲' : '▼'} {t('dos.dashboard.vsTerm1', { value: Math.abs(payload[1].value - payload[0].value) })}
                 </div>
             )}
         </div>
@@ -151,8 +153,8 @@ export function DosDashboard() {
             .finally(() => setLoading(false))
 
         fetchActivityPage(0, false)
-        getDosTasks().then(data => setTasks(toList(data))).catch(e => toast.error(errorMessage(e, 'Could not load tasks.')))
-    }, [])
+        getDosTasks().then(data => setTasks(toList(data))).catch(e => toast.error(errorMessage(e, t('common.tasksLoadFailed'))))
+    }, [toast])
 
     async function handleCreateTask() {
         if (!taskTitle.trim()) return
@@ -162,7 +164,7 @@ export function DosDashboard() {
             setTasks(prev => [task, ...prev])
             setTaskTitle(''); setTaskDue(''); setShowTaskForm(false)
         } catch (e) {
-            setTaskError(e?.message || 'Failed to save task.')
+            setTaskError(e?.message || t('dos.dashboard.saveTaskFailed'))
         } finally {
             setTaskSaving(false) }
     }
@@ -174,7 +176,7 @@ export function DosDashboard() {
             await deleteDosTask(task.id)
         } catch (e) {
             setTasks(previous)                                 // put it back, say why
-            toast.error(errorMessage(e, 'Could not delete the task.'))
+            toast.error(errorMessage(e, t('dis.dashboard.deleteTaskFailed')))
         }
     }
 
@@ -188,7 +190,7 @@ export function DosDashboard() {
         // Any failure means the list on screen no longer matches the server, so
         // reload rather than guess which ones actually went.
         if (results.some(r => r.status === 'rejected')) {
-            toast.error('Some tasks could not be deleted.')
+            toast.error(t('dis.dashboard.deleteTasksFailed'))
             getDosTasks().then(data => setTasks(toList(data))).catch(() => setTasks(previous))
         }
     }
@@ -197,14 +199,16 @@ export function DosDashboard() {
         try {
             const updated = await updateDosTask(task.id, { is_completed: !task.is_completed })
             setTasks(prev => prev.map(t => t.id === task.id ? updated : t))
-        } catch { /* silent — task remains unchanged */ }
+        } catch (e) {
+            toast.error(errorMessage(e, t('common.taskUpdateFailed')))
+        }
     }
 
     const dosStats = stats ? [
-        { icon: 'people', value: stats.total_students, label: 'Total Students', trend: `+${stats.new_students} this term`, trendClass: 'positive', colorClass: '' },
-        { icon: 'school', value: stats.teaching_staff, label: 'Teaching Staff', trend: 'active teachers', trendClass: '', colorClass: 'info' },
-        { icon: 'analytics', value: `${stats.avg_performance}%`, label: 'Avg Performance', trend: `${stats.avg_performance_change >= 0 ? '+' : ''}${stats.avg_performance_change}% this term`, trendClass: stats.avg_performance_change >= 0 ? 'positive' : 'negative', colorClass: 'success' },
-        { icon: 'pending_actions', value: stats.pending_approvals, label: 'Pending Approvals', trend: 'Requires action', trendClass: 'negative', colorClass: 'warning' },
+        { icon: 'people', value: stats.total_students, label: t('dos.dashboard.totalStudents'), trend: t('dos.dashboard.newThisTerm', { count: stats.new_students }), trendClass: 'positive', colorClass: '' },
+        { icon: 'school', value: stats.teaching_staff, label: t('dos.dashboard.teachingStaff'), trend: t('dos.dashboard.activeTeachers'), trendClass: '', colorClass: 'info' },
+        { icon: 'analytics', value: `${stats.avg_performance}%`, label: t('dos.dashboard.avgPerformance'), trend: t('dos.dashboard.changeThisTerm', { value: `${stats.avg_performance_change >= 0 ? '+' : ''}${stats.avg_performance_change}` }), trendClass: stats.avg_performance_change >= 0 ? 'positive' : 'negative', colorClass: 'success' },
+        { icon: 'pending_actions', value: stats.pending_approvals, label: t('dos.dashboard.pendingApprovals'), trend: t('dos.dashboard.requiresAction'), trendClass: 'negative', colorClass: 'warning' },
     ] : []
 
     const iconMap = {
@@ -229,11 +233,11 @@ export function DosDashboard() {
             user={sessionUser}
         />
     )
-    if (error) return <p className="u-pad dos-danger-text">Error: {error}</p>
+    if (error) return <p className="u-pad dos-danger-text">{t('dos.dashboard.errorPrefix', { message: error })}</p>
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
@@ -264,27 +268,27 @@ export function DosDashboard() {
                         {/* One container for all three cards */}
                         <div className="overview-panel">
                             <div className="overview-panel-header">
-                                <span className="overview-panel-title">Overview</span>
+                                <span className="overview-panel-title">{t('dos.dashboard.overview')}</span>
                             </div>
 
                             <div className="cards-grid overview-panel-body">
                                 <div className="card">
                                     <div className="card-header">
-                                        <h2 className="card-title">Quick Actions</h2>
+                                        <h2 className="card-title">{t('dos.dashboard.quickActions')}</h2>
                                     </div>
                                     <div className="card-content">
                                         <div className="action-buttons">
                                             <button className="btn btn-primary" onClick={() => navigate('/dos/results')}>
                                                 <span className="material-symbols-rounded" aria-hidden="true">fact_check</span>
-                                                Approve Results
+                                                {t('dos.dashboard.approveResults')}
                                             </button>
                                             <button className="btn btn-secondary" onClick={() => navigate('/dos/teachers')}>
                                                 <span className="material-symbols-rounded" aria-hidden="true">school</span>
-                                                View Teachers
+                                                {t('dos.dashboard.viewTeachers')}
                                             </button>
                                             <button className="btn btn-secondary" onClick={() => navigate('/dos/students')}>
                                                 <span className="material-symbols-rounded" aria-hidden="true">people</span>
-                                                Manage Students
+                                                {t('dos.dashboard.manageStudents')}
                                             </button>
                                         </div>
                                     </div>
@@ -292,9 +296,9 @@ export function DosDashboard() {
 
                                 <div className="card">
                                     <div className="card-header">
-                                        <h2 className="card-title">Recent Activity</h2>
+                                        <h2 className="card-title">{t('dos.dashboard.recentActivity')}</h2>
                                         <span className="dos-count-note">
-                                            {activities.length} of {activityTotal}
+                                            {t('dos.dashboard.activityCount', { shown: activities.length, total: activityTotal })}
                                         </span>
                                     </div>
                                     <div className="card-content">
@@ -313,13 +317,13 @@ export function DosDashboard() {
                                                 disabled={activityLoadingMore}
                                             >
                                                 {activityLoadingMore
-                                                    ? 'Loading…'
-                                                    : `Load more (${activityTotal - activities.length} remaining)`}
+                                                    ? t('common.loading')
+                                                    : t('dos.dashboard.loadMoreRemaining', { count: activityTotal - activities.length })}
                                             </button>
                                         )}
                                         {!activityHasMore && activities.length > 0 && (
                                             <p className="dos-all-loaded">
-                                                All {activityTotal} activities loaded
+                                                {t('dos.dashboard.allLoaded', { count: activityTotal })}
                                             </p>
                                         )}
                                     </div>
@@ -327,8 +331,8 @@ export function DosDashboard() {
 
                                 <div className="card">
                                     <div className="card-header">
-                                        <h2 className="card-title">Term Trend</h2>
-                                        <p className="card-subtitle">Weekly attendance & performance</p>
+                                        <h2 className="card-title">{t('dos.dashboard.termTrend')}</h2>
+                                        <p className="card-subtitle">{t('dos.dashboard.weeklyTrendSubtitle')}</p>
                                     </div>
                                     <div className="card-content">
                                         <ResponsiveContainer width="100%" height={185}>
@@ -364,7 +368,7 @@ export function DosDashboard() {
                                                 <Area
                                                     type="monotone"
                                                     dataKey="attendance"
-                                                    name="Attendance"
+                                                    name={t('dos.dashboard.attendance')}
                                                     stroke="#0f9d63"
                                                     strokeWidth={2}
                                                     fill="url(#attGrad)"
@@ -374,7 +378,7 @@ export function DosDashboard() {
                                                 <Area
                                                     type="monotone"
                                                     dataKey="performance"
-                                                    name="Performance"
+                                                    name={t('dos.dashboard.performance')}
                                                     stroke="#1657a0"
                                                     strokeWidth={2}
                                                     fill="url(#perfGrad)"
@@ -384,7 +388,7 @@ export function DosDashboard() {
                                             </AreaChart>
                                         </ResponsiveContainer>
                                         <div className="chart-legend-row">
-                                            {[['#0f9d63', 'Attendance'], ['#1657a0', 'Performance']].map(([color, label]) => (
+                                            {[['#0f9d63', t('dos.dashboard.attendance')], ['#1657a0', t('dos.dashboard.performance')]].map(([color, label]) => (
                                                 <div key={label} className="chart-legend-item">
                                                     <span className="chart-legend-dot" style={{ background: color }} />
                                                     {label}
@@ -396,21 +400,24 @@ export function DosDashboard() {
                             </div>
                         </div>{/* end outer container */}
 
+                        {/* Failing or frequently absent students, worst first */}
+                        <StudentsNeedingAttention limit={5} seeAllTo="/dos/results?tab=analytics" />
+
                         {/* My Tasks widget */}
                         <div className="card">
                             <div className="card-header">
-                                <h2 className="card-title">My Tasks</h2>
+                                <h2 className="card-title">{t('common.myTasks')}</h2>
                                 <div className="u-row-sm">
-                                    <span className="badge badge-secondary">{tasks.filter(t => !t.is_completed).length} pending</span>
+                                    <span className="badge badge-secondary">{t('common.pendingCount', { count: tasks.filter(x => !x.is_completed).length })}</span>
                                     {tasks.some(t => t.is_completed) && (
                                         <button className="btn btn-outline btn-sm" onClick={handleClearCompleted}>
                                             <span className="material-symbols-rounded icon-sm" aria-hidden="true">playlist_remove</span>
-                                            Clear done
+                                            {t('common.clearDone')}
                                         </button>
                                     )}
                                     <button className="btn btn-outline btn-sm" onClick={() => setShowTaskForm(v => !v)}>
                                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">{showTaskForm ? 'expand_less' : 'add'}</span>
-                                        {showTaskForm ? 'Cancel' : 'Add'}
+                                        {showTaskForm ? t('common.cancel') : t('common.add')}
                                     </button>
                                 </div>
                             </div>
@@ -419,7 +426,7 @@ export function DosDashboard() {
                                     <div className="dos-task-form">
                                         <input
                                             className="form-input"
-                                            placeholder="Task title…"
+                                            placeholder={t('common.taskTitlePlaceholder')}
                                             value={taskTitle}
                                             onChange={e => setTaskTitle(e.target.value)}
                                             onKeyDown={e => e.key === 'Enter' && handleCreateTask()}
@@ -429,7 +436,7 @@ export function DosDashboard() {
                                             {['low', 'medium', 'high'].map(p => (
                                                 <label key={p} className={`dos-prio-opt${taskPriority === p ? ' on' : ''}`}>
                                                     <input type="radio" value={p} checked={taskPriority === p} onChange={() => setTaskPriority(p)} className="dos-radio" />
-                                                    {p}
+                                                    {t(`common.priority${p[0].toUpperCase()}${p.slice(1)}`)}
                                                 </label>
                                             ))}
                                             <input type="date" className="form-input dos-task-date" value={taskDue} onChange={e => setTaskDue(e.target.value)} />
@@ -437,12 +444,12 @@ export function DosDashboard() {
                                         {taskError && <p className="dos-task-err">{taskError}</p>}
                                         <button className="btn btn-primary btn-sm" onClick={handleCreateTask} disabled={taskSaving || !taskTitle.trim()}>
                                             <span className="material-symbols-rounded icon-sm" aria-hidden="true">save</span>
-                                            {taskSaving ? 'Saving…' : 'Save Task'}
+                                            {taskSaving ? t('common.saving') : t('common.saveTask')}
                                         </button>
                                     </div>
                                 )}
                                 {tasks.length === 0 ? (
-                                    <p className="dos-note-sm">No tasks yet. Click Add to create one.</p>
+                                    <p className="dos-note-sm">{t('common.noTasksYet')}</p>
                                 ) : (
                                     <div className="dos-task-list">
                                         {tasks.map(task => (
@@ -460,12 +467,12 @@ export function DosDashboard() {
                                                     </span>
                                                 )}
                                                 <span className={`badge ${task.priority === 'high' ? 'badge-high' : task.priority === 'medium' ? 'badge-medium' : 'badge-low'} u-shrink-0`}>
-                                                    {task.priority}
+                                                    {t(`common.priority${task.priority[0].toUpperCase()}${task.priority.slice(1)}`)}
                                                 </span>
                                                 <button
                                                     className="btn-icon-clean task-del-btn"
-                                                    title={`Delete "${task.title}"`}
-                                                    aria-label={`Delete "${task.title}"`}
+                                                    title={t('common.deleteTaskNamed', { title: task.title })}
+                                                    aria-label={t('common.deleteTaskNamed', { title: task.title })}
                                                     onClick={() => handleDeleteTask(task)}
                                                 >
                                                     <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
@@ -479,8 +486,8 @@ export function DosDashboard() {
 
                         <div className="card">
                             <div className="card-header">
-                                <h2 className="card-title">Performance by Grade</h2>
-                                <p className="card-subtitle">Average score per grade, current term</p>
+                                <h2 className="card-title">{t('dos.dashboard.performanceByGrade')}</h2>
+                                <p className="card-subtitle">{t('dos.dashboard.performanceByGradeSubtitle')}</p>
                             </div>
                             <div className="card-content">
                                 <ResponsiveContainer width="100%" height={260}>
@@ -510,7 +517,7 @@ export function DosDashboard() {
                                             iconSize={10}
                                             wrapperStyle={{ fontSize: '0.78rem', paddingTop: '0.75rem' }}
                                         />
-                                        <Bar dataKey="avg_score" name="Avg Score" fill="#1657a0" radius={[4, 4, 0, 0]} maxBarSize={32} />
+                                        <Bar dataKey="avg_score" name={t('dos.dashboard.avgScore')} fill="#1657a0" radius={[4, 4, 0, 0]} maxBarSize={32} />
                                     </BarChart>
                                 </ResponsiveContainer>
                             </div>

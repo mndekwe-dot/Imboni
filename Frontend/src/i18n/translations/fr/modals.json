@@ -113,22 +113,6 @@
     "roleRequired": "Rôle *",
     "studentRequired": "Élève *"
   },
-  "payment": {
-    "egAdmission": "ex. ADM-2026-001",
-    "egAmount": "ex. 58000",
-    "egStudentName": "ex. Uwase Amina",
-    "notesOptional": "Remarques (facultatif)",
-    "notesPlaceholder": "Tout détail complémentaire...",
-    "paymentDate": "Date du paiement",
-    "paymentType": "Type de paiement",
-    "record": "Enregistrer le paiement",
-    "studentNameRequired": "Nom de l'élève *",
-    "title": "Enregistrer un nouveau paiement",
-    "typeBursary": "Aide financière",
-    "typeFull": "Paiement intégral",
-    "typePartial": "Partiel",
-    "typeScholarship": "Bourse"
-  },
   "student": {
     "admitTitle": "Admettre un élève",
     "detailsTitle": "Fiche de l'élève",

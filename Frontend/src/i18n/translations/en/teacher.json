@@ -213,7 +213,9 @@
     "pickerHintAttendance": "Use the picker above to select a section, year, and class to mark attendance.",
     "saveFailed": "Failed to save attendance. Please try again.",
     "subtitle": "Track student attendance for your classes",
-    "title": "Mark Attendance"
+    "title": "Mark Attendance",
+    "onExeat": "On exéat",
+    "onExeatNote": "Signed out on an exéat pass"
   },
   "classes": {
     "assessmentNamePlaceholder": "e.g. Mid-Term Exam, CAT 1, Quiz 3…",
@@ -273,6 +275,8 @@
     "classPerformance": "Class Performance",
     "classesProgress": "{{done}} completed, {{left}} left",
     "classesToday": "Classes Today",
+    "completeTask": "Mark task as done",
+    "deleteTask": "Delete task",
     "draftResults": "Draft results",
     "due": "Due: {{date}}",
     "enterResults": "Enter Results",
@@ -297,7 +301,9 @@
     "slotInProgress": "In Progress",
     "slotUpcoming": "Upcoming",
     "subtitle": "Teacher Overview",
+    "taskDeleteFailed": "Could not delete the task.",
     "taskPlaceholder": "What needs to be done?",
+    "taskUpdateFailed": "Could not update the task.",
     "thisTerm": "This term",
     "titleRequiredError": "Title is required.",
     "todaySchedule": "Today's Schedule",
@@ -403,10 +409,21 @@
   "publishFailed": "Failed to publish.",
   "results": {
     "commentPlaceholder": "e.g. Good effort, needs revision…",
+    "discardConfirm": "Discard the marks you have entered?",
+    "downloadTemplate": "Download template",
     "enterNew": "Enter New Results",
+    "importBadFile": "That file needs \"student_code\" and \"score\" columns. Download the template and fill it in.",
+    "importDone": "{{count}} scores imported.",
+    "importFailed": "Could not read that file.",
+    "importInvalid": "Not a valid score: {{list}}",
+    "importNeedsMax": "Enter the max score first, so the imported marks can be checked against it.",
+    "importNone": "No scores were found in that file.",
+    "importScores": "Import CSV",
+    "importUnknown": "Not in this class: {{list}}",
     "noneFound": "No results found",
     "pickerHintResults": "Use the picker above to select a section, year, and class to view or enter results.",
     "subtitle": "View and enter student assessment results",
+    "templateName": "scores-{{class}}",
     "title": "Results"
   },
   "students": {

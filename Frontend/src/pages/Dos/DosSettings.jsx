@@ -15,6 +15,8 @@ import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { StatCard } from '../../components/layout/StatCard'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 
 // ── Small reusable components ────────────────────────────────────────────────
 
@@ -160,6 +162,7 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
 // ── Main page ────────────────────────────────────────────────────────────────
 
 export function DosSettings() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
@@ -169,6 +172,7 @@ export function DosSettings() {
     const [rooms,     setRooms]     = useState([])
     const [roomInput, setRoomInput] = useState('')
     const [roomErr,   setRoomErr]   = useState('')
+    const [roomSeats, setRoomSeats] = useState('')
     const [timezone,  setTimezone]  = useState('Africa/Kigali')
     const [tzSaving,  setTzSaving]  = useState(false)
     const [tzSaved,   setTzSaved]   = useState(false)
@@ -178,9 +182,9 @@ export function DosSettings() {
     }, [settingsLoading, setting.timezone])
 
     useEffect(() => {
-        getSubjects().then(setSubjects).catch(console.error)
-        getDosRooms().then(data => setRooms(data)).catch(console.error)
-    }, [])
+        getSubjects().then(setSubjects).catch(e => toast.error(errorMessage(e, "Could not load this page's data.")))
+        getDosRooms().then(data => setRooms(data)).catch(e => toast.error(errorMessage(e, "Could not load this page's data.")))
+    }, [toast])
 
     async function handleAddRoom() {
         const name = roomInput.trim()
@@ -189,9 +193,10 @@ export function DosSettings() {
             setRoomErr(t('settings.roomExists')); return
         }
         try {
-            const newRoom = await createDosRoom(name)
+            const newRoom = await createDosRoom(name, parseInt(roomSeats, 10) || null)
             setRooms(prev => [...prev, newRoom].sort((a, b) => a.name.localeCompare(b.name)))
             setRoomInput('')
+            setRoomSeats('')
             setRoomErr('')
         } catch (e) {
             setRoomErr(e.message || t('settings.addRoomFailed'))
@@ -202,9 +207,7 @@ export function DosSettings() {
         try {
             await deleteDosRoom(id)
             setRooms(prev => prev.filter(r => r.id !== id))
-        } catch (e) {
-            console.error(e)
-        }
+        } catch (e) { toast.error(errorMessage(e, 'Could not delete that room.')) }
     }
 
     // ── Subject / Type handlers ───────────────────────────────────────────────
@@ -292,9 +295,7 @@ export function DosSettings() {
             await updateSchoolSettings({timezone})
             setTzSaved(true)
             setTimeout(()=>setTzSaved(false),3000)
-        }catch (err){
-            console.error(err)
-        } finally{
+        }catch (err) { toast.error(errorMessage(err, 'Could not save the time zone.')) } finally{
             setTzSaving(false)
         }
     }
@@ -431,6 +432,14 @@ export function DosSettings() {
                                             onKeyDown={e => e.key === 'Enter' && handleAddRoom()}
                                             placeholder={t('settings.roomPlaceholder')}
                                         />
+                                        <input
+                                            className="form-input"
+                                            type="number" min="1"
+                                            value={roomSeats}
+                                            onChange={e => setRoomSeats(e.target.value)}
+                                            placeholder={t('settings.roomCapacityPlaceholder')}
+                                            aria-label={t('settings.roomCapacityPlaceholder')}
+                                        />
                                         <button className="btn btn-primary btn-sm" onClick={handleAddRoom}>
                                             <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('common.add')}
                                         </button>
@@ -442,7 +451,7 @@ export function DosSettings() {
                                     {rooms.map(r => (
                                         <span key={r.id} className="tag-chip">
                                             <span className="material-symbols-rounded dset-room-icon" aria-hidden="true">meeting_room</span>
-                                            {r.name}
+                                            {r.name}{r.capacity ? ` · ${t('settings.roomSeats', { count: r.capacity })}` : ''}
                                             <button className="tag-chip-remove" onClick={() => handleDeleteRoom(r.id)} aria-label={t('common.close')}>
                                                 <span className="material-symbols-rounded" aria-hidden="true">close</span>
                                             </button>

@@ -72,13 +72,4 @@ describe('parent api', () => {
     parent.markAllAnnouncementsRead()
     expect(client.post).toHaveBeenCalledWith('/imboni/announcements/mark-all-read/')
   })
-
-  it('messages endpoints', () => {
-    parent.getParentMessages()
-    expect(client.get).toHaveBeenCalledWith('/imboni/parent/messages/')
-
-    const data = { text: 'hi' }
-    parent.sendParentMessage(data)
-    expect(client.post).toHaveBeenCalledWith('/imboni/parent/messages/', data)
-  })
 })

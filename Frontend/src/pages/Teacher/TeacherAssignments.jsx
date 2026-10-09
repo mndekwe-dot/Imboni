@@ -23,10 +23,10 @@ import {
     getAssignmentSubmissions, getAssignmentGradeSheet, saveAssignmentGrades,
 } from '../../api/teacher'
 import { formatDateTime } from '../../utils/date'
-import { errorMessage } from '../../utils/errors'
-import { useToast } from '../../context/ToastContext'
 import { SubmissionReviewModal } from '../../components/assignments/SubmissionReviewModal'
 import { AssignmentStatsModal } from '../../components/assignments/AssignmentStatsModal'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 // ── Constants ─────────────────────────────────────────────────────────────────
 
 const STATUS_TABS = [
@@ -192,6 +192,7 @@ function GradeModal({ assignment, onClose }) {
 // ── Submissions Modal ─────────────────────────────────────────────────────────
 
 function SubmissionsModal({ assignment, onClose, onReview }) {
+    const toast = useToast()
     const { t } = useTranslation()
     const [subs,    setSubs]    = useState([])
     const [loading, setLoading] = useState(true)
@@ -199,9 +200,9 @@ function SubmissionsModal({ assignment, onClose, onReview }) {
     useEffect(() => {
         getAssignmentSubmissions(assignment.id)
             .then(data => setSubs(Array.isArray(data) ? data : []))
-            .catch(() => {})
+            .catch(e => toast.error(errorMessage(e, 'Could not load the submissions.')))
             .finally(() => setLoading(false))
-    }, [assignment.id])
+    }, [assignment.id, toast])
 
     return (
         <Modal title={t('teacher.assignments.submissionsTitle', { title: assignment.title })} icon="fact_check" onClose={onClose} size="wide"

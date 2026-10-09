@@ -393,3 +393,18 @@ class TestStudentYearValidation:
         }, format='json')
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+
+@pytest.mark.django_db
+class TestEveryPortalReadsTheSchoolSettings:
+    @pytest.mark.parametrize('role', ['teacher', 'discipline', 'matron', 'librarian', 'bursar', 'student', 'parent'])
+    def test_any_member_reads_but_cannot_change(self, make_authenticated_client, role):
+        client, _user = make_authenticated_client(role)
+        assert client.get('/imboni/dos/school-settings/').status_code == 200
+        assert client.patch('/imboni/dos/school-settings/', {'currency': 'USD'}, format='json').status_code == 403
+
+    def test_the_principal_sees_school_analytics(self, make_authenticated_client):
+        client, _user = make_authenticated_client('admin')
+        for url in ('dashboard/performance-by-grade/', 'students/enrollment-by-grade/',
+                    'students/performance-distribution/', 'teachers/by-subject/'):
+            assert client.get(f'/imboni/dos/{url}').status_code == 200, url

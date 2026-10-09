@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 import logging
 from django.db import transaction
 from django.utils import timezone
-from django.db.models import Avg, Q
+from django.db.models import Avg, Count, Q
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
@@ -247,7 +247,7 @@ class DOSPerformanceByGradeView(APIView):
 
     Response: [ { grade: "Grade 1", avg_score: 72.5 }, ... ]
     """
-    permission_classes = [IsDOS]
+    permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
         term = _current_term()
@@ -378,6 +378,19 @@ class TeacherListCreateView(APIView):
                 teaching_assignments__class_obj_id=class_id
             ).distinct()
 
+        # The week the school has, and what each teacher is timetabled for in it.
+        from collections import Counter
+        from apps.teacher.models import Timetable
+        from .models import TimetablePeriod
+        from .workload import double_bookings, load_level, weekly_capacity
+        slots_per_day = TimetablePeriod.objects.filter(is_active=True, is_break=False).count()
+        lessons = list(
+            Timetable.objects.filter(term=term, teacher__isnull=False)
+            .values_list('teacher_id', 'day', 'start_time', 'end_time', 'class_obj_id')
+        ) if term else []
+        periods_by_teacher = Counter(row[0] for row in lessons)
+        clashes_by_teacher = double_bookings(lessons)
+
         data = []
         for t in teachers:
             assignments = (
@@ -398,6 +411,11 @@ class TeacherListCreateView(APIView):
                 'employment_type': t.employment_type,
                 'subjects':        subjects,
                 'class_count':     class_count,
+                'periods_per_week': periods_by_teacher.get(t.id, 0),
+                'weekly_capacity': weekly_capacity(slots_per_day, t.employment_type),
+                'workload_level':  load_level(periods_by_teacher.get(t.id, 0),
+                                              weekly_capacity(slots_per_day, t.employment_type)),
+                'double_booked':   clashes_by_teacher.get(t.id, 0),
                 'joined_at':       t.created_at,
             })
 
@@ -447,7 +465,7 @@ class TeachersBySubjectView(APIView):
     Response: [ { subject_id, subject_name, teacher_count, percentage }, ... ]
     percentage = subject teacher count / total teachers * 100
     """
-    permission_classes = [IsDOS]
+    permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
         from apps.teacher.models import SubjectTeacherAssignment
@@ -762,7 +780,7 @@ class StudentEnrollmentByGradeView(APIView):
 
     Response: [ { grade, student_count, percentage }, ... ]
     """
-    permission_classes = [IsDOS]
+    permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
         from django.db.models import Count
@@ -808,7 +826,7 @@ class StudentPerformanceDistributionView(APIView):
         Average    — avg 60–70%
         Below      — avg < 60%
     """
-    permission_classes = [IsDOS]
+    permission_classes = [IsDOSOrAdmin]
 
     def get(self, request):
         term = _current_term()
@@ -1266,14 +1284,56 @@ class DOSResultRejectView(APIView):
             )
 
         result.status           = 'rejected'
-        result.rejection_reason = request.data.get('rejection_reason', '')
+        # The client has sent this as `reason`; both spellings are the same thing.
+        result.rejection_reason = request.data.get('rejection_reason') or request.data.get('reason') or ''
         result.dos_comment      = request.data.get('dos_comment', result.dos_comment or '')
         result.save(update_fields=['status', 'rejection_reason', 'dos_comment'])
         from apps.audit.services import audit
         audit(request.user, 'result.rejected',
               target=f"{result.student.full_name} ({result.subject.name})",
               detail={'result_id': str(result.id), 'reason': result.rejection_reason})
+        _tell_teachers_of_rejection([result], result.rejection_reason)
         return Response({'detail': 'Result rejected.'})
+
+
+def _tell_teachers_of_rejection(results, reason):
+    """One notification per submitting teacher, however many of their results were sent back."""
+    from apps.notifications.services import notify_user
+    by_teacher = {}
+    for r in results:
+        if r.teacher_id:
+            by_teacher.setdefault(r.teacher, []).append(r)
+    for teacher, items in by_teacher.items():
+        subjects = sorted({r.subject.name for r in items})
+        message = f"{len(items)} result(s) for {', '.join(subjects)} were sent back by the Director of Studies."
+        if reason:
+            message += f" Reason: {reason}"
+        notify_user(teacher, 'Results rejected', message, 'results', '/teacher/results')
+
+
+class DOSResultBulkRejectView(APIView):
+    """POST /imboni/dos/results/bulk-reject/  body: {ids: [uuid, ...], reason: str}"""
+    permission_classes = [IsDOSOrAdmin]
+
+    def post(self, request):
+        from apps.results.models import Result
+        ids = request.data.get('ids', [])
+        reason = (request.data.get('reason') or '').strip()
+        if not ids:
+            return Response({'detail': 'No ids provided.'}, status=http_status.HTTP_400_BAD_REQUEST)
+        if not reason:
+            return Response({'detail': 'Say why the results are being sent back.'},
+                            status=http_status.HTTP_400_BAD_REQUEST)
+        results = list(Result.objects.filter(id__in=ids, status='submitted').select_related('subject', 'teacher'))
+        for r in results:
+            r.status = 'rejected'
+            r.rejection_reason = reason
+        Result.objects.bulk_update(results, ['status', 'rejection_reason'])
+        from apps.audit.services import audit
+        audit(request.user, 'result.bulk_rejected', target=f"{len(results)} results",
+              detail={'count': len(results), 'reason': reason})
+        _tell_teachers_of_rejection(results, reason)
+        return Response({'rejected': len(results)})
 
 
 class DOSResultBulkApproveView(APIView):
@@ -1296,6 +1356,35 @@ class DOSResultBulkApproveView(APIView):
 # Exam Schedule
 # ---------------------------------------------------------------------------
 
+def _exam_conflicts_for(term_id, extra=None, replacing=None):
+    """Conflicts across a term's scheduled exams, optionally with one more paper
+    (``extra``, not yet saved) standing in for ``replacing``."""
+    from apps.teacher.models import ClassAssignment
+    from .models import Room
+    from .scheduling.exam_conflicts import find_conflicts
+
+    exams = [e for e in ExamSchedule.objects.filter(term_id=term_id) if e.id != replacing]
+    if extra is not None:
+        exams.append(extra)
+    from types import SimpleNamespace
+    # The pure checker speaks `class_id`; the model's foreign key is `class_obj`.
+    exams = [
+        SimpleNamespace(
+            id=e.id, title=e.title, exam_date=e.exam_date, start_time=e.start_time, end_time=e.end_time,
+            class_id=e.class_obj_id, venue=e.venue, invigilator_id=e.invigilator_id,
+        )
+        for e in exams
+    ]
+    class_ids = {e.class_id for e in exams if e.class_id}
+    seats = {
+        row['class_obj_id']: row['n']
+        for row in ClassAssignment.objects.filter(term_id=term_id, class_obj_id__in=class_ids)
+        .values('class_obj_id').annotate(n=Count('id'))
+    }
+    capacity = {r.name: r.capacity for r in Room.objects.filter(is_active=True, capacity__isnull=False)}
+    return find_conflicts(exams, seats, capacity)
+
+
 class ExamScheduleListView(APIView):
     """GET /imboni/dos/exam-schedule/  |  POST /imboni/dos/exam-schedule/"""
     permission_classes = [IsDOSOrAdmin]
@@ -1308,10 +1397,15 @@ class ExamScheduleListView(APIView):
         if term_id:
             qs = qs.filter(term_id=term_id)
 
+        conflicts = {}
+        for tid in {e.term_id for e in qs}:
+            conflicts.update(_exam_conflicts_for(tid))
+
         data = []
         for e in qs:
             data.append({
                 'id':             str(e.id),
+                'conflicts':      conflicts.get(e.id, []),
                 'title':          e.title,
                 'subject':        e.subject.name,
                 'subject_id':     str(e.subject.id),
@@ -1344,6 +1438,21 @@ class ExamScheduleListView(APIView):
 
         class_obj   = Class.objects.filter(id=d.get('class_id')).first() if d.get('class_id') else None
         invigilator = User.objects.filter(id=d.get('invigilator_id')).first() if d.get('invigilator_id') else None
+
+        candidate = ExamSchedule(
+            title=d.get('title', ''), subject=subject, class_obj=class_obj, term=term,
+            exam_date=d['exam_date'], start_time=d['start_time'], end_time=d['end_time'],
+            venue=d.get('venue', ''), invigilator=invigilator,
+        )
+        # Dates and times arrive as strings; compare them as the values they mean.
+        import datetime as _dt
+        candidate.exam_date = _dt.date.fromisoformat(str(d['exam_date']))
+        candidate.start_time = _dt.time.fromisoformat(str(d['start_time']))
+        candidate.end_time = _dt.time.fromisoformat(str(d['end_time']))
+        mine = _exam_conflicts_for(term.id, extra=candidate).get(candidate.id, [])
+        if mine and not d.get('acknowledge_conflicts'):
+            return Response({'detail': 'This paper clashes with another.', 'conflicts': mine},
+                            status=http_status.HTTP_409_CONFLICT)
 
         exam = ExamSchedule.objects.create(
             title       = d.get('title', ''),
@@ -1416,6 +1525,18 @@ class ExamScheduleDetailView(APIView):
             setattr(exam, 'class_obj_id', d['class_id'] or None)
         if 'invigilator_id' in d:
             setattr(exam, 'invigilator_id', d['invigilator_id'] or None)
+        if {'exam_date', 'start_time', 'end_time', 'venue', 'class_id', 'invigilator_id'} & set(d):
+            import datetime as _dt
+            if isinstance(exam.exam_date, str):
+                exam.exam_date = _dt.date.fromisoformat(exam.exam_date)
+            if isinstance(exam.start_time, str):
+                exam.start_time = _dt.time.fromisoformat(exam.start_time)
+            if isinstance(exam.end_time, str):
+                exam.end_time = _dt.time.fromisoformat(exam.end_time)
+            mine = _exam_conflicts_for(exam.term_id, extra=exam, replacing=exam.id).get(exam.id, [])
+            if mine and not d.get('acknowledge_conflicts'):
+                return Response({'detail': 'This paper clashes with another.', 'conflicts': mine},
+                                status=http_status.HTTP_409_CONFLICT)
         exam.save()
         return Response({'detail': 'Updated.'})
 
@@ -2161,10 +2282,16 @@ class SchoolConfigView(APIView):
 
 class SchoolSettingsView(APIView):
     """
-    GET   /imboni/dos/school-settings/  — return timezone and school name
-    PATCH /imboni/dos/school-settings/  — update timezone or school name
+    GET   /imboni/dos/school-settings/  — any signed-in member of the school
+    PATCH /imboni/dos/school-settings/  — DOS or admin only
+
+    Every portal needs the school's name, terms, currency and timezone to
+    render, so reading is open to the school; changing them is not.
     """
-    permission_classes = [IsDOSOrAdmin]
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [permissions.IsAuthenticated()]
+        return [IsDOSOrAdmin()]
 
     def get(self, request):
         settings = SchoolSetting.get_setting()
@@ -2742,6 +2869,12 @@ class DosTimetableSlotView(APIView):
         for field in('day','start_time','end_time','room_number'):
             if field in request.data:
                 setattr(slot,field,request.data[field])
+        # Creating a lesson takes `room`; editing one used to ignore it, so a
+        # room changed in the edit form was silently dropped.
+        if 'room' in request.data and 'room_number' not in request.data:
+            slot.room_number = request.data['room'] or ''
+        if 'day' in request.data:
+            slot.day = str(request.data['day']).lower()
         if 'subject_id' in request.data:
             slot.subject_id = request.data['subject_id']
         if 'teacher_id' in request.data:

@@ -97,7 +97,11 @@ export function teacherSlotsToSchedule(slots, { freeLabel = 'Free' } = {}) {
                    useful second line here is which class they are in front of,
                    passed as `meta` so the cell prints it as-is instead of
                    running it through the shorten-a-person's-name rule. */
-                meta:    s.class_name || '',
+                ...(s.class_name
+                    ? { meta: s.class_name }
+                    /* A class's own week (student, parent) has no class on the
+                       row; the teacher is the useful second line there. */
+                    : { teacher: s.teacher_name || '' }),
                 room:    s.room_number || '',
             }
         })

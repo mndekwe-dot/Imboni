@@ -9,13 +9,15 @@ class AssessmentSerializer(serializers.ModelSerializer):
     Powers the Recent Results table: Subject, Type, Score, Grade, Date.
     """
     subject_name = serializers.ReadOnlyField(source='subject.name')
+    # Lets a client show one term's assessments instead of every term at once.
+    term_id = serializers.UUIDField(read_only=True)
     score_display = serializers.SerializerMethodField()
     grade = serializers.SerializerMethodField()
 
     class Meta:
         model = Assessment
         fields = [
-            'id', 'title', 'assessment_type', 'date',
+            'id', 'term_id', 'title', 'assessment_type', 'date',
             'score_obtained', 'max_score', 'percentage',
             'subject_name', 'score_display', 'grade', 'teacher_notes',
         ]

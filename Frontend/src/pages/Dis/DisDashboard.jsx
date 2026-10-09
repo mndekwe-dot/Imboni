@@ -2,8 +2,6 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
-import { useToast } from '../../context/ToastContext'
-import { errorMessage } from '../../utils/errors'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { useSessionUser } from '../../hooks/useSessionUser'
@@ -17,25 +15,29 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 
 const TYPE_META = {
-    incident:    { cls: 'negative', label: 'Incident'    },
-    warning:     { cls: 'warning',  label: 'Warning'     },
-    positive:    { cls: 'positive', label: 'Positive'    },
-    achievement: { cls: 'positive', label: 'Achievement' },
+    incident:    { cls: 'negative', key: 'typeIncident'    },
+    warning:     { cls: 'warning',  key: 'typeWarning'     },
+    positive:    { cls: 'positive', key: 'typePositive'    },
+    achievement: { cls: 'positive', key: 'typeAchievement' },
 }
 
 function IncidentRow({ student, grade, section, title, report_type, date, reported_by, follow_up_required, follow_up_completed }) {
-    const meta = TYPE_META[report_type] || { cls: '', label: report_type }
+    const { t } = useTranslation()
+    const meta = TYPE_META[report_type] || { cls: '' }
+    const typeLabel = meta.key ? t(`dis.dashboard.${meta.key}`) : report_type
     const cls  = `${grade || ''}${section || ''}`
     const fuLabel = follow_up_required
-        ? (follow_up_completed ? 'Done' : 'Pending')
+        ? (follow_up_completed ? t('common.done') : t('common.pending'))
         : '-'
     return (
         <tr>
             <td><strong>{student}</strong></td>
             <td><span className="class-chip">{cls}</span></td>
-            <td><span className={`incident-type-tag ${meta.cls}`}>{meta.label}</span> {title}</td>
+            <td><span className={`incident-type-tag ${meta.cls}`}>{typeLabel}</span> {title}</td>
             <td className="text-muted">{date}</td>
             <td className="text-muted">{reported_by || '-'}</td>
             <td>
@@ -49,11 +51,12 @@ function IncidentRow({ student, grade, section, title, report_type, date, report
 }
 
 function StaffItem({ full_name, staff_type, assigned_dormitory, assigned_grade }) {
+    const { t } = useTranslation()
     const isMatron = ['matron', 'head_matron'].includes(staff_type)
     const icon     = isMatron ? 'home' : 'emoji_events'
     const meta     = assigned_dormitory
-        ? `${staff_type === 'matron' ? 'Matron' : 'Head Matron'} (${assigned_dormitory})`
-        : `Patron${assigned_grade ? ' (' + assigned_grade + ')' : ''}`
+        ? `${staff_type === 'matron' ? t('dis.dashboard.matron') : t('dis.dashboard.headMatron')} (${assigned_dormitory})`
+        : `${t('dis.dashboard.patron')}${assigned_grade ? ' (' + assigned_grade + ')' : ''}`
     return (
         <div className="disc-activity-item">
             <div className={`disc-activity-icon ${isMatron ? 'purple' : 'green'}`}>
@@ -95,7 +98,7 @@ export function DisDashboard() {
             setStats(dash.stats)
             setIncidents(dash.recent_incidents || [])
             setStaff((staffList || []).slice(0, 4))
-        }).catch(console.error)
+        }).catch(e => toast.error(errorMessage(e, t('dis.dashboard.loadFailed'))))
           .finally(() => setLoading(false))
         getDisTasks().then(data => setTasks(toList(data))).catch(e => toast.error(errorMessage(e, t('common.loadFailed'))))
     }, [])
@@ -142,19 +145,21 @@ export function DisDashboard() {
         try {
             const updated = await updateDisTask(task.id, { is_completed: !task.is_completed })
             setTasks(prev => prev.map(t => t.id === task.id ? updated : t))
-        } catch { /* silent — task remains unchanged */ }
+        } catch (e) {
+            toast.error(errorMessage(e, t('common.taskUpdateFailed')))
+        }
     }
 
     const statCards = stats ? [
-        { colorClass: '',        icon: 'groups',   value: stats.active_students,      label: 'Total Students'        },
-        { colorClass: 'warning', icon: 'warning',  value: stats.incidents_this_month, label: 'Incidents This Month'  },
-        { colorClass: 'red',     icon: 'gavel',    value: stats.pending_follow_ups,   label: 'Pending Follow-ups'    },
-        { colorClass: 'success', icon: 'verified', value: stats.student_leaders,      label: 'Student Leaders'       },
+        { colorClass: '',        icon: 'groups',   value: stats.active_students,      label: t('dis.dashboard.totalStudents') },
+        { colorClass: 'warning', icon: 'warning',  value: stats.incidents_this_month, label: t('dis.dashboard.incidentsThisMonth') },
+        { colorClass: 'red',     icon: 'gavel',    value: stats.pending_follow_ups,   label: t('dis.dashboard.pendingFollowUps') },
+        { colorClass: 'success', icon: 'verified', value: stats.student_leaders,      label: t('dis.dashboard.studentLeaders') },
     ] : []
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
@@ -186,25 +191,25 @@ export function DisDashboard() {
                             {/* Recent incidents */}
                             <div className="card">
                                 <div className="card-header">
-                                    <h3 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">history</span> Recent Incidents</h3>
+                                    <h3 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">history</span> {t('dis.dashboard.recentIncidents')}</h3>
                                     <Link to="/discipline/students?tab=reports" className="btn btn-outline btn-sm">{t('common.viewAll')}</Link>
                                 </div>
                                 <div className="card-content">
                                     {loading ? (
-                                        <p className="dis-card-empty">Loading…</p>
+                                        <p className="dis-card-empty">{t('dis.dashboard.loading')}</p>
                                     ) : incidents.length === 0 ? (
-                                        <p className="dis-card-empty">No recent incidents.</p>
+                                        <p className="dis-card-empty">{t('dis.dashboard.noRecentIncidents')}</p>
                                     ) : (
                                         <div className="table-responsive">
                                             <table className="data-table">
                                                 <thead>
                                                     <tr>
-                                                        <th>Student</th>
-                                                        <th>Class</th>
-                                                        <th>Incident</th>
-                                                        <th>Date</th>
-                                                        <th>Reported By</th>
-                                                        <th>Follow-up</th>
+                                                        <th>{t('common.student')}</th>
+                                                        <th>{t('common.class')}</th>
+                                                        <th>{t('dis.dashboard.incident')}</th>
+                                                        <th>{t('common.date')}</th>
+                                                        <th>{t('dis.dashboard.reportedBy')}</th>
+                                                        <th>{t('dis.dashboard.followUp')}</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -223,19 +228,19 @@ export function DisDashboard() {
                                 <div className="card">
                                     <div className="card-header">
                                         <h3 className="card-title">
-                                            <span className="material-symbols-rounded" aria-hidden="true">task_alt</span> My Tasks
+                                            <span className="material-symbols-rounded" aria-hidden="true">task_alt</span> {t('common.myTasks')}
                                         </h3>
                                         <div className="u-row-sm">
                                             <span className="badge badge-secondary">{tasks.filter(t => !t.is_completed).length}</span>
                                             {tasks.some(t => t.is_completed) && (
                                                 <button className="btn btn-outline btn-sm" onClick={handleClearCompleted}>
                                                     <span className="material-symbols-rounded icon-sm" aria-hidden="true">playlist_remove</span>
-                                                    Clear done
+                                                    {t('common.clearDone')}
                                                 </button>
                                             )}
                                             <button className="btn btn-outline btn-sm" onClick={() => setShowTaskForm(v => !v)}>
                                                 <span className="material-symbols-rounded icon-sm" aria-hidden="true">{showTaskForm ? 'expand_less' : 'add'}</span>
-                                                {showTaskForm ? 'Cancel' : 'Add'}
+                                                {showTaskForm ? t('common.cancel') : t('common.add')}
                                             </button>
                                         </div>
                                     </div>
@@ -244,7 +249,7 @@ export function DisDashboard() {
                                             <div className="dis-task-form">
                                                 <input
                                                     className="form-input"
-                                                    placeholder="Task title…"
+                                                    placeholder={t('common.taskTitlePlaceholder')}
                                                     value={taskTitle}
                                                     onChange={e => setTaskTitle(e.target.value)}
                                                     onKeyDown={e => e.key === 'Enter' && handleCreateTask()}
@@ -254,7 +259,7 @@ export function DisDashboard() {
                                                     {['low', 'medium', 'high'].map(p => (
                                                         <label key={p} className={`dis-prio-opt${taskPriority === p ? ' on' : ''}`}>
                                                             <input type="radio" value={p} checked={taskPriority === p} onChange={() => setTaskPriority(p)} className="dis-radio-disc" />
-                                                            {p}
+                                                            {t(`common.priority${p[0].toUpperCase()}${p.slice(1)}`)}
                                                         </label>
                                                     ))}
                                                     <input type="date" className="form-input dis-task-date" value={taskDue} onChange={e => setTaskDue(e.target.value)} />
@@ -262,12 +267,12 @@ export function DisDashboard() {
                                                 {taskError && <p className="dis-task-err">{taskError}</p>}
                                                 <button className="btn btn-primary btn-sm dis-btn-disc" onClick={handleCreateTask} disabled={taskSaving || !taskTitle.trim()}>
                                                     <span className="material-symbols-rounded icon-sm" aria-hidden="true">save</span>
-                                                    {taskSaving ? 'Saving…' : 'Save Task'}
+                                                    {taskSaving ? t('common.saving') : t('common.saveTask')}
                                                 </button>
                                             </div>
                                         )}
                                         {tasks.length === 0 ? (
-                                            <p className="dis-note-sm">No tasks yet.</p>
+                                            <p className="dis-note-sm">{t('common.noTasksYet')}</p>
                                         ) : (
                                             <div className="dis-task-list">
                                                 {tasks.map(task => (
@@ -283,12 +288,12 @@ export function DisDashboard() {
                                                             <span className="dis-task-due">{task.due_date}</span>
                                                         )}
                                                         <span className={`badge ${task.priority === 'high' ? 'badge-high' : task.priority === 'medium' ? 'badge-medium' : 'badge-low'}`}>
-                                                            {task.priority}
+                                                            {t(`common.priority${task.priority[0].toUpperCase()}${task.priority.slice(1)}`)}
                                                         </span>
                                                         <button
                                                             className="btn-icon-clean task-del-btn"
-                                                            title={`Delete "${task.title}"`}
-                                                            aria-label={`Delete "${task.title}"`}
+                                                            title={t('common.deleteTaskNamed', { title: task.title })}
+                                                            aria-label={t('common.deleteTaskNamed', { title: task.title })}
                                                             onClick={() => handleDeleteTask(task)}
                                                         >
                                                             <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
@@ -303,14 +308,14 @@ export function DisDashboard() {
                                 {/* Staff under supervision */}
                                 <div className="card">
                                     <div className="card-header">
-                                        <h3 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">supervisor_account</span> Staff Under Supervision</h3>
+                                        <h3 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">supervisor_account</span> {t('dis.dashboard.staffUnderSupervision')}</h3>
                                         <Link to="/discipline/staff" className="btn btn-outline btn-sm">{t('common.manage')}</Link>
                                     </div>
                                     <div className="card-content">
                                         {loading ? (
-                                            <p className="u-muted">Loading…</p>
+                                            <p className="u-muted">{t('dis.dashboard.loading')}</p>
                                         ) : staff.length === 0 ? (
-                                            <p className="u-muted">No staff on record.</p>
+                                            <p className="u-muted">{t('dis.dashboard.noStaff')}</p>
                                         ) : (
                                             <div className="disc-activity-list">
                                                 {staff.map(s => <StaffItem key={s.id} {...s} />)}

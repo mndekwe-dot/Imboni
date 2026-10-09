@@ -22,6 +22,14 @@ const client = axios.create({
 client.interceptors.request.use(config => {
     const token = localStorage.getItem('imboni_access')
     if (token) config.headers.Authorization = `Bearer ${token}`
+    // The instance default is JSON, and axios turns a FormData body into JSON
+    // when it sees that header - so every upload (a worksheet, a hand-in, a
+    // teaching material) arrived as `{"file": {}}` and was refused. Without the
+    // header the browser sends multipart with its own boundary.
+    if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+        if (typeof config.headers.delete === 'function') config.headers.delete('Content-Type')
+        else delete config.headers['Content-Type']
+    }
     return config
 })
 

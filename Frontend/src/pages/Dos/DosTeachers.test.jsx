@@ -69,6 +69,20 @@ describe('DosTeachers', () => {
     expect(screen.getByText('38')).toBeInTheDocument()
   })
 
+  it("shows each teacher's load against the school week, and flags double-booking", async () => {
+    getDosTeachers.mockResolvedValue([
+      { ...TEACHERS[0], periods_per_week: 38, weekly_capacity: 40, workload_level: 'heavy', double_booked: 2 },
+      { ...TEACHERS[1], periods_per_week: 4, weekly_capacity: 20, workload_level: 'light', double_booked: 0 },
+    ])
+    renderWithRouter(<DosTeachers />)
+
+    await waitFor(() => expect(screen.getByText('Mr. Habimana')).toBeInTheDocument())
+    expect(screen.getByText(/38 of 40 periods · Heavy/)).toBeInTheDocument()
+    expect(screen.getByText(/4 of 20 periods · Light/)).toBeInTheDocument()
+    expect(screen.getByText('2 double-booked')).toBeInTheDocument()
+    expect(screen.getAllByText(/double-booked/)).toHaveLength(1)
+  })
+
   it('shows an error message when the teacher list fails to load', async () => {
     getDosTeachers.mockRejectedValue(new Error('Network down'))
     renderWithRouter(<DosTeachers />)

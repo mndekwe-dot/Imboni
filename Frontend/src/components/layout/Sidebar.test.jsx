@@ -4,6 +4,8 @@ import { renderWithRouter, screen, fireEvent } from '../../test/test-utils'
 import { Sidebar } from './Sidebar'
 
 const mockLogout = vi.fn()
+const mockBadges = vi.fn()
+vi.mock('../../api/navBadges', () => ({ getNavBadges: (...a) => mockBadges(...a) }))
 vi.mock('../../hooks/useAuth', () => ({
   useAuth: () => ({ logout: mockLogout }),
 }))
@@ -150,5 +152,34 @@ describe('Sidebar', () => {
     expect(aside).not.toHaveClass('active')
     act(() => { document.dispatchEvent(new CustomEvent('imboni:open-sidebar')) })
     expect(aside).toHaveClass('active')
+  })
+
+  describe('count badges', () => {
+    const badged = [
+      { to: '/teacher', labelKey: 'nav.dashboard', icon: 'dashboard', end: true },
+      { to: '/teacher/messages', labelKey: 'nav.messages', icon: 'chat', badge: 'messages' },
+      { to: '/teacher/announcements', labelKey: 'nav.announcements', icon: 'announcement', badge: 'announcements' },
+    ]
+
+    it('shows a count beside an entry only when something is waiting', async () => {
+      mockBadges.mockResolvedValue({ data: { messages: 3, announcements: 0 } })
+      renderWithRouter(<Sidebar navItems={badged} secondaryItems={secondaryItems} />)
+
+      expect(await screen.findByText('3 waiting')).toBeInTheDocument()
+      expect(screen.getAllByText(/waiting/)).toHaveLength(1)
+    })
+
+    it('does not ask the server when no entry has a badge', () => {
+      mockBadges.mockClear()
+      renderWithRouter(<Sidebar navItems={navItems} secondaryItems={secondaryItems} />)
+      expect(mockBadges).not.toHaveBeenCalled()
+    })
+
+    it('still renders the nav when the counts cannot be loaded', async () => {
+      mockBadges.mockRejectedValue(new Error('offline'))
+      renderWithRouter(<Sidebar navItems={badged} secondaryItems={secondaryItems} />)
+      expect(await screen.findByText('Messages')).toBeInTheDocument()
+      expect(screen.queryByText(/waiting/)).not.toBeInTheDocument()
+    })
   })
 })

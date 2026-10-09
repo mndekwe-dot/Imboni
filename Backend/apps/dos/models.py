@@ -68,6 +68,8 @@ class Room(models.Model):
     """
     id         = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name       = models.CharField(max_length=100, unique=True)
+    # Seats. Empty means unknown, and an unknown room is never reported as over capacity.
+    capacity   = models.PositiveIntegerField(null=True, blank=True)
     is_active  = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 

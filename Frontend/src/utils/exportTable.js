@@ -31,6 +31,58 @@ export function toCsv({ columns = [], rows = [] }) {
     return rows.length ? `${head}\r\n${body}` : head
 }
 
+/**
+ * Read a CSV into rows of strings - the other half of toCsv.
+ *
+ * Handles a BOM, quoted fields with commas, newlines and doubled quotes, and
+ * either line ending. The delimiter is taken from the header line because
+ * Excel in a French or Rwandan locale saves with ';' where it shows ','.
+ */
+export function parseCsv(text) {
+    const src = String(text ?? '').replace(/^\uFEFF/, '')
+    const firstLine = src.split(/\r?\n/, 1)[0]
+    const delim = (firstLine.match(/;/g) || []).length > (firstLine.match(/,/g) || []).length ? ';' : ','
+
+    const rows = []
+    let row = [], field = '', quoted = false
+    for (let i = 0; i < src.length; i++) {
+        const c = src[i]
+        if (quoted) {
+            if (c === '"' && src[i + 1] === '"') { field += '"'; i++ }
+            else if (c === '"') quoted = false
+            else field += c
+        } else if (c === '"') quoted = true
+        else if (c === delim) { row.push(field); field = '' }
+        else if (c === '\n' || c === '\r') {
+            if (c === '\r' && src[i + 1] === '\n') i++
+            row.push(field); field = ''
+            rows.push(row); row = []
+        } else field += c
+    }
+    if (field !== '' || row.length) { row.push(field); rows.push(row) }
+    // A blank line is not a record.
+    return rows.filter(r => r.some(v => v.trim() !== ''))
+}
+
+/**
+ * The rows of an uploaded CSV that failed, ready to fix and upload again.
+ *
+ * `errors` is what the server reported: [{ row, error }] where `row` is the
+ * spreadsheet line (the header is line 1). The result keeps every original
+ * column and adds the reason last, so the file can be corrected in place and
+ * re-sent without the rows that already went through.
+ */
+export function failedRowsTable(text, errors, errorColumn = 'error') {
+    const [header = [], ...records] = parseCsv(text)
+    const reasons = new Map(errors.map(e => [Number(e.row), e.error]))
+    const rows = []
+    records.forEach((record, i) => {
+        const reason = reasons.get(i + 2)
+        if (reason !== undefined) rows.push([...record, reason])
+    })
+    return { columns: [...header, errorColumn], rows }
+}
+
 /** `Bisoke Students` → `bisoke-students-2026-08-28.csv` */
 export function fileStamp(name, date = new Date()) {
     const slug = String(name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')

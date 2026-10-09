@@ -7,63 +7,23 @@ import { EmptyState } from '../../components/ui/EmptyState'
 import { ListSection } from '../../components/ui/ListSection'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
-import { formatDate, formatWeekdayShort } from '../../utils/date'
+import { formatWeekdayShort } from '../../utils/date'
 import {
-    getStudentProfile, getStudentDiscipline,
+    getStudentProfile,
     getStudentActivities, getStudentActivityEvents,
     joinActivity, withdrawActivity,
 } from '../../api/student'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
+import { useToast } from '../../context/ToastContext'
+import { partialLoad, errorMessage } from '../../utils/errors'
 
-const MAIN_TABS   = ['Discipline Records', 'Extracurricular Activities', 'Upcoming Events']
-const TYPE_TABS   = ['All', 'Positive', 'Negative', 'Warning']
-
-function reportTypeDisplay(type) {
-    switch (type) {
-        case 'positive':    return { label: 'Positive',    typeClass: 'disc-type-positive' }
-        case 'achievement': return { label: 'Achievement', typeClass: 'disc-type-positive' }
-        case 'warning':     return { label: 'Warning',     typeClass: 'disc-type-warning'  }
-        case 'incident':    return { label: 'Negative',    typeClass: 'disc-type-negative' }
-        default:            return { label: type,          typeClass: ''                   }
-    }
-}
-
-function typeFilterMatch(report, filter) {
-    if (filter === 'All') return true
-    if (filter === 'Positive') return report.report_type === 'positive' || report.report_type === 'achievement'
-    if (filter === 'Warning')  return report.report_type === 'warning'
-    if (filter === 'Negative') return report.report_type === 'incident'
-    return true
-}
-
-function DisciplineRow({ report }) {
-    const { label, typeClass } = reportTypeDisplay(report.report_type)
-    const dateStr = report.date
-        ? formatDate(report.date)
-        : '-'
-    const isPos  = report.report_type === 'positive' || report.report_type === 'achievement'
-    const isNeg  = report.report_type === 'incident'
-    const isWarn = report.report_type === 'warning'
-    const pointsClass = isPos ? 'disc-points-pos' : (isNeg || isWarn ? 'disc-points-neg' : '')
-    const pointsLabel = isPos ? '+' : (isNeg ? '-' : 'W')
-    const statusClass = isPos ? 'badge-soft-success' : (isNeg ? 'badge-soft-danger' : 'badge-soft-warning')
-    const statusLabel = isPos ? 'Awarded' : (isNeg ? 'Noted' : 'Warning')
-
-    return (
-        <tr>
-            <td>{dateStr}</td>
-            <td><span className={typeClass}>{label}</span></td>
-            <td>{report.title || report.description}</td>
-            <td>{report.reported_by || '-'}</td>
-            <td><span className={pointsClass}>{pointsLabel}</span></td>
-            <td><span className={`badge ${statusClass}`}>{statusLabel}</span></td>
-        </tr>
-    )
-}
+const TAB_ACTIVITIES = 'activities'
+const TAB_EVENTS     = 'events'
 
 function ActivityCard({ activity, enrolled, onJoin, onWithdraw, joining }) {
+    const { t } = useTranslation()
     const { id, name, description, category, schedule, venue, max_members, enrolled_count, teacher_name, is_full } = activity
     return (
         <div className="card mb-1 actcard">
@@ -75,28 +35,28 @@ function ActivityCard({ activity, enrolled, onJoin, onWithdraw, joining }) {
                     </div>
                     {description && <p className="actcard-desc">{description}</p>}
                     <div className="actcard-meta">
-                        {teacher_name && <span>Coordinator: {teacher_name}</span>}
-                        {max_members && <span className="actcard-meta-count">{enrolled_count}/{max_members} members</span>}
+                        {teacher_name && <span>{t('student.activities.coordinator', { name: teacher_name })}</span>}
+                        {max_members && <span className="actcard-meta-count">{t('student.activities.members', { count: enrolled_count, max: max_members })}</span>}
                     </div>
                 </div>
                 <div className="u-shrink-0">
                     {enrolled ? (
                         <button
                             className="btn btn-sm btn-outline"
-                            onClick={() => onWithdraw(id)}
+                            onClick={() => onWithdraw(activity)}
                             disabled={joining === id}
                         >
-                            {joining === id ? 'Withdrawing…' : 'Withdraw'}
+                            {joining === id ? t('student.activities.withdrawing') : t('common.withdraw')}
                         </button>
                     ) : is_full ? (
-                        <span className="badge badge-soft-warning">Full</span>
+                        <span className="badge badge-soft-warning">{t('common.full')}</span>
                     ) : (
                         <button
                             className="btn btn-sm btn-primary"
-                            onClick={() => onJoin(id)}
+                            onClick={() => onJoin(activity)}
                             disabled={joining === id}
                         >
-                            {joining === id ? 'Joining…' : 'Join'}
+                            {joining === id ? t('student.activities.joining') : t('common.join')}
                         </button>
                     )}
                 </div>
@@ -106,12 +66,11 @@ function ActivityCard({ activity, enrolled, onJoin, onWithdraw, joining }) {
 }
 
 export function StudentActivities() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
-    const [mainTab,    setMainTab]    = useState('Discipline Records')
-    const [typeFilter, setTypeFilter] = useState('All')
+    const [mainTab,    setMainTab]    = useState(TAB_ACTIVITIES)
     const [profile,    setProfile]    = useState(null)
-    const [discipline, setDiscipline] = useState(null)
     const [activities, setActivities] = useState(null)
     const [events,     setEvents]     = useState([])
     const [loading,    setLoading]    = useState(true)
@@ -125,62 +84,39 @@ export function StudentActivities() {
 
     useEffect(() => {
         Promise.all([
-            getStudentProfile().catch(() => null),
-            getStudentDiscipline().catch(() => null),
-            getStudentActivities().catch(() => null),
-            getStudentActivityEvents().catch(() => []),
-        ]).then(([prof, disc, act, ev]) => {
+            getStudentProfile().catch(partialLoad(toast, null)),
+            getStudentActivities().catch(partialLoad(toast, null)),
+            getStudentActivityEvents().catch(partialLoad(toast, [])),
+        ]).then(([prof, act, ev]) => {
             setProfile(prof)
-            setDiscipline(disc)
             setActivities(act)
             setEvents(Array.isArray(ev) ? ev : [])
         }).finally(() => setLoading(false))
-    }, [])
+    }, [toast])
 
     const gradeSection = profile ? `${profile.grade}${profile.section}` : ''
     const userRole     = gradeSection
         ? `${t('roles.student')} · ${gradeSection}`
         : t('roles.student')
 
-    const reports  = discipline?.reports || []
-    const conductGrade = discipline?.conduct_grade || '-'
-    const conductLabel = discipline?.conduct_label || ''
-
-    const positiveCount = reports.filter(r => r.report_type === 'positive' || r.report_type === 'achievement').length
-    const negativeCount = reports.filter(r => r.report_type === 'incident' || r.report_type === 'warning').length
-
-    const filteredReports = reports.filter(r => typeFilterMatch(r, typeFilter))
-
-    function countForType(t) {
-        if (t === 'All') return reports.length
-        return reports.filter(r => typeFilterMatch(r, t)).length
-    }
-
-    async function handleJoin(id) {
-        setJoining(id)
+    // Join and withdraw are the same move in opposite directions: run it, say
+    // what happened, then reload so the enrolled/available split is the server's.
+    async function change(activity, action, okKey, failKey) {
+        setJoining(activity.id)
         try {
-            await joinActivity(id)
-            const updated = await getStudentActivities().catch(() => activities)
+            await action(activity.id)
+            toast.success(t(okKey, { name: activity.name }))
+            const updated = await getStudentActivities().catch(partialLoad(toast, activities))
             setActivities(updated)
-        } catch {
-            // join error silently ignored
+        } catch (e) {
+            toast.error(errorMessage(e, t(failKey)))
         } finally {
             setJoining(null)
         }
     }
 
-    async function handleWithdraw(id) {
-        setJoining(id)
-        try {
-            await withdrawActivity(id)
-            const updated = await getStudentActivities().catch(() => activities)
-            setActivities(updated)
-        } catch {
-            // withdraw error silently ignored
-        } finally {
-            setJoining(null)
-        }
-    }
+    const handleJoin     = activity => change(activity, joinActivity,     'student.activities.joined',    'student.activities.joinFailed')
+    const handleWithdraw = activity => change(activity, withdrawActivity, 'student.activities.withdrawn', 'student.activities.withdrawFailed')
 
     const enrolled  = activities?.enrolled  || []
     const available = activities?.available || []
@@ -204,102 +140,22 @@ export function StudentActivities() {
                     />
                     <DashboardContent>
 
-                        {/* Conduct summary */}
-                        <div className="behavior-score-card">
-                            <div className="score-ring-wrap">
-                                <svg width="90" height="90" viewBox="0 0 90 90">
-                                    <circle className="score-ring-bg" cx="45" cy="45" r="36" />
-                                    <circle className="score-ring-fg" cx="45" cy="45" r="36"
-                                        strokeDasharray="226"
-                                        strokeDashoffset={loading ? 226 : Math.max(226 - (positiveCount * 20), 0)} />
-                                </svg>
-                                <div className="score-ring-label">{loading ? '-' : conductGrade}<small>/term</small></div>
-                            </div>
-                            <div className="score-info">
-                                <div className="score-title">Conduct Grade (Current Term)</div>
-                                <span className={`score-status ${conductGrade === 'A' || conductGrade === 'B' ? 'good' : 'warning'}`}>
-                                    {loading ? '-' : conductLabel}
-                                </span>
-                                <div className="score-breakdown">
-                                    <span className="score-breakdown-item score-pos">
-                                        <span className="material-symbols-rounded" aria-hidden="true">add_circle</span>
-                                        {loading ? '-' : `${positiveCount} positive record${positiveCount !== 1 ? 's' : ''}`}
-                                    </span>
-                                    <span className="score-breakdown-item score-neg">
-                                        <span className="material-symbols-rounded" aria-hidden="true">remove_circle</span>
-                                        {loading ? '-' : `${negativeCount} warning${negativeCount !== 1 ? 's' : ''}`}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Tab toolbar */}
                         <div className="toolbar-card">
-                            {MAIN_TABS.map(tab => (
+                            {[[TAB_ACTIVITIES, 'tabActivities'], [TAB_EVENTS, 'tabEvents']].map(([tab, key]) => (
                                 <button
                                     key={tab}
                                     className={`btn ${mainTab === tab ? 'btn-primary' : 'btn-outline'} act-main-tab`}
                                     onClick={() => setMainTab(tab)}
                                 >
-                                    {tab}
+                                    {t(`student.activities.${key}`)}
                                 </button>
                             ))}
-                            {mainTab === 'Discipline Records' && (
-                                <>
-                                    <div className="vdivider" />
-                                    {TYPE_TABS.map(t => (
-                                        <button
-                                            key={t}
-                                            className={`btn ${typeFilter === t ? 'btn-primary' : 'btn-outline'} act-type-tab`}
-                                            onClick={() => setTypeFilter(t)}
-                                        >
-                                            {t}
-                                            <span className="tab-count-sm">{countForType(t)}</span>
-                                        </button>
-                                    ))}
-                                </>
-                            )}
                         </div>
 
-                        {/* Tab: Discipline Records */}
-                        {mainTab === 'Discipline Records' && (
-                            loading ? (
-                                <p className="u-pad u-muted">Loading records…</p>
-                            ) : filteredReports.length === 0 ? (
-                                <EmptyState
-                                    icon="verified_user"
-                                    title={`No ${typeFilter.toLowerCase()} records`}
-                                    description={t('student.activities.noRecordsFiltered')}
-                                    action={{ label: 'Show All', icon: 'refresh', onClick: () => setTypeFilter('All') }}
-                                />
-                            ) : (
-                                <ListSection
-                                    icon="gavel"
-                                    title="Behavior & Discipline Records"
-                                    count={`${filteredReports.length} record${filteredReports.length !== 1 ? 's' : ''}`}
-                                    pad={false}
-                                >
-                                    <div className="table-responsive">
-                                        <table className="data-table">
-                                            <thead>
-                                                <tr>
-                                                    <th>Date</th><th>Type</th><th>Description</th>
-                                                    <th>Recorded By</th><th>Points</th><th>Status</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {filteredReports.map(r => <DisciplineRow key={r.id} report={r} />)}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </ListSection>
-                            )
-                        )}
-
                         {/* Tab: Extracurricular Activities */}
-                        {mainTab === 'Extracurricular Activities' && (
+                        {mainTab === TAB_ACTIVITIES && (
                             loading ? (
-                                <p className="u-pad u-muted">Loading activities…</p>
+                                <p className="u-pad u-muted">{t('student.activities.loadingActivities')}</p>
                             ) : (enrolled.length === 0 && available.length === 0) ? (
                                 <EmptyState
                                     icon="sports_soccer"
@@ -312,7 +168,7 @@ export function StudentActivities() {
                                         <ListSection
                                             className="mb-1-5"
                                             icon="check_circle"
-                                            title="My Enrolled Activities"
+                                            title={t('student.activities.enrolled')}
                                             count={enrolled.length}
                                         >
                                             {enrolled.map(a => (
@@ -323,7 +179,7 @@ export function StudentActivities() {
                                     {available.length > 0 && (
                                         <ListSection
                                             icon="sports_soccer"
-                                            title="Available Activities"
+                                            title={t('student.activities.available')}
                                             count={available.length}
                                         >
                                             {available.map(a => (
@@ -336,9 +192,9 @@ export function StudentActivities() {
                         )}
 
                         {/* Tab: Upcoming Events */}
-                        {mainTab === 'Upcoming Events' && (
+                        {mainTab === TAB_EVENTS && (
                             loading ? (
-                                <p className="u-pad u-muted">Loading events…</p>
+                                <p className="u-pad u-muted">{t('student.activities.loadingEvents')}</p>
                             ) : events.length === 0 ? (
                                 <EmptyState
                                     icon="event"
@@ -348,7 +204,7 @@ export function StudentActivities() {
                             ) : (
                                 <ListSection
                                     icon="event"
-                                    title="Upcoming Activity Events"
+                                    title={t('student.activities.upcomingEvents')}
                                     count={events.length}
                                     pad={false}
                                 >

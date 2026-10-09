@@ -18,12 +18,16 @@ import {
     getTeacherTodaySchedule,
     getTeacherTasks,
     createTeacherTask,
+    updateTeacherTask,
+    deleteTeacherTask,
     getTeacherClassPerformance,
     getTeacherRecentActivities,
 } from '../../api/teacher'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
+import { useToast } from '../../context/ToastContext'
+import { partialLoad, errorMessage } from '../../utils/errors'
 
 function barColor(v) {
     if (v >= 80) return '#10b981'
@@ -74,7 +78,7 @@ const PRIORITY_KEYS = {
     high:   'common.priorityHigh',
 }
 
-function TaskCard({ title, deadline, priority }) {
+function TaskCard({ title, deadline, priority, onComplete, onDelete }) {
     const { t } = useTranslation()
     const cls = priority === 'high' ? 'badge-high' : priority === 'medium' ? 'badge-medium' : 'badge-low'
     return (
@@ -85,6 +89,12 @@ function TaskCard({ title, deadline, priority }) {
                 {deadline && <div className="task-deadline">{deadline}</div>}
             </div>
             <span className={`badge ${cls}`}>{t(PRIORITY_KEYS[priority] || PRIORITY_KEYS.medium)}</span>
+            <button className="btn-icon-clean" onClick={onComplete} aria-label={t('teacher.dashboard.completeTask')} title={t('teacher.dashboard.completeTask')}>
+                <span className="material-symbols-rounded" aria-hidden="true">check_circle</span>
+            </button>
+            <button className="btn-icon-clean" onClick={onDelete} aria-label={t('teacher.dashboard.deleteTask')} title={t('teacher.dashboard.deleteTask')}>
+                <span className="material-symbols-rounded" aria-hidden="true">delete</span>
+            </button>
         </div>
     )
 }
@@ -226,6 +236,7 @@ function CreateTaskModal({ onClose, onCreated }) {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export function TeacherDashboard() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const navigate = useNavigate()
@@ -249,10 +260,10 @@ export function TeacherDashboard() {
 
     useEffect(() => {
         Promise.all([
-            getTeacherDashboardStats().catch(() => null),
-            getTeacherTodaySchedule().catch(() => []),
-            getTeacherTasks().catch(() => []),
-            getTeacherClassPerformance().catch(() => []),
+            getTeacherDashboardStats().catch(partialLoad(toast, null)),
+            getTeacherTodaySchedule().catch(partialLoad(toast, [])),
+            getTeacherTasks().catch(partialLoad(toast, [])),
+            getTeacherClassPerformance().catch(partialLoad(toast, [])),
             getTeacherRecentActivities({ limit: 10, offset: 0 }).catch(err => ({ _error: err?.message })),
         ]).then(([s, sched, taskList, perf, act]) => {
             setStats(s)
@@ -266,7 +277,7 @@ export function TeacherDashboard() {
                 setLoadError(act._error)
             }
         }).finally(() => setLoading(false))
-    }, [])
+    }, [toast])
 
     async function loadMore() {
         setLoadingMore(true)
@@ -289,6 +300,24 @@ export function TeacherDashboard() {
         { icon: 'menu_book',       value: stats.classes_today,            label: t('teacher.dashboard.classesToday'),
           trend: t('teacher.dashboard.classesProgress', { done: stats.classes_completed, left: stats.classes_remaining }), trendClass: '', colorClass: '' },
     ] : []
+
+    async function completeTask(task) {
+        try {
+            await updateTeacherTask(task.id, { is_completed: true })
+            setTasks(prev => prev.map(x => x.id === task.id ? { ...x, is_completed: true } : x))
+        } catch (e) {
+            toast.error(errorMessage(e, t('teacher.dashboard.taskUpdateFailed')))
+        }
+    }
+
+    async function removeTask(task) {
+        try {
+            await deleteTeacherTask(task.id)
+            setTasks(prev => prev.filter(x => x.id !== task.id))
+        } catch (e) {
+            toast.error(errorMessage(e, t('teacher.dashboard.taskDeleteFailed')))
+        }
+    }
 
     const pendingTasks = tasks.filter(task => !task.is_completed).slice(0, 4)
 
@@ -370,6 +399,7 @@ export function TeacherDashboard() {
                                                 const start = slot.start_time?.slice(0, 5) || ''
                                                 const end   = slot.end_time?.slice(0, 5)   || ''
                                                 const cls   = classLabel(slot.grade, slot.section, slot.class_name)
+                                                const toRegister = () => navigate('/teacher/attendance', { state: { grade: slot.grade, section: slot.section } })
                                                 return (
                                                     <ScheduleCard
                                                         key={i}
@@ -381,8 +411,8 @@ export function TeacherDashboard() {
                                                         statusClass={meta.cls}
                                                         cardClass={meta.cardCls}
                                                         showMark={meta.showMark}
-                                                        onMark={() => navigate('/teacher/attendance')}
-                                                        onClick={() => navigate(meta.showMark ? '/teacher/attendance' : '/teacher/classes')}
+                                                        onMark={toRegister}
+                                                        onClick={() => meta.showMark ? toRegister() : navigate('/teacher/classes')}
                                                     />
                                                 )
                                             })}
@@ -409,7 +439,9 @@ export function TeacherDashboard() {
                                                 <p className="u-muted">{t('teacher.dashboard.noPendingTasks')}</p>
                                             ) : pendingTasks.map((task, i) => (
                                                 <TaskCard
-                                                    key={i}
+                                                    key={task.id ?? i}
+                                                    onComplete={() => completeTask(task)}
+                                                    onDelete={() => removeTask(task)}
                                                     title={task.title}
                                                     deadline={task.due_date ? t('teacher.dashboard.due', { date: formatDate(task.due_date) }) : ''}
                                                     priority={task.priority || 'medium'}

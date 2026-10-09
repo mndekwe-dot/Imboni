@@ -1,8 +1,4 @@
 {
-  "analytics": {
-    "subtitle": "Isesengura ryuzuye ry'imikorere y'ikigo",
-    "title": "Isesengura ry'ikigo"
-  },
   "announcements": {
     "subtitle": "Kwandika no gutangaza amatangazo ku kigo cyose"
   },
@@ -17,8 +13,35 @@
     "weekOf": "Icyumweru cyo kuwa"
   },
   "dashboard": {
+    "activeTeachers": "abarimu bakora",
+    "activityCount": "{{shown}} kuri {{total}}",
+    "allLoaded": "Ibikorwa byose {{count}} byarakuwe",
+    "approveResults": "Emeza amanota",
+    "attendance": "Kuboneka",
+    "avgPerformance": "Impuzandengo y’amanota",
+    "avgScore": "Impuzandengo",
+    "changeThisTerm": "{{value}}% muri iki gihembwe",
+    "errorPrefix": "Ikosa: {{message}}",
+    "loadMoreRemaining": "Erekana ibindi ({{count}} bisigaye)",
+    "manageStudents": "Gucunga abanyeshuri",
+    "newThisTerm": "+{{count}} muri iki gihembwe",
+    "overview": "Incamake",
+    "pendingApprovals": "Ibitegereje kwemezwa",
+    "performance": "Amanota",
+    "performanceByGrade": "Amanota ku rwego",
+    "performanceByGradeSubtitle": "Impuzandengo ku rwego, igihembwe kiriho",
+    "quickActions": "Ibikorwa byihuse",
+    "recentActivity": "Ibyakozwe vuba",
+    "requiresAction": "Bisaba igikorwa",
+    "saveTaskFailed": "Ntibishobotse kubika umurimo.",
     "subtitle": "Ubwitabire, amanota n'abarimu mu ncamake",
-    "title": "Imbonerahamwe y'Umuyobozi w'Amasomo"
+    "teachingStaff": "Abarimu",
+    "termTrend": "Uko igihembwe kigenda",
+    "title": "Imbonerahamwe y'Umuyobozi w'Amasomo",
+    "totalStudents": "Abanyeshuri bose",
+    "viewTeachers": "Reba abarimu",
+    "vsTerm1": "{{value}}% ugereranyije n’igihembwe cya 1",
+    "weeklyTrendSubtitle": "Kuboneka n’amanota buri cyumweru"
   },
   "dining": {
     "addSittingFailed": "Kongeraho icyiciro byanze",
@@ -133,6 +156,7 @@
     "generate": "Tegura",
     "generateFailed": "Gutegura gahunda byanze.",
     "generateTitle": "Tegura gahunda y'ibizamini",
+    "loadFailed": "Ntibyashobotse gufungura ingengabihe y'ibizamini.",
     "loadTermsFailed": "Gufungura ibihembwe by'amasomo byanze.",
     "preview": "Igerageza",
     "rescheduleFailed": "Kwimura icyo kizamini byanze.",
@@ -149,14 +173,17 @@
     "tableView": "Imbonerahamwe",
     "title": "Gahunda y'ibizamini",
     "unplaced": "{{count}} bitabonewe umwanya",
-    "weightShort": "Ub"
+    "weightShort": "Ub",
+    "clashBadge": "Ihuzagurika",
+    "clashConfirm": "Iri suzuma rihuzagurika:\n{{details}}\n\nWarbika uko ryakabaye?",
+    "clash": {
+      "class": "Iri shuri rifite irindi suzuma icyo gihe ({{with}})",
+      "venue": "Icyumba cyamaze gufatwa icyo gihe ({{with}})",
+      "invigilator": "Umugenzuzi arimo kugenzura icyo gihe ({{with}})",
+      "capacity": "Icyumba ni gito: abakora {{needed}} ku ntebe {{seats}}"
+    }
   },
   "leaders": {
-    "activate": "Tangiza",
-    "appointLeader": "Shyiraho umuyobozi",
-    "bannerDesc": "Shyiraho kandi ucunge abayobozi b'abanyeshuri, abakuru b'amacumbi, abayobozi b'amatsinda n'abandi bahagarariye abanyeshuri mu mwaka w'amashuri wa {{year}}.",
-    "bannerTitle": "Gahunda y'ubuyobozi bw'abanyeshuri",
-    "captainsTitle": "Abakuru b'amacumbi",
     "catArt": "Ubugeni n'ubukorikori",
     "catCommunity": "Serivisi z'abaturage",
     "catDebate": "Impaka",
@@ -164,37 +191,7 @@
     "catMusic": "Umuziki",
     "catOther": "Ikindi",
     "catScience": "Ubumenyi",
-    "catSport": "Siporo",
-    "classForm": "Ishuri",
-    "clubSummary": "{{active}} bikora · {{inactive}} ntibikora",
-    "clubsTitle": "Amatsinda n'ibikorwa",
-    "deactivate": "Hagarika",
-    "editAppointments": "Hindura abashyizweho",
-    "editLeader": "Hindura umuyobozi",
-    "loadingClubs": "Turimo gukura amatsinda…",
-    "memberCount": "abanyamuryango {{enrolled}} / {{max}}",
-    "namePlaceholder": "urugero: Uwase Amina",
-    "noCaptains": "Nta bakuru b'amacumbi bashyizweho muri iki gihembwe.",
-    "noClubs": "Nta matsinda yabonetse.",
-    "noPrefects": "Nta bayobozi bashyizweho muri iki gihembwe.",
-    "prefectsTitle": "Abayobozi b'abanyeshuri",
-    "since": "Kuva",
-    "sincePlaceholder": "urugero: Mut 2026",
-    "sinceValue": "Kuva {{date}}",
-    "statCaptains": "Abakuru b'amacumbi",
-    "statCaptainsTrend": "Ku icumbi",
-    "statOther": "Abandi bayobozi",
-    "statOtherTrend": "Bakora",
-    "statPrefects": "Abayobozi b'abanyeshuri",
-    "statPrefectsTrend": "Mu kigo cyose",
-    "statTotal": "Abayobozi bose",
-    "statTotalTrend": "Iki gihembwe",
-    "subtitle": "Shyiraho kandi ucunge abayobozi b'abanyeshuri, abakuru b'amacumbi n'abayobozi b'amatsinda",
-    "tabClubs": "Amatsinda n'ibikorwa",
-    "tabLeaders": "Abayobozi b'abanyeshuri",
-    "title": "Abayobozi b'abanyeshuri",
-    "typeCaptain": "Umukuru w'icumbi",
-    "typePrefect": "Umuyobozi w'abanyeshuri"
+    "catSport": "Siporo"
   },
   "messages": {
     "subtitle": "Vugana n'abarimu, abakozi n'ababyeyi"
@@ -223,7 +220,24 @@
     "subtitle": "Urutonde rwo kwemeza n'isesengura ry'imikorere",
     "viewDetails": "Reba ibisobanuro",
     "viewFeedback": "Reba ibitekerezo",
-    "viewing": "Ureba:"
+    "viewing": "Ureba:",
+    "attentionTitle": "Abanyeshuri bakeneye gukurikiranwa",
+    "attentionNone": "Nta munyeshuri wagaragajwe: impuzandengo ziri hejuru ya 50% kandi kwitabira kuri hejuru ya 80%.",
+    "attentionScore": "Impuzandengo {{avg}}% · amasomo {{failing}} yatsinzwe",
+    "attentionAbsence": "Kwitabira {{rate}}% · iminsi {{days}} yo gusiba",
+    "attentionLoadFailed": "Ntibyashobotse kubona abanyeshuri bakeneye gukurikiranwa.",
+    "approveAll": "Emeza byose bitegereje",
+    "approveAllConfirm": "Wemeza ibyatanzwe {{count}} bitegereje bigaragara?",
+    "approvedAll": "Ibisubizo {{count}} byemejwe.",
+    "rejectTitle": "Subiza ngo bikosorwe",
+    "rejectReasonLabel": "Ni iki gikwiye gukosorwa? Umwarimu azabimenyeshwa.",
+    "rejectReasonPlaceholder": "urugero: Igiteranyo ntigihuye n’urupapuro rw’amanota",
+    "rejectConfirm": "Subiza",
+    "rejectNeedsReason": "Banza wandike impamvu ngufi kugira ngo umwarimu amenye icyo akosora.",
+    "rejectedDone": "Byasubijwe umwarimu.",
+    "approveFailed": "Ntibishobotse kwemeza ibyo bisubizo.",
+    "rejectFailed": "Ntibishobotse kwanga ibyo bisubizo.",
+    "attentionSeeAll": "Reba bose {{count}}"
   },
   "scheduling": {
     "addExam": "Ongeraho ikizamini",
@@ -337,7 +351,10 @@
     "template": "Icyitegererezo",
     "title": "Gucunga abanyeshuri",
     "yearRequired": "Umwaka *",
-    "yearStream": "Umwaka/Ishami"
+    "yearStream": "Umwaka/Ishami",
+    "downloadFailedRows": "Kuramo imirongo itagenze neza",
+    "failedRowsName": "ubutumire-butagenze-neza",
+    "errorColumn": "ikosa"
   },
   "teachers": {
     "allSubjects": "Amasomo yose",
@@ -366,18 +383,37 @@
     "subjectRequired": "Isomo *",
     "subtitle": "Reba, ongeraho, uhindure abarimu kandi ucunge amashuri bahawe",
     "teacherDetails": "Amakuru y'umwarimu",
-    "title": "Gucunga abarimu"
+    "title": "Gucunga abarimu",
+    "workload": "Umutwaro w’akazi",
+    "periodsOfCapacity": "Amasomo {{periods}} muri {{capacity}}",
+    "doubleBooked": "{{count}} yatanzwe kabiri",
+    "doubleBookedHint": "Ateganyirijwe amashuri abiri atandukanye icyarimwe.",
+    "levels": {
+      "none": "Nta masomo",
+      "light": "Woroheje",
+      "normal": "Uringaniye",
+      "heavy": "Uremereye",
+      "over": "Urenze ubushobozi",
+      "unknown": "Nta gahunda y’inzogera"
+    }
   },
   "timetable": {
     "academicTerm": "Igihembwe *",
+    "chooseClass": "Hitamo umwaka n'ishuri kugira ngo urebe icyumweru cyaryo.",
     "conflictBody": "Iki gihe kivuguruzanya na gahunda isanzweho:",
     "conflictTitle": "Ivuguruzanya muri gahunda",
     "generateFailed": "Ntibyashobotse gutegura gahunda.",
     "generateTitle": "Tegura gahunda y'amasomo",
     "generating": "Birategurwa…",
     "inThisClass": "Muri iri shuri",
+    "loadFailed": "Ntibyashobotse gufungura gahunda y'amasomo.",
     "loadTermsFailed": "Ntibyashobotse gukura ibihembwe.",
     "loadingTimetable": "Turimo gukura gahunda y'amasomo…",
+    "periodInvalid": "Reba isaha ya \"{{name}}\": andika igihe itangira n'igihe irangira, urugero 08:00 - 08:40.",
+    "periodsFromLessons": "Aya masaha akomoka ku masaha amasomo yanyu asanzwe akoresha. Fungura Hindura amasaha maze ubike kugira ngo abe gahunda y'amasaha y'ishuri ikoreshwa n'uburyo bukora gahunda.",
+    "periodsNotSet": "Nta gahunda y'amasaha irabikwa. Fungura Hindura amasaha, ushyireho umunsi w'ishuri maze ubike mbere yo gukora gahunda y'amasomo.",
+    "periodsSaveFailed": "Ntibyashobotse kubika gahunda y'amasaha.",
+    "periodsSaved": "Gahunda y'amasaha yabitswe.",
     "replaceExisting": "Simbuza gahunda isanzweho",
     "saveAnyway": "Bika uko byakabaye",
     "saveFailed": "Ntibyashobotse kubika gahunda.",

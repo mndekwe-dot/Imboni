@@ -66,12 +66,34 @@
     "subtitle": "Dormitory assignments and boarding records",
     "title": "Boarding",
     "typeRequired": "Boarding Type *",
-    "unassignedCount": "{{count}} unassigned"
+    "unassignedCount": "{{count}} unassigned",
+    "exeat": "Exéat passes",
+    "floorPlan": "Floor plan"
   },
   "dashboard": {
     "deleteTaskFailed": "Could not delete the task.",
     "deleteTasksFailed": "Some tasks could not be deleted.",
-    "subtitle": "Director of Discipline Overview"
+    "followUp": "Follow-up",
+    "headMatron": "Head Matron",
+    "incident": "Incident",
+    "incidentsThisMonth": "Incidents This Month",
+    "loadFailed": "Could not load this page’s data.",
+    "loading": "Loading…",
+    "matron": "Matron",
+    "noRecentIncidents": "No recent incidents.",
+    "noStaff": "No staff on record.",
+    "patron": "Patron",
+    "pendingFollowUps": "Pending Follow-ups",
+    "recentIncidents": "Recent Incidents",
+    "reportedBy": "Reported By",
+    "staffUnderSupervision": "Staff Under Supervision",
+    "studentLeaders": "Student Leaders",
+    "subtitle": "Director of Discipline Overview",
+    "totalStudents": "Total Students",
+    "typeAchievement": "Achievement",
+    "typeIncident": "Incident",
+    "typePositive": "Positive",
+    "typeWarning": "Warning"
   },
   "dining": {
     "addPlan": "Add Dining Plan",
@@ -92,7 +114,21 @@
     "subtitle": "Student dining plans for the current term",
     "termNote": "The plan is assigned to the current academic term.",
     "title": "Dining",
-    "totalPlans": "Total Plans"
+    "totalPlans": "Total Plans",
+    "dietary": "Dietary needs",
+    "dietaryNone": "None",
+    "allergiesLabel": "Allergies and notes for the kitchen",
+    "specialDiets": "Special diets",
+    "flags": {
+      "peanut_allergy": "Peanut allergy",
+      "nut_allergy": "Nut allergy",
+      "lactose_intolerant": "Lactose intolerant",
+      "gluten_free": "Gluten free",
+      "diabetic": "Diabetic",
+      "vegetarian": "Vegetarian",
+      "halal": "Halal",
+      "other": "Other"
+    }
   },
   "dormPlanner": {
     "addDorm": "Add a dormitory",
@@ -358,10 +394,89 @@
     "pendingReview": "Pending Review",
     "studentConductRecords": "Student Conduct Records",
     "studentIdColumn": "Student ID",
-    "subtitle": "Conduct records and incident reports"
+    "subtitle": "Conduct records and incident reports",
+    "marksColumn": "Marks lost",
+    "ladderTitle": "Escalation ladder",
+    "ladderHint": "Marks deducted this term, out of {{budget}}. Everyone responds to the same total in the same way.",
+    "ladderAt": "From {{count}} marks",
+    "ladderSteps": {
+      "detention": "Detention",
+      "parent_summons": "Parent summons",
+      "suspension_warning": "Suspension warning"
+    },
+    "ladderLoadFailed": "Could not load the escalation ladder."
   },
   "timetable": {
     "subtitle": "Plan, create, and update the weekly non-academic activity schedule",
     "title": "Extracurricular Timetable"
+  },
+  "exeat": {
+    "newPass": "New exéat pass",
+    "request": "Request pass",
+    "pickStudent": "Choose a student first.",
+    "created": "Exéat pass requested.",
+    "createFailed": "Could not create the pass.",
+    "loadFailed": "Could not load the exéat register.",
+    "actionFailed": "Could not update the pass.",
+    "reasonType": "Reason",
+    "departure": "Leaves",
+    "expectedReturn": "Expected back",
+    "details": "Details (optional)",
+    "parent": "Parent",
+    "overdue": "Overdue",
+    "overdueBanner": "{{count}} overdue:",
+    "backAt": "Back {{when}}",
+    "gateBy": "Gate: {{name}}",
+    "emptyTitle": "No passes here",
+    "emptyDesc": "Request a pass when a boarder needs to leave school.",
+    "filters": {
+      "open": "Awaiting",
+      "out": "Out of school",
+      "overdue": "Overdue",
+      "returned": "Closed",
+      "all": "All"
+    },
+    "reasons": {
+      "weekend": "Weekend leave",
+      "medical": "Medical / hospital",
+      "family": "Family matter",
+      "event": "Event or competition",
+      "other": "Other"
+    },
+    "statuses": {
+      "requested": "Requested",
+      "approved": "Approved",
+      "declined": "Declined",
+      "out": "Out",
+      "returned": "Returned"
+    },
+    "parentStates": {
+      "pending": "Awaiting parent",
+      "approved": "Parent agreed",
+      "declined": "Parent declined"
+    },
+    "actions": {
+      "parentApproved": "Parent agreed",
+      "parentDeclined": "Parent declined",
+      "approve": "Approve",
+      "signOut": "Sign out at gate",
+      "markReturned": "Mark returned",
+      "decline": "Decline"
+    }
+  },
+  "beds": {
+    "loadFailed": "Could not load the floor plan.",
+    "empty": "No dormitories or rooms are set up yet. Add them in the Dorm planner.",
+    "occupancy": "{{occupied}} of {{capacity}} beds taken",
+    "room": "Room {{number}}",
+    "closed": "Closed",
+    "free": "free",
+    "bed": "Bed {{number}}",
+    "bedFree": "Bed {{number}}: free",
+    "bedTaken": "Bed {{number}}: {{name}}",
+    "overflow": "No bed for: {{names}}",
+    "legendTaken": "Occupied",
+    "legendFree": "Available",
+    "legendClosed": "Closed / maintenance"
   }
 }

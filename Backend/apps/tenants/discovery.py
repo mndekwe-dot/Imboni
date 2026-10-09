@@ -138,6 +138,57 @@ SAME_ANSWER = (
 )
 
 
+class SchoolByCodeView(APIView):
+    """
+    GET /imboni/school-by-code/?code=demo  ->  {"name": "...", "domain": "demo.imboni.tech"}
+
+    The installed Windows app opens on the bare domain, which knows no school.
+    The user types their school code (the subdomain) and this turns it into the
+    host to continue on, so a typo gets "no such school" here instead of a
+    dead DNS page there.
+
+    This DOES confirm that a code exists, unlike find-school, which never
+    confirms anything. That is deliberate and bounded: a school's address is
+    public by nature (it is printed on letters and the gate), the name returned
+    is what the same school's /school/identity/ already shows anonymously, and
+    nothing about pupils or staff is reachable from a code. It is throttled per
+    IP so it cannot be used to sweep the registry.
+
+    Misses and malformed codes share one 404 body, so there is a single
+    "not found" answer rather than one per reason.
+    """
+    permission_classes = [AllowAny]
+    authentication_classes = []
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'school_code'
+
+    NOT_FOUND = {'detail': 'We could not find a school with that code.'}
+
+    def get(self, request):
+        from .models import Client, Domain
+        from .services import SUBDOMAIN_RE, normalize_subdomain
+
+        code = normalize_subdomain(request.query_params.get('code'))
+        if not SUBDOMAIN_RE.match(code) or code == get_public_schema_name():
+            return Response(self.NOT_FOUND, status=status.HTTP_404_NOT_FOUND)
+
+        # Registry reads belong to the public schema; this view is only routed
+        # there, but being explicit keeps it correct if that ever changes.
+        with schema_context(get_public_schema_name()):
+            client = Client.objects.filter(schema_name=code).first()
+            domain = (
+                Domain.objects.filter(tenant=client)
+                .order_by('-is_primary').values_list('domain', flat=True).first()
+                if client else None
+            )
+            if not client or not domain or client.is_expired_demo:
+                return Response(self.NOT_FOUND, status=status.HTTP_404_NOT_FOUND)
+            # A suspended school is still returned: its staff land on the login
+            # page, which explains the suspension. A 404 here would read as
+            # "you mistyped" and send them round in circles.
+            return Response({'name': client.name, 'domain': domain})
+
+
 class FindMySchoolSerializer(serializers.Serializer):
     email = serializers.EmailField()
 

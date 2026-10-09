@@ -9,6 +9,7 @@ vi.mock('../../api/discipline', () => ({
   updateDisReport: vi.fn(),
   reviewDisReport: vi.fn(),
   getSchoolConfig: vi.fn(),
+  getDisLadder: vi.fn().mockResolvedValue({ steps: [], budget: 40 }),
 }))
 
 vi.mock('../../api/dos', () => ({

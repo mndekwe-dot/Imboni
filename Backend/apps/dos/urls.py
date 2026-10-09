@@ -3,7 +3,7 @@ from . import views
 from . import report_views
 from . import exam_paper_views
 from .scheduling import api as scheduling_api
-from .scheduling import timetable_api
+from .scheduling import periods_api, timetable_api
 from .scheduling import duty_api
 from .scheduling import dining_api
 
@@ -51,6 +51,7 @@ urlpatterns = [
 
     # ── Results Approval ────────────────────────────────────────────────────
     path('dos/results/',                    views.DOSResultsListView.as_view(),       name='dos-results-list'),
+    path('dos/results/bulk-reject/',        views.DOSResultBulkRejectView.as_view(),  name='dos-results-bulk-reject'),
     path('dos/results/bulk-approve/',       views.DOSResultBulkApproveView.as_view(), name='dos-results-bulk-approve'),
     path('dos/results/<uuid:pk>/approve/',  views.DOSResultApproveView.as_view(),     name='dos-result-approve'),
     path('dos/results/<uuid:pk>/reject/',   views.DOSResultRejectView.as_view(),      name='dos-result-reject'),
@@ -125,6 +126,7 @@ urlpatterns = [
     # <uuid:pk> slot route so 'generate' isn't captured as a primary key.
     path('dos/timetable/generate/',        timetable_api.TimetableGenerateView.as_view(),       name='dos-timetable-generate'),
     path('dos/timetable/generate/commit/', timetable_api.TimetableGenerateCommitView.as_view(), name='dos-timetable-generate-commit'),
+    path('dos/timetable/periods/',         periods_api.TimetablePeriodsView.as_view(),          name='dos-timetable-periods'),
     path('dos/timetable/<uuid:pk>/', views.DosTimetableSlotView.as_view(), name='dos-timetable-slot'),
     path('dos/rooms/',               views.DosRoomListView.as_view(),      name='dos-rooms'),
     path('dos/rooms/<uuid:pk>/',     views.DosRoomDetailView.as_view(),    name='dos-room-detail'),

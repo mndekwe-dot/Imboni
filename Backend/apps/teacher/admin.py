@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Class, ClassAssignment, SubjectTeacherAssignment, Timetable, Task, Reminder
+from .models import (Class, ClassAssignment, SubjectTeacherAssignment, Timetable, Task, Reminder,
+                     TeachingMaterial)
 
 
 class ClassAssignmentInline(admin.TabularInline):
@@ -61,3 +62,11 @@ class ReminderAdmin(admin.ModelAdmin):
     list_filter   = ('is_completed',)
     search_fields = ('teacher__email', 'content')
     ordering      = ('-created_at',)
+
+
+@admin.register(TeachingMaterial)
+class TeachingMaterialAdmin(admin.ModelAdmin):
+    list_display  = ('title', 'kind', 'class_obj', 'subject', 'teacher', 'term', 'created_at')
+    list_filter   = ('kind', 'term', 'subject')
+    search_fields = ('title', 'teacher__email')
+    raw_id_fields = ('teacher', 'class_obj', 'subject', 'term')

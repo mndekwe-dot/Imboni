@@ -72,5 +72,7 @@
   "tzMiddleEast": "Middle East",
   "tzNorthAfrica": "North Africa",
   "tzSouthernAfrica": "Southern Africa",
-  "tzWestAfrica": "West Africa"
+  "tzWestAfrica": "West Africa",
+  "roomCapacityPlaceholder": "Seats",
+  "roomSeats": "{{count}} seats"
 }

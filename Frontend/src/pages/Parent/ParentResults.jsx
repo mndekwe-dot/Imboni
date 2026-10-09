@@ -11,6 +11,8 @@ import { formatDate, formatDateShort } from '../../utils/date'
 import {
     getMyChildren, getChildAssessments, getChildSummative, getChildReviews,
 } from '../../api/parent'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage, partialLoad } from '../../utils/errors'
 
 const toList = d => Array.isArray(d) ? d : (d?.results ?? [])
 import '../../styles/layout.css'
@@ -113,6 +115,7 @@ function AssessmentItem({ title, assessment_type, score_display, grade }) {
 }
 
 export function ParentResults() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
@@ -141,9 +144,9 @@ export function ParentResults() {
                     if (i > -1) setActiveIdx(i)
                 }
             })
-            .catch(console.error)
+            .catch(e => toast.error(errorMessage(e, "Could not load this page's data.")))
             .finally(() => setLoading(false))
-    }, [requestedChild])
+    }, [requestedChild, toast])
 
     useEffect(() => {
         if (!children.length) return
@@ -154,15 +157,15 @@ export function ParentResults() {
         setSummative([])
         setReviews([])
         Promise.all([
-            getChildAssessments(child.id).catch(() => []),
-            getChildSummative(child.id).catch(() => []),
-            getChildReviews(child.id).catch(() => []),
+            getChildAssessments(child.id).catch(partialLoad(toast, [])),
+            getChildSummative(child.id).catch(partialLoad(toast, [])),
+            getChildReviews(child.id).catch(partialLoad(toast, [])),
         ]).then(([a, s, r]) => {
             setAssessments(toList(a))
             setSummative(toList(s))
             setReviews(toList(r))
         }).finally(() => setLoadingData(false))
-    }, [children, activeIdx])
+    }, [children, activeIdx, toast])
 
     const child = children[activeIdx]
 

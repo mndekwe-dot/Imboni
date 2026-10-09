@@ -12,7 +12,7 @@ from django.urls import path, include
 
 from apps.tenants.onboarding import SchoolSignupView, ProvisionStatusView, SchoolApplyView
 from apps.tenants.billing import StripeWebhookView
-from apps.tenants.discovery import FindMySchoolView
+from apps.tenants.discovery import FindMySchoolView, SchoolByCodeView
 from apps.tenants.identity import SchoolIdentityView
 
 urlpatterns = [
@@ -20,6 +20,9 @@ urlpatterns = [
     # Public schema only: the bare domain is where a lost user ends up, and the
     # tenant registry it searches lives here.
     path('imboni/find-school/', FindMySchoolView.as_view(), name='find-my-school'),
+
+    # School code -> host, for the installed desktop app's entry screen.
+    path('imboni/school-by-code/', SchoolByCodeView.as_view(), name='school-by-code'),
 
     # Answers on the bare domain too, so the frontend can use one code path and
     # render unbranded when there is no school behind the hostname.

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest'
 import { renderWithRouter, screen, fireEvent, waitFor, setSessionUser, within } from '../../test/test-utils'
 import { DosResults } from './DosResults'
-import { getDosResults, approveResult, rejectResult, getDosAnalytics } from '../../api/dos'
+import { getDosResults, bulkApproveResults, bulkRejectResults, getDosAnalytics, getAtRiskStudents, getChronicAbsence } from '../../api/dos'
 
 beforeAll(() => {
   // jsdom doesn't implement <dialog> showModal/close natively. A no-op stub
@@ -16,9 +16,11 @@ beforeAll(() => {
 
 vi.mock('../../api/dos', () => ({
   getDosResults: vi.fn(),
-  approveResult: vi.fn(),
-  rejectResult: vi.fn(),
+  bulkApproveResults: vi.fn(),
+  bulkRejectResults: vi.fn(),
   getDosAnalytics: vi.fn(),
+  getAtRiskStudents: vi.fn().mockResolvedValue([]),
+  getChronicAbsence: vi.fn().mockResolvedValue([]),
 }))
 
 vi.mock('../../api/notifications', () => ({
@@ -81,9 +83,9 @@ describe('DosResults', () => {
     await waitFor(() => expect(screen.getByText('S4A - Mathematics')).toBeInTheDocument())
   })
 
-  it('approves a pending card: calls approveResult for every grouped id and flips card status to Approved', async () => {
+  it('approves a pending card: sends every grouped id in one bulk request and flips card status to Approved', async () => {
     getDosResults.mockResolvedValue(rawResults)
-    approveResult.mockResolvedValue({})
+    bulkApproveResults.mockResolvedValue({})
     renderWithRouter(<DosResults />)
 
     await waitFor(() => expect(screen.getByText('S4A - Mathematics')).toBeInTheDocument())
@@ -97,16 +99,13 @@ describe('DosResults', () => {
     const approveBtn = within(dialog).getByRole('button', { name: /Approve/i })
     fireEvent.click(approveBtn)
 
-    await waitFor(() => {
-      expect(approveResult).toHaveBeenCalledWith(1)
-      expect(approveResult).toHaveBeenCalledWith(2)
-    })
-    expect(approveResult).toHaveBeenCalledTimes(2)
+    await waitFor(() => expect(bulkApproveResults).toHaveBeenCalledWith([1, 2]))
+    expect(bulkApproveResults).toHaveBeenCalledTimes(1)
   })
 
   it('after approving, the card no longer shows the Review action (status flipped)', async () => {
     getDosResults.mockResolvedValue(rawResults)
-    approveResult.mockResolvedValue({})
+    bulkApproveResults.mockResolvedValue({})
     renderWithRouter(<DosResults />)
 
     await waitFor(() => expect(screen.getByText('S4A - Mathematics')).toBeInTheDocument())
@@ -119,25 +118,24 @@ describe('DosResults', () => {
     })
   })
 
-  it('rejects a pending card: calls rejectResult for every grouped id and flips card status to Rejected', async () => {
+  it('rejecting asks for a reason, then sends the whole card back with it', async () => {
     getDosResults.mockResolvedValue(rawResults)
-    rejectResult.mockResolvedValue({})
+    bulkRejectResults.mockResolvedValue({})
     renderWithRouter(<DosResults />)
 
     await waitFor(() => expect(screen.getByText('S4A - Mathematics')).toBeInTheDocument())
+    fireEvent.click(screen.getAllByText('Review')[0])
+    fireEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: /Reject/i }))
 
-    const reviewButtons = screen.getAllByText('Review')
-    fireEvent.click(reviewButtons[0])
+    // No reason yet: nothing is sent and the form says why.
+    fireEvent.click(await screen.findByRole('button', { name: 'Send back' }))
+    expect(bulkRejectResults).not.toHaveBeenCalled()
+    expect(screen.getByText('Write a short reason first so the teacher knows what to fix.')).toBeInTheDocument()
 
-    const dialog = screen.getByRole('dialog')
-    const rejectBtn = within(dialog).getByRole('button', { name: /Reject/i })
-    fireEvent.click(rejectBtn)
+    fireEvent.change(screen.getByLabelText(/What needs fixing/), { target: { value: 'Totals are wrong' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Send back' }))
 
-    await waitFor(() => {
-      expect(rejectResult).toHaveBeenCalledWith(1, '')
-      expect(rejectResult).toHaveBeenCalledWith(2, '')
-    })
-    expect(rejectResult).toHaveBeenCalledTimes(2)
+    await waitFor(() => expect(bulkRejectResults).toHaveBeenCalledWith([1, 2], 'Totals are wrong'))
   })
 
   it('search box narrows visible cards by teacher/subject/class text', async () => {
@@ -197,10 +195,40 @@ describe('DosResults', () => {
 
     await waitFor(() => expect(screen.getByText('S4A - Mathematics')).toBeInTheDocument())
 
-    fireEvent.click(screen.getByText('Analytics'))
+    fireEvent.click(screen.getByRole('button', { name: /Analytics/ }))
 
     await waitFor(() => expect(getDosAnalytics).toHaveBeenCalledWith({}))
     await waitFor(() => expect(screen.getByText('Overall Performance')).toBeInTheDocument())
     expect(screen.getByText('75%')).toBeInTheDocument()
+  })
+
+  it('lists students needing attention in the Analytics tab, one row per student', async () => {
+    getDosResults.mockResolvedValue(rawResults)
+    getDosAnalytics.mockResolvedValue({
+      current_term_id: 1,
+      stats: { overall_avg: 75, attendance_rate: 92, ratio: '1:20', top_performers: 12 },
+      terms: [{ id: 1, name: 'Term 1' }],
+      grade_distribution: [],
+      attendance_monthly: [],
+      pass_fail: [],
+      submissions: [],
+      grade_performance: [],
+      subject_averages: [],
+    })
+    getAtRiskStudents.mockResolvedValue([
+      { student_name: 'Eric Nshuti', student_code: 'ST-1', grade: 'S4', average_score: 42, subjects_failing: 3 },
+    ])
+    getChronicAbsence.mockResolvedValue([
+      { student_name: 'Eric Nshuti', student_code: 'ST-1', grade: 'S4', attendance_rate: 61, days_absent: 8 },
+      { student_name: 'Alice Uwera', student_code: 'ST-2', grade: 'S2', attendance_rate: 70, days_absent: 5 },
+    ])
+    renderWithRouter(<DosResults />, { route: '/dos/results?tab=analytics' })
+
+    expect(await screen.findByText('Students needing attention')).toBeInTheDocument()
+    await waitFor(() => expect(getAtRiskStudents).toHaveBeenCalledWith({ term_id: 1 }))
+    expect(await screen.findByText('Avg 42% · 3 failing')).toBeInTheDocument()
+    expect(screen.getByText('Attendance 61% · 8 days absent')).toBeInTheDocument()
+    expect(screen.getAllByText('Eric Nshuti')).toHaveLength(1)
+    expect(screen.getByText('ST-1 · S4')).toBeInTheDocument()
   })
 })
