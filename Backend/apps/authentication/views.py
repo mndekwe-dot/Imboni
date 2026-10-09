@@ -4,10 +4,12 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.throttling import AnonRateThrottle
+from .throttles import LoginAccountThrottle
 
 
 class LoginRateThrottle(AnonRateThrottle):
-    """Per-IP throttle for the login endpoint (rate: 'login' scope)."""
+    """Per-address flood guard for the login endpoint (rate: 'login' scope).
+    Generous on purpose; guessing at one account is LoginAccountThrottle's job."""
     scope = 'login'
 
 
@@ -174,7 +176,7 @@ class AuthViewSet(viewsets.ViewSet):
         # reliable place to do this — @action(throttle_classes=...) is not
         # consistently applied across DRF versions.
         if self.action == 'login':
-            return [LoginRateThrottle()]
+            return [LoginRateThrottle(), LoginAccountThrottle()]
         if self.action == 'verify_2fa_login':
             return [TwoFactorRateThrottle()]
         return super().get_throttles()

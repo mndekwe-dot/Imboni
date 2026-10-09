@@ -319,7 +319,11 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'anon':           None if TESTING else '60/min',
         'user':           None if TESTING else '1000/min',
-        'login':          None if TESTING else '5/min',   # per IP — stops guessing
+        # per IP — a flood guard, deliberately loose: a whole school can sit
+        # behind one address and sign in together. Guessing at ONE account is
+        # limited by login_account below, per (address, account).
+        'login':          None if TESTING else '60/min',
+        'login_account':  None if TESTING else '10/hour',
         'password_reset': None if TESTING else '3/min',
         # per IP — this endpoint queues a lookup across every tenant schema and
         # can send mail, so it is both expensive and abusable as a mailer.
