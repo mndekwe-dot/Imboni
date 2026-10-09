@@ -1,4 +1,4 @@
-/* ===============================================
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) /* ===============================================
    TEACHER.CSS - Teacher Portal Page Styles
    Page-specific styles for teacher pages
    =============================================== */
@@ -15,7 +15,7 @@
   gap: 0.875rem;
 }
 
-.class-detail-card {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .class-detail-card {
   padding: 1rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -28,7 +28,7 @@
               transform var(--duration-press) var(--ease-out);
 }
 
-.class-header {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .class-header {
   display: flex;
   justify-content: space-between;
   align-items: start;
@@ -46,7 +46,7 @@
   font-size: var(--text-sm);
 }
 
-.class-stats {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .class-stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
@@ -60,19 +60,19 @@
   text-align: center;
 }
 
-.stat-value {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .stat-value {
   font-size: var(--text-title);
   font-weight: 700;
   color: var(--primary);
 }
 
-.stat-label {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .stat-label {
   font-size: var(--text-caption);
   color: var(--muted-foreground);
   margin-top: 0.15rem;
 }
 
-.class-schedule {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .class-schedule {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -81,13 +81,13 @@
   margin-bottom: 0.25rem;
 }
 
-.class-schedule-item {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .class-schedule-item {
   display: flex;
   align-items: center;
   gap: 0.4rem;
 }
 
-.class-actions {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .class-actions {
   display: flex;
   flex-direction: column;
   gap: 0.4rem;
@@ -117,7 +117,7 @@
   background: var(--card);
 }
 
-.conversation-item {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .conversation-item {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -127,11 +127,11 @@
   transition: background-color 0.2s;
 }
 
-@media (hover: hover) { .conversation-item:hover {
+@media (hover: hover) { :where(:root[data-portal="student"], :root[data-portal="teacher"]) .conversation-item:hover {
   background: var(--muted);
 } }
 
-.conversation-item.active {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .conversation-item.active {
   background: rgba(0, 61, 122, 0.1);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary) 40%, transparent);
 }
@@ -227,22 +227,22 @@
 }
 
 @media (max-width: 480px) {
-  .class-detail-card {
+  :where(:root[data-portal="student"], :root[data-portal="teacher"]) .class-detail-card {
     padding: 1rem;
   }
 
-  .class-stats {
+  :where(:root[data-portal="student"], :root[data-portal="teacher"]) .class-stats {
     grid-template-columns: 1fr;
     gap: 0.5rem;
   }
 
-  .class-actions {
+  :where(:root[data-portal="student"], :root[data-portal="teacher"]) .class-actions {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 374px) {
-  .quick-stats-grid { grid-template-columns: 1fr; }
+  :where(:root[data-portal="student"], :root[data-portal="teacher"]) .quick-stats-grid { grid-template-columns: 1fr; }
   .search-filter-bar { gap: 0.5rem; }
 }
 
@@ -429,14 +429,14 @@
   transition: width 0.5s ease;
 }
 
-/* Activity Feed */
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) /* Activity Feed */
 .activity-item {
   display: flex;
   gap: 0.75rem;
   margin-bottom: 1rem;
 }
 
-.activity-icon {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .activity-icon {
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -446,22 +446,22 @@
   flex-shrink: 0;
 }
 
-.activity-icon.result {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .activity-icon.result {
   background: rgba(30, 64, 175, 0.1);
   color: var(--primary);
 }
 
-.activity-icon.attendance {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .activity-icon.attendance {
   background: rgba(16, 185, 129, 0.1);
   color: var(--success);
 }
 
-.activity-icon.incident {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .activity-icon.incident {
   background: rgba(239, 68, 68, 0.1);
   color: var(--destructive);
 }
 
-.activity-icon.announcement {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .activity-icon.announcement {
   background: rgba(249, 115, 22, 0.1);
   color: var(--accent);
 }
@@ -644,7 +644,7 @@
   color: var(--muted-foreground);
 }
 
-/* ===============================================
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) /* ===============================================
    ACTIVITY CARDS - Enhanced version
    =============================================== */
 
@@ -770,7 +770,7 @@
   font-size: var(--text-caption);
 }
 
-/* Form Groups */
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) /* Form Groups */
 .form-group {
   margin-bottom: 1rem;
 }
@@ -783,7 +783,7 @@
   color: var(--foreground);
 }
 
-/* Enhanced Stats Cards */
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) /* Enhanced Stats Cards */
 .quick-stats-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
@@ -797,7 +797,7 @@
   margin-bottom: 1.5rem;
 }
 
-.calendar-header {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .calendar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -850,7 +850,7 @@
   padding: 0.5rem 0;
 }
 
-.calendar-day {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .calendar-day {
   aspect-ratio: 1;
   display: flex;
   align-items: center;
@@ -867,13 +867,13 @@
   position: relative;
 }
 
-.calendar-day.today {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .calendar-day.today {
   background: var(--primary);
   color: white;
   font-weight: 600;
 }
 
-.calendar-day.has-event::after {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .calendar-day.has-event::after {
   content: '';
   position: absolute;
   bottom: 4px;
@@ -883,11 +883,11 @@
   background: var(--accent);
 }
 
-.calendar-day.today.has-event::after {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .calendar-day.today.has-event::after {
   background: white;
 }
 
-.calendar-day.other-month {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .calendar-day.other-month {
   color: var(--muted-foreground);
   opacity: 0.4;
 }
@@ -937,7 +937,7 @@
   flex: 1;
 }
 
-.event-title {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .event-title {
   font-weight: 600;
   margin-bottom: 0.25rem;
   font-size: var(--text-sm);
@@ -1074,7 +1074,7 @@
   border-color: var(--teacher);
 }
 
-/* Chart Container */
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) /* Chart Container */
 .chart-container {
   background: white;
   border-radius: var(--radius);
@@ -1107,7 +1107,7 @@
   overflow-x: auto;
 }
 
-.tab-btn {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .tab-btn {
   padding: 0.75rem 1.5rem;
   border: none;
   background: none;
@@ -1126,11 +1126,11 @@
   white-space: nowrap;
 }
 
-@media (hover: hover) { .tab-btn:hover {
+@media (hover: hover) { :where(:root[data-portal="student"], :root[data-portal="teacher"]) .tab-btn:hover {
   color: var(--foreground);
 } }
 
-.tab-btn.active {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .tab-btn.active {
   color: var(--teacher);
   border-bottom-color: var(--teacher);
 }
@@ -1216,7 +1216,7 @@
 }
 
 @media (max-width: 767px) {
-  .quick-stats-grid {
+  :where(:root[data-portal="student"], :root[data-portal="teacher"]) .quick-stats-grid {
     grid-template-columns: repeat(2, 1fr);
   }
 
@@ -1224,7 +1224,7 @@
     gap: 0.125rem;
   }
 
-  .calendar-day {
+  :where(:root[data-portal="student"], :root[data-portal="teacher"]) .calendar-day {
     font-size: var(--text-caption);
   }
 
@@ -1338,7 +1338,7 @@
 /* Status colors for progress bars based on completion */
 .progress-low { background: #ef4444 !important; }    /* Red */
 .progress-medium { background: #f59e0b !important; } /* Amber */
-.progress-high { background: #22c55e !important; }   /* Green */
+.progress-high { background: #22c55e !important; }   :where(:root[data-portal="student"], :root[data-portal="teacher"]) /* Green */
 
 /* ===============================================
    MESSAGES PAGE - Teacher/teacher-messages.html
@@ -1355,7 +1355,7 @@
   background: #22c55e;
 }
 
-/* Messages scroll area */
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) /* Messages scroll area */
 
 .date-sep {
   text-align: center;
@@ -1518,27 +1518,27 @@
   background: rgba(8, 145, 178, 0.05);
 }
 
-/* ===============================================
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) /* ===============================================
    STAT CARDS GRID  (Assignments / Timetable pages)
    =============================================== */
 .stat-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
-}/* Legacy stat-card layout (stat-header / stat-icon / stat-value / stat-label) */
+}:where(:root[data-portal="student"], :root[data-portal="teacher"]) /* Legacy stat-card layout (stat-header / stat-icon / stat-value / stat-label) */
 .stat-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; }
-.stat-icon {
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .stat-icon {
   width: 40px; height: 40px; border-radius: var(--radius);
   display: flex; align-items: center; justify-content: center;
 }
 .stat-icon .material-symbols-rounded { font-size: var(--icon-md); }
-.stat-icon.primary { background: var(--teacher-light); color: var(--teacher); }
-.stat-icon.info    { background: rgba(30,64,175,0.1);  color: var(--primary); }
-.stat-icon.success { background: var(--success-light); color: var(--success); }
-.stat-icon.warning { background: rgba(245,158,11,0.12);color: #f59e0b; }
-.stat-icon.danger  { background: var(--destructive-light); color: var(--destructive); }
-.stat-value { font-size: var(--text-display); font-weight: 800; }
-.stat-label { font-size: var(--text-sm); color: var(--muted-foreground); margin-top: 2px; }
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .stat-icon.primary { background: var(--teacher-light); color: var(--teacher); }
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .stat-icon.info    { background: rgba(30,64,175,0.1);  color: var(--primary); }
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .stat-icon.success { background: var(--success-light); color: var(--success); }
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .stat-icon.warning { background: rgba(245,158,11,0.12);color: #f59e0b; }
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .stat-icon.danger  { background: var(--destructive-light); color: var(--destructive); }
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .stat-value { font-size: var(--text-display); font-weight: 800; }
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .stat-label { font-size: var(--text-sm); color: var(--muted-foreground); margin-top: 2px; }
 
 /* ===============================================
    FILTER TABS  (Assignments page)
@@ -1560,15 +1560,15 @@
   font-size: var(--text-caption);
   font-weight: 600;
 }
-.pub-badge.active  { background: var(--success-light);      color: var(--success); }
-.pub-badge.past    { background: var(--muted);               color: var(--muted-foreground); }
-.pub-badge.draft   { background: rgba(245,158,11,0.12);      color: #f59e0b; }
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .pub-badge.active  { background: var(--success-light);      color: var(--success); }
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .pub-badge.past    { background: var(--muted);               color: var(--muted-foreground); }
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .pub-badge.draft   { background: rgba(245,158,11,0.12);      color: #f59e0b; }
 
 @media (max-width: 767px) {
-  .stat-cards-grid { grid-template-columns: 1fr 1fr; }
+  :where(:root[data-portal="student"], :root[data-portal="teacher"]) .stat-cards-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 480px) {
-  .stat-cards-grid { grid-template-columns: 1fr; }
+  :where(:root[data-portal="student"], :root[data-portal="teacher"]) .stat-cards-grid { grid-template-columns: 1fr; }
 }
 
 /* ── Mini stat cards (Attendance / Results) ── */
@@ -1605,7 +1605,7 @@
   margin-bottom: 0.75rem;
 }
 
-/* ── Recharts tooltip (teacher portal) ── */
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) /* ── Recharts tooltip (teacher portal) ── */
 .chart-tooltip {
   background: var(--card);
   border: 1px solid var(--border);
@@ -1614,11 +1614,11 @@
   font-size: var(--text-sm);
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
-.chart-tooltip-label { font-weight: 700; margin-bottom: 2px; }
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .chart-tooltip-label { font-weight: 700; margin-bottom: 2px; }
 .chart-tooltip-key   { color: var(--muted-foreground); }
 .chart-tooltip-val   { font-weight: 600; }
 
-.chart-legend-row  { display: flex; gap: 1rem; justify-content: center; margin-top: 0.5rem; flex-wrap: wrap; }
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .chart-legend-row  { display: flex; gap: 1rem; justify-content: center; margin-top: 0.5rem; flex-wrap: wrap; }
 .chart-legend-item { display: flex; align-items: center; gap: 0.35rem; font-size: var(--text-caption); color: var(--muted-foreground); }
 .chart-legend-dot-sq { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
 
@@ -1708,9 +1708,9 @@
 .quiz-add-btn { border: 2px dashed var(--border); border-radius: var(--radius); padding: 0.75rem; width: 100%; display: flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; background: transparent; font-size: var(--text-sm); color: var(--muted-foreground); transition: border-color 0.15s; }
 @media (hover: hover) { .quiz-add-btn:hover { border-color: var(--primary); color: var(--primary); } }
 
-/* ── Class detail card ── */
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) /* ── Class detail card ── */
 .class-detail-card { border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 0.75rem; cursor: pointer; transition: box-shadow 0.15s; }
-@media (hover: hover) { .class-detail-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.08); } }
+@media (hover: hover) { :where(:root[data-portal="student"], :root[data-portal="teacher"]) .class-detail-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,0.08); } }
 .class-monitor-badge { display: flex; align-items: center; gap: 0.4rem; font-size: var(--text-sm); color: var(--warning); font-weight: 600; margin-bottom: 0.5rem; }
 .class-monitor-badge .material-symbols-rounded { font-size: var(--icon-sm); }
 
@@ -1782,7 +1782,7 @@
 
 /* ── Date input with leading icon ── */
 .input-icon-wrap { position: relative; }
-.input-icon { position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%); font-size: var(--icon-sm) !important; color: var(--muted-foreground); pointer-events: none; }
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .input-icon { position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%); font-size: var(--icon-sm) !important; color: var(--muted-foreground); pointer-events: none; }
 .input-icon-field { padding-left: 2rem !important; }
 
 /* ── Misc helpers ── */
@@ -1877,7 +1877,7 @@
 .score-input-sm.readonly { background: var(--muted); cursor: default; border-color: transparent; }
 .score-max-sm    { font-size: var(--text-sm); color: var(--muted-foreground); }
 .grade-cell      { text-align: center; }
-.grade-badge     { font-weight: 700; font-size: var(--text-sm); padding: 2px 10px; border-radius: var(--radius-xl); }
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .grade-badge     { font-weight: 700; font-size: var(--text-sm); padding: 2px 10px; border-radius: var(--radius-xl); }
 .grade-empty     { font-size: var(--text-sm); color: var(--muted-foreground); }
 .results-no-asgn { text-align: center; padding: 2rem; color: var(--muted-foreground); font-size: var(--text-sm); }
 
@@ -2040,7 +2040,7 @@
     gap: 0.5rem;
     padding-top: 1.6rem;
 }
-/* Padding-top aligned the box with the input in the column beside it; spanning
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) /* Padding-top aligned the box with the input in the column beside it; spanning
    the whole row there is nothing to line up with. */
 .form-group.shuffle-row.col-full { padding-top: 0.25rem; }
 
@@ -2286,5 +2286,5 @@
     overflow-x: auto;
 }
 
-.u-mb-xs { margin-bottom: var(--space-2); }
-.u-mt-xs { margin-top: var(--space-2); }
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .u-mb-xs { margin-bottom: var(--space-2); }
+:where(:root[data-portal="student"], :root[data-portal="teacher"]) .u-mt-xs { margin-top: var(--space-2); }

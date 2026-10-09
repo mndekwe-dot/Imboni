@@ -241,11 +241,11 @@
 .disc-activity-title { font-size: var(--text-sm); font-weight: 600; margin-bottom: 1px; }
 .disc-activity-meta  { font-size: var(--text-caption); color: var(--muted-foreground); }
 
-/* ── Messages page ── */
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) /* ── Messages page ── */
 
 .dot-online { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; display: inline-block; }
 
-.date-sep {
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .date-sep {
   text-align: center;
   font-size: var(--text-caption);
   color: var(--muted-foreground);
@@ -291,7 +291,7 @@
 .disc-badge.europe { background: rgba(139,92,246,0.12);  color: #5b21b6; }
 .disc-badge.samiyonga    { background: rgba(249,115,22,0.12);  color: #9a3412; }
 
-/* ── Discipline table ── */
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) /* ── Discipline table ── */
 /* Table moved to .data-table in tables.css - see the note in admin.css. */
 
 /* ── Utility ── */
@@ -435,7 +435,7 @@
   font-style: italic;
 }
 
-/* ── Status pills ── */
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) /* ── Status pills ── */
 .status-pill {
   display: inline-block;
   font-size: var(--text-caption);
@@ -445,10 +445,10 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
-.status-pill.clean   { background: var(--success-light);     color: var(--success); }
-.status-pill.pending { background: rgba(245,158,11,0.12);    color: #b45309; }
-.status-pill.approved { background: var(--success-light);    color: var(--success); }
-.status-pill.rejected { background: var(--destructive-light); color: var(--destructive); }
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .status-pill.clean   { background: var(--success-light);     color: var(--success); }
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .status-pill.pending { background: rgba(245,158,11,0.12);    color: #b45309; }
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .status-pill.approved { background: var(--success-light);    color: var(--success); }
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .status-pill.rejected { background: var(--destructive-light); color: var(--destructive); }
 
 /* ── Inline student in table ── */
 .student-inline {
@@ -516,9 +516,9 @@
 /* ── Incident report form ── */
 .incident-form { display: flex; flex-direction: column; gap: 1rem; }
 .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-.form-group { display: flex; flex-direction: column; gap: 0.35rem; }
-.form-label { font-size: var(--text-sm); font-weight: 600; color: var(--foreground); }
-/* The box itself is shared (components.css); only the focus tint is ours. */
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .form-label { font-size: var(--text-sm); font-weight: 600; color: var(--foreground); }
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) /* The box itself is shared (components.css); only the focus tint is ours. */
 .form-input:focus { border-color: var(--discipline); }
 .form-workflow-note {
   display: flex;
@@ -589,7 +589,7 @@
 .sched-badge.active   { background: var(--discipline-light); color: var(--discipline); }
 .sched-badge.upcoming { background: var(--muted);            color: var(--muted-foreground); }
 
-/* ══════════════════════════════════════
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) /* ══════════════════════════════════════
    CLASS NAVIGATOR — Students page
 ══════════════════════════════════════ */
 
@@ -604,7 +604,7 @@
   margin-bottom: 1.25rem;
 }
 
-.class-nav-btn {
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .class-nav-btn {
   width: 40px;
   height: 40px;
   border: 1px solid var(--border);
@@ -617,13 +617,13 @@
   flex-shrink: 0;
   color: var(--foreground);
 }
-@media (hover: hover) { .class-nav-btn:hover:not(:disabled) { background: var(--discipline-light); border-color: var(--discipline); color: var(--discipline); } }
-.class-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+@media (hover: hover) { :where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .class-nav-btn:hover:not(:disabled) { background: var(--discipline-light); border-color: var(--discipline); color: var(--discipline); } }
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .class-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 .class-nav-btn .material-symbols-rounded { font-size: var(--icon-md); }
 
-.class-nav-center { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.class-nav-label  { font-size: var(--text-title); font-weight: 800; color: var(--discipline); }
-.class-nav-select {
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .class-nav-center { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .class-nav-label  { font-size: var(--text-title); font-weight: 800; color: var(--discipline); }
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .class-nav-select {
   font-size: var(--text-caption);
   color: var(--muted-foreground);
   border: 1px solid var(--border);
@@ -689,7 +689,7 @@
   border-top: 1px solid var(--border);
   flex-wrap: wrap;
 }
-.pub-badge {
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .pub-badge {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -700,9 +700,9 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
-.pub-badge.active    { background: var(--success-light);     color: var(--success); }
-.pub-badge.draft     { background: var(--muted);             color: var(--muted-foreground); }
-.pub-badge.suspended { background: var(--destructive-light); color: var(--destructive); }
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .pub-badge.active    { background: var(--success-light);     color: var(--success); }
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .pub-badge.draft     { background: var(--muted);             color: var(--muted-foreground); }
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .pub-badge.suspended { background: var(--destructive-light); color: var(--destructive); }
 
 /* Class chip in student table */
 /* ══════════════════════════════════════
@@ -749,7 +749,7 @@
 ══════════════════════════════════════ */
 
 .tag-list  { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
-.tag-chip  {
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .tag-chip  {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
@@ -852,8 +852,8 @@
 .house-stat-bar { display: flex; border-radius: var(--radius-sm); overflow: hidden; border: 1px solid var(--border); margin-bottom: 0.625rem; }
 .house-stat-cell { flex: 1; text-align: center; padding: 0.5rem 0.25rem; background: var(--card); }
 .house-stat-cell + .house-stat-cell { border-left: 1px solid var(--border); }
-.house-stat-value { font-size: var(--text-title); font-weight: 800; line-height: 1; }
-.house-stat-label { font-size: var(--text-caption); color: var(--muted-foreground); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.04em; }
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .house-stat-value { font-size: var(--text-title); font-weight: 800; line-height: 1; }
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .house-stat-label { font-size: var(--text-caption); color: var(--muted-foreground); margin-top: 2px; text-transform: uppercase; letter-spacing: 0.04em; }
 
 /* ══════════════════════════════════════
    ANNOUNCEMENTS PAGE (DisAnnouncements)
@@ -898,7 +898,7 @@
      components.css (two columns, smaller icon) instead of its own. */
 
   .sched-badge { font-size: var(--text-caption); padding: 1px 6px; }
-  .class-nav-bar { gap: 0.5rem; padding: 0.6rem; }
+  :where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .class-nav-bar { gap: 0.5rem; padding: 0.6rem; }
 
   /* Timetable — ultra-compact on phones */
   .tt-table     { min-width: 400px; }
@@ -909,19 +909,19 @@
 
 /* ── Session chips (extracurricular timetable) ── */
 .es-filter-section { display:flex; align-items:flex-start; gap:.75rem; padding:.65rem 0; }
-.es-filter-section-label { display:flex; align-items:center; gap:.3rem; font-size: var(--text-caption);
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .es-filter-section-label { display:flex; align-items:center; gap:.3rem; font-size: var(--text-caption);
     font-weight:600; color:var(--muted-foreground); white-space:nowrap; padding-top:.25rem; min-width:120px; }
 .es-filter-section-label .material-symbols-rounded { font-size: var(--icon-sm); }
 .es-session-chips { display:flex; gap:.4rem; flex-wrap:wrap; align-items:center; }
-.es-session-chip  { display:inline-flex; align-items:center; gap:.4rem; padding:.35rem .85rem;
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .es-session-chip  { display:inline-flex; align-items:center; gap:.4rem; padding:.35rem .85rem;
     border-radius: var(--radius-full); border:1.5px solid var(--border); background:transparent;
     font-size: var(--text-sm); font-weight:500; cursor:pointer; transition: background-color var(--duration-hover) var(--ease-hover), border-color var(--duration-hover) var(--ease-hover), color var(--duration-hover) var(--ease-hover), box-shadow var(--duration-hover) var(--ease-hover), transform var(--duration-press) var(--ease-out); color:var(--foreground); }
-@media (hover: hover) { .es-session-chip:hover  { border-color:var(--primary); color:var(--primary); } }
-.es-session-chip.active { background:var(--primary); color:#fff; border-color:var(--primary); }
+@media (hover: hover) { :where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .es-session-chip:hover  { border-color:var(--primary); color:var(--primary); } }
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .es-session-chip.active { background:var(--primary); color:#fff; border-color:var(--primary); }
 .es-session-chip-wrap { display:inline-flex; align-items:center; border-radius: var(--radius-full);
     border:1.5px solid var(--border); overflow:hidden; transition:border-color .15s; }
 .es-session-chip-wrap.active { border-color:var(--primary); background:var(--primary); }
-.es-session-chip-label { display:inline-flex; align-items:center; gap:.4rem;
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"]) .es-session-chip-label { display:inline-flex; align-items:center; gap:.4rem;
     padding:.3rem .7rem; font-size: var(--text-sm); font-weight:500; cursor:pointer;
     background:transparent; border:none; color:var(--foreground); }
 .es-session-chip-wrap.active .es-session-chip-label { color:#fff; }

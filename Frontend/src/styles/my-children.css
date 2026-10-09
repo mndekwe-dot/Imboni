@@ -8,7 +8,7 @@
     margin-top: 1rem;
 }
 
-/* Card Styling */
+:where(:root[data-portal="parent"]) /* Card Styling */
 .student-card {
     padding: 0;
     overflow: hidden;
@@ -16,7 +16,7 @@
     box-shadow: var(--shadow-md);
 }
 
-.student-card-header {
+:where(:root[data-portal="parent"]) .student-card-header {
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
     padding: 1.5rem;
     display: flex;
@@ -26,7 +26,7 @@
     position: relative;
 }
 
-.michael-header {
+:where(:root[data-portal="parent"]) .michael-header {
     background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
 }
 
@@ -71,20 +71,20 @@
     font-weight: 600;
 }
 
-.dot {
+:where(:root[data-portal="parent"]) .dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
 }
-.dot.online  { background: #4ade80; box-shadow: 0 0 8px #4ade80; }
-.dot.offline { background: var(--destructive); }
+:where(:root[data-portal="parent"]) .dot.online  { background: #4ade80; box-shadow: 0 0 8px #4ade80; }
+:where(:root[data-portal="parent"]) .dot.offline { background: var(--destructive); }
 
 /* Detail Sections */
 .detail-section {
     margin-bottom: 1.25rem;
 }
 
-.section-title {
+:where(:root[data-portal="parent"]) .section-title {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -104,7 +104,7 @@
     gap: 6px;
 }
 
-.tag {
+:where(:root[data-portal="parent"]) .tag {
     background: var(--muted);
     color: var(--muted-foreground);
     padding: 4px 12px;
@@ -113,7 +113,7 @@
     font-weight: 500;
 }
 
-/* Schedule Card */
+:where(:root[data-portal="parent"]) /* Schedule Card */
 .current-lesson-card {
     background: var(--info-light, rgba(14, 165, 233, 0.08));
     border: 1px solid var(--info-border, rgba(14, 165, 233, 0.2));
@@ -124,7 +124,7 @@
     align-items: center;
 }
 
-.lesson-status {
+:where(:root[data-portal="parent"]) .lesson-status {
     background: var(--info, #0ea5e9);
     color: white;
     font-size: var(--text-caption);
@@ -134,10 +134,10 @@
 }
 
 .lesson-name { font-weight: 600; font-size: var(--text-body); margin: 0; }
-.lesson-time { font-size: var(--text-caption); color: var(--muted-foreground); margin: 0; }
-.next-up     { font-size: var(--text-caption); color: var(--muted-foreground); margin-top: 6px; opacity: 0.75; }
+:where(:root[data-portal="parent"]) .lesson-time { font-size: var(--text-caption); color: var(--muted-foreground); margin: 0; }
+:where(:root[data-portal="parent"]) .next-up     { font-size: var(--text-caption); color: var(--muted-foreground); margin-top: 6px; opacity: 0.75; }
 
-/* Finance */
+:where(:root[data-portal="parent"]) /* Finance */
 .financial-brief {
     background: var(--muted);
     padding: 12px;
@@ -151,8 +151,8 @@
     margin-bottom: 4px;
 }
 
-.status-paid    { color: var(--success);  font-weight: 700; }
-.status-pending { color: var(--warning);  font-weight: 700; }
+:where(:root[data-portal="parent"]) .status-paid    { color: var(--success);  font-weight: 700; }
+:where(:root[data-portal="parent"]) .status-pending { color: var(--warning);  font-weight: 700; }
 
 /* Documents */
 .document-list {
@@ -161,7 +161,7 @@
     gap: 6px;
 }
 
-.doc-item {
+:where(:root[data-portal="parent"]) .doc-item {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -174,7 +174,7 @@
     font-size: var(--text-sm);
 }
 
-/* Footer */
+:where(:root[data-portal="parent"]) /* Footer */
 .divider { margin: 1.5rem 0; border: 0; border-top: 1px solid var(--border); }
 
 .student-card-footer {

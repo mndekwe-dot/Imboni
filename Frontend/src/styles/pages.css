@@ -42,7 +42,7 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.conversation-item {
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .conversation-item {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -54,20 +54,20 @@
   min-height: var(--touch-min);
 }
 
-.conversation-item:last-child {
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .conversation-item:last-child {
   border-bottom: none;
 }
 
-@media (hover: hover) { .conversation-item:hover {
+@media (hover: hover) { :where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .conversation-item:hover {
   background: var(--muted);
 } }
 
-.conversation-item:focus-visible {
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .conversation-item:focus-visible {
   outline: 2px solid var(--ring);
   outline-offset: -2px;
 }
 
-.conversation-item.active {
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .conversation-item.active {
   background: var(--primary-light);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary) 40%, transparent);
 }
@@ -240,7 +240,7 @@
   min-height: var(--touch-min);
 }
 
-/* ===============================================
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) /* ===============================================
    CLASSES PAGE
    =============================================== */
 
@@ -252,7 +252,7 @@
   max-width: 100%;
 }
 
-.class-detail-card {
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .class-detail-card {
   padding: 1.5rem;
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -270,7 +270,7 @@
 }
 
 
-.class-header {
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .class-header {
   display: flex;
   justify-content: space-between;
   align-items: start;
@@ -290,7 +290,7 @@
   margin: 0;
 }
 
-.class-badge {
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .class-badge {
   display: inline-flex;
   padding: 0.375rem 0.75rem;
   background: var(--primary-light);
@@ -301,7 +301,7 @@
   flex-shrink: 0;
 }
 
-.class-stats {
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .class-stats {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
@@ -315,21 +315,21 @@
   text-align: center;
 }
 
-.stat-value {
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .stat-value {
   font-size: var(--text-display);
   font-weight: 700;
   color: var(--primary);
   display: block;
 }
 
-.stat-label {
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .stat-label {
   font-size: var(--text-caption);
   color: var(--muted-foreground);
   margin-top: 0.25rem;
   display: block;
 }
 
-.class-schedule {
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .class-schedule {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -338,7 +338,7 @@
   margin-bottom: 1rem;
 }
 
-.class-schedule-item {
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .class-schedule-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -351,7 +351,7 @@
   flex-shrink: 0;
 }
 
-.class-actions {
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .class-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
@@ -406,7 +406,7 @@
 
 @media (max-width: 1023px) {
   .messages-container,
-  .classes-grid,
+  :where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .classes-grid,
   .students-table,
   .results-table {
     max-width: 100vw;
@@ -434,7 +434,7 @@
     gap: 1rem;
   }
 
-  .conversation-item {
+  :where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .conversation-item {
     padding: 0.875rem;
   }
 
@@ -491,48 +491,48 @@
    =============================================== */
 
 @media (max-width: 1023px) {
-  .classes-grid {
+  :where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .classes-grid {
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     max-width: 100%;
   }
 }
 
 @media (max-width: 767px) {
-  .classes-grid {
+  :where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .classes-grid {
     grid-template-columns: 1fr;
     max-width: 100%;
   }
 
-  .class-detail-card {
+  :where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .class-detail-card {
     padding: 1rem;
   }
 
-  .class-stats {
+  :where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .class-stats {
     gap: 0.75rem;
   }
 
-  .class-actions {
+  :where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .class-actions {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 480px) {
-  .class-header {
+  :where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .class-header {
     flex-direction: column;
     align-items: start;
   }
 
-  .class-badge {
+  :where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .class-badge {
     align-self: flex-start;
   }
 
-  .class-stats {
+  :where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .class-stats {
     grid-template-columns: 1fr;
     gap: 0.5rem;
     padding: 0.75rem;
   }
 
-  .stat-value {
+  :where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .stat-value {
     font-size: var(--text-title);
   }
 }
@@ -569,7 +569,7 @@
     font-size: var(--text-sm);
   }
 
-  .grade-badge {
+  :where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .grade-badge {
     width: 1.75rem;
     height: 1.75rem;
     font-size: var(--text-caption);
@@ -583,7 +583,7 @@
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
   }
 
-  .conversation-item,
+  :where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .conversation-item,
   .message-input button {
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
   }
@@ -601,7 +601,7 @@
 @media print {
   .messages-container,
   .message-input,
-  .class-actions,
+  :where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .class-actions,
   .filter-section {
     display: none;
   }
@@ -619,17 +619,17 @@
     padding: 0.5rem;
   }
 
-  .class-detail-card {
+  :where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .class-detail-card {
     page-break-inside: avoid;
     border: 1px solid #ccc;
     box-shadow: none;
   }
 }
 
-/* ===============================================
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) /* ===============================================
    LOADING STATES
    =============================================== */.conversation-item.loading,
-.class-detail-card.loading {
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .class-detail-card.loading {
   pointer-events: none;
 }
 /* ===============================================
@@ -950,7 +950,7 @@
 .thread-head-info { flex: 1; min-width: 0; }
 .thread-head-name   { font-size: var(--text-body); font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
 .thread-head-status { font-size: var(--text-caption); color: var(--muted-foreground); display: flex; align-items: center; gap: 4px; }
-.dot-online { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; display: inline-block; }
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .dot-online { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; display: inline-block; }
 
 .thread-actions { margin-left: auto; display: flex; gap: 0.25rem; }
 .thread-action-btn {
@@ -993,7 +993,7 @@
      the card it sits in, not a different temperature. */
   background: var(--surface-2);
 }
-.date-sep {
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .date-sep {
   text-align: center;
   font-size: var(--text-caption);
   color: var(--muted-foreground);
@@ -1130,7 +1130,7 @@
   }
   .thread-head-name  { color: white; }
   .thread-head-status { color: rgba(255,255,255,0.85); }
-  .dot-online { background: rgba(255,255,255,0.9); }
+  :where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .dot-online { background: rgba(255,255,255,0.9); }
   .thread-action-btn {
     border-color: rgba(255,255,255,0.25);
     color: rgba(255,255,255,0.9);
@@ -1228,10 +1228,10 @@
 .ann-list-contained .ann-item:last-child { border-bottom: none; }
 .ann-list-contained .ann-item.read-item { background: var(--muted); }
 
-.ann-item { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.1rem; cursor: pointer; transition: box-shadow .15s, border-color .15s; position: relative; }
-.ann-item.unread {  background: #fafcff; }
-.ann-item.urgent {  background: #fff8f8; }
-.ann-item.read-item { background: var(--muted); opacity: .8; }
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .ann-item { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.1rem; cursor: pointer; transition: box-shadow .15s, border-color .15s; position: relative; }
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .ann-item.unread {  background: #fafcff; }
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .ann-item.urgent {  background: #fff8f8; }
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .ann-item.read-item { background: var(--muted); opacity: .8; }
 
 .ann-item-top { display: flex; align-items: flex-start; gap: .75rem; margin-bottom: .4rem; }
 .ann-item-icon { width: 34px; height: 34px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: var(--icon-sm); }
@@ -1245,7 +1245,7 @@
 .ann-item-icon.academic { background: var(--primary-light);     color: var(--primary); }
 
 .ann-item-head { flex: 1; min-width: 0; }
-.ann-item-title { font-size: var(--text-body); font-weight: 600; margin-bottom: .2rem; color: var(--foreground); line-height: 1.35; }
+:where(:root[data-portal="admin"], :root[data-portal="discipline"], :root[data-portal="dos"], :root[data-portal="finance"], :root[data-portal="library"], :root[data-portal="matron"], :root[data-portal="parent"], :root[data-portal="student"], :root[data-portal="teacher"]) .ann-item-title { font-size: var(--text-body); font-weight: 600; margin-bottom: .2rem; color: var(--foreground); line-height: 1.35; }
 .ann-item.read-item .ann-item-title { font-weight: 500; color: var(--muted-foreground); }
 .ann-item-meta { font-size: var(--text-caption); color: var(--muted-foreground); display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
 .ann-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--border); display: inline-block; }
