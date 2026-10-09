@@ -111,3 +111,44 @@ describe('DosSettings', () => {
     await waitFor(() => expect(updateSchoolSettings).toHaveBeenCalledWith({ timezone: 'Africa/Kigali' }))
   })
 })
+
+describe('DosSettings admissions switch', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    getSchoolSettings.mockResolvedValue({ timezone: 'Africa/Kigali', school_name: 'Imboni', hold_enrolment_until_deposit: false })
+    getSubjects.mockResolvedValue([])
+    getDosRooms.mockResolvedValue([])
+    getSchoolConfig.mockResolvedValue([])
+    updateSchoolSettings.mockResolvedValue({})
+  })
+
+  it('is off unless the school has turned it on', async () => {
+    renderWithRouter(<DosSettings />)
+    const box = await screen.findByRole('checkbox', { name: /Hold new students until the deposit is confirmed/ })
+    expect(box).not.toBeChecked()
+  })
+
+  it('reflects a school that already holds new students', async () => {
+    getSchoolSettings.mockResolvedValue({ timezone: 'Africa/Kigali', school_name: 'Imboni', hold_enrolment_until_deposit: true })
+    renderWithRouter(<DosSettings />)
+    const box = await screen.findByRole('checkbox', { name: /Hold new students until the deposit is confirmed/ })
+    await waitFor(() => expect(box).toBeChecked())
+  })
+
+  it('saves the moment it is switched, with no Save button', async () => {
+    renderWithRouter(<DosSettings />)
+    const box = await screen.findByRole('checkbox', { name: /Hold new students until the deposit is confirmed/ })
+    fireEvent.click(box)
+    await waitFor(() => expect(updateSchoolSettings).toHaveBeenCalledWith({ hold_enrolment_until_deposit: true }))
+    expect(await screen.findByText('Admissions setting saved.')).toBeInTheDocument()
+  })
+
+  it('puts the switch back and says why when the save fails', async () => {
+    updateSchoolSettings.mockRejectedValue(new Error('server said no'))
+    renderWithRouter(<DosSettings />)
+    const box = await screen.findByRole('checkbox', { name: /Hold new students until the deposit is confirmed/ })
+    fireEvent.click(box)
+    await waitFor(() => expect(box).not.toBeChecked())
+    expect(await screen.findByText(/server said no|Could not save the admissions setting/)).toBeInTheDocument()
+  })
+})

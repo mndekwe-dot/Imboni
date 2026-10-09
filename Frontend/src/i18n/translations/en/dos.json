@@ -322,9 +322,14 @@
     "venueRoom": "Venue / Room"
   },
   "settings": {
+    "admissionsTitle": "Admissions",
     "examWeightTitle": "Exam weight for {{subject}} (1-10): heavier subjects are scheduled first, get morning slots and rest gaps between exams",
     "gettingStarted": "Getting started",
     "gettingStartedDesc": "Add your first section below (e.g. O-Level or A-Level), then add year groups and stream classes to it.",
+    "holdDesc": "When on, a newly registered student is not placed in a class or on any register until the bursar confirms their enrolment. Off by default.",
+    "holdSaveFailed": "Could not save the admissions setting.",
+    "holdSaved": "Admissions setting saved.",
+    "holdTitle": "Hold new students until the deposit is confirmed",
     "roomsTitle": "Rooms & Venues",
     "schoolSettingsHint": "Timezone used for all dates and times",
     "schoolSettingsTitle": "School Settings",

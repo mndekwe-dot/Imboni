@@ -322,9 +322,14 @@
     "venueRoom": "Lieu / salle"
   },
   "settings": {
+    "admissionsTitle": "Admissions",
     "examWeightTitle": "Coefficient d'examen pour {{subject}} (1-10) : les matières les plus lourdes sont programmées en premier, obtiennent les créneaux du matin et des pauses de récupération entre les épreuves",
     "gettingStarted": "Pour commencer",
     "gettingStartedDesc": "Ajoutez votre première section ci-dessous (ex. tronc commun ou cycle supérieur), puis ajoutez-y des promotions et des classes de filière.",
+    "holdDesc": "Si activé, un élève nouvellement inscrit n'est placé dans aucune classe ni registre tant que l'économe n'a pas confirmé son inscription. Désactivé par défaut.",
+    "holdSaveFailed": "Impossible d'enregistrer le paramètre d'admission.",
+    "holdSaved": "Paramètre d'admission enregistré.",
+    "holdTitle": "Retenir les nouveaux élèves jusqu'à confirmation de l'acompte",
     "roomsTitle": "Salles et lieux",
     "schoolSettingsHint": "Fuseau horaire utilisé pour toutes les dates et heures",
     "schoolSettingsTitle": "Paramètres de l'école",

@@ -93,6 +93,7 @@ const FinanceMessages     = load(() => import('./pages/Finance/FinanceMessages')
 const FinanceIncome       = load(() => import('./pages/Finance/FinanceIncome'), 'FinanceIncome');
 const FinancePayroll      = load(() => import('./pages/Finance/FinancePayroll'), 'FinancePayroll');
 const FinanceCash         = load(() => import('./pages/Finance/FinanceCash'), 'FinanceCash');
+const FinanceAdmissions   = load(() => import('./pages/Finance/FinanceAdmissions'), 'FinanceAdmissions');
 
 // ── Teacher ──
 const TeacherDashboard    = load(() => import('./pages/Teacher/TeacherDashboard'), 'TeacherDashboard');
@@ -331,6 +332,7 @@ function App() {
       <Route path="/finance/budget" element={<Navigate to="/finance/expenses?tab=budget" replace />} />
       <Route path="/finance/payroll" element={<ProtectedRoute role={["bursar", "admin"]}><FinancePayroll /></ProtectedRoute>} />
       <Route path="/finance/cash" element={<ProtectedRoute role={["bursar", "admin"]}><FinanceCash /></ProtectedRoute>} />
+      <Route path="/finance/admissions" element={<ProtectedRoute role={["bursar", "admin"]}><FinanceAdmissions /></ProtectedRoute>} />
       <Route path="/finance/settings" element={<ProtectedRoute role="bursar"><FinanceSettings /></ProtectedRoute>} />
       <Route path="/finance/messages" element={<ProtectedRoute role="bursar"><FinanceMessages /></ProtectedRoute>} />
       {/* ── Teacher routes ── */}

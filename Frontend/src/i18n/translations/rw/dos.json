@@ -322,9 +322,14 @@
     "venueRoom": "Ahabera / Icyumba"
   },
   "settings": {
+    "admissionsTitle": "Kwinjiza abanyeshuri",
     "examWeightTitle": "Uburemere bw'ikizamini kuri {{subject}} (1-10): amasomo aremereye ashyirwa mu gahunda mbere, akabona amasaha yo mu gitondo n'ikiruhuko hagati y'ibizamini",
     "gettingStarted": "Gutangira",
     "gettingStartedDesc": "Ongeraho igice cyawe cya mbere hasi (urugero: O-Level cyangwa A-Level), hanyuma wongereho inzego z'imyaka n'amashami.",
+    "holdDesc": "Iyo bishyizweho, umunyeshuri mushya ntashyirwa mu ishuri cyangwa mu rutonde urwo ari rwo rwose kugeza umubitsi yemeje kwinjira kwe. Mburabuzi: bifunze.",
+    "holdSaveFailed": "Ntibyashobotse kubika igenamiterere ryo kwinjiza.",
+    "holdSaved": "Igenamiterere ryo kwinjiza ryabitswe.",
+    "holdTitle": "Gufata abanyeshuri bashya kugeza amafaranga y'ibanze yemejwe",
     "roomsTitle": "Ibyumba n'ahantu",
     "schoolSettingsHint": "Isaha y'akarere ikoreshwa ku matariki n'amasaha yose",
     "schoolSettingsTitle": "Igenamiterere ry'ikigo",

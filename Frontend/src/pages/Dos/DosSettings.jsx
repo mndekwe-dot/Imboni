@@ -175,11 +175,16 @@ export function DosSettings() {
     const [roomSeats, setRoomSeats] = useState('')
     const [timezone,  setTimezone]  = useState('Africa/Kigali')
     const [tzSaving,  setTzSaving]  = useState(false)
+    const [holdDeposit, setHoldDeposit] = useState(false)
     const [tzSaved,   setTzSaved]   = useState(false)
 
     useEffect(() => {
         if (!settingsLoading) setTimezone(setting.timezone)
     }, [settingsLoading, setting.timezone])
+
+    useEffect(() => {
+        if (!settingsLoading) setHoldDeposit(Boolean(setting.hold_enrolment_until_deposit))
+    }, [settingsLoading, setting.hold_enrolment_until_deposit])
 
     useEffect(() => {
         getSubjects().then(setSubjects).catch(e => toast.error(errorMessage(e, "Could not load this page's data.")))
@@ -298,6 +303,19 @@ export function DosSettings() {
             setTimeout(()=>setTzSaved(false),3000)
         }catch (err) { toast.error(errorMessage(err, 'Could not save the time zone.')) } finally{
             setTzSaving(false)
+        }
+    }
+
+    // Saves as soon as it is flipped: a single switch needs no Save button. The
+    // switch moves at once and goes back, with the reason, if the save fails.
+    async function handleHoldToggle(next) {
+        setHoldDeposit(next)
+        try {
+            await updateSchoolSettings({ hold_enrolment_until_deposit: next })
+            toast.success(t('dos.settings.holdSaved'))
+        } catch (err) {
+            setHoldDeposit(!next)
+            toast.error(errorMessage(err, t('dos.settings.holdSaveFailed')))
         }
     }
 
@@ -531,6 +549,22 @@ export function DosSettings() {
                                         </button>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        <div className="card">
+                            <div className="card-header">
+                                <h2 className="card-title">{t('dos.settings.admissionsTitle')}</h2>
+                            </div>
+                            <div className="card-content">
+                                <label className="u-row-sm">
+                                    <input type="checkbox" checked={holdDeposit}
+                                        onChange={e => handleHoldToggle(e.target.checked)} />
+                                    <span>
+                                        <strong>{t('dos.settings.holdTitle')}</strong>
+                                        <span className="u-muted u-sm"> {t('dos.settings.holdDesc')}</span>
+                                    </span>
+                                </label>
                             </div>
                         </div>
 
