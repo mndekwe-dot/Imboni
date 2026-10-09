@@ -565,6 +565,25 @@
 .adm-dash-note { color: var(--muted-foreground); padding: 1rem 0; }
 .adm-legend-mt { margin-top: 0.75rem; }
 
+/* Recent activity + quick actions. These used to borrow .activity-* and
+ * .action-buttons from dos.css, which this page never loads, so the rows only
+ * looked right after a visit to a DOS page and stacked flat on a fresh start
+ * (an installed app always opens fresh). Owned here so the page stands alone. */
+.adm-action-buttons { display: flex; flex-direction: column; gap: 0.75rem; }
+.adm-activity-item { display: flex; align-items: flex-start; gap: 1rem; }
+.adm-activity-item + .adm-activity-item { margin-top: 1rem; }
+.adm-activity-icon {
+  width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.adm-activity-icon.success { background: var(--success-light); color: var(--success); }
+.adm-activity-icon.info    { background: var(--info-light);    color: var(--info); }
+.adm-activity-icon.warning { background: var(--warning-light); color: var(--warning); }
+.adm-activity-icon .material-symbols-rounded { font-size: var(--icon-md); }
+.adm-activity-details { flex: 1; min-width: 0; }
+.adm-activity-title { font-size: var(--text-sm); font-weight: 600; color: var(--foreground); margin: 0 0 0.25rem 0; }
+.adm-activity-time  { font-size: var(--text-caption); color: var(--muted-foreground); margin: 0; }
+
 /* ── Misc: publish-button ghost + 1fr/auto title grid (AdminAnnouncements) ── */
 .adm-btn.primary { color: var(--primary); border-color: var(--primary); }
 .adm-title-grid  { display: grid; grid-template-columns: 1fr auto; gap: 0.75rem; }
