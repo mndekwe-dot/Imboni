@@ -229,6 +229,7 @@ export function DosDashboard() {
 
     if (loading) return (
         <PageLoading
+            variant="dashboard"
             navItems={dosNavItems} secondaryItems={dosSecondaryItems}
             title={t('dos.dashboard.title')}
             user={sessionUser}

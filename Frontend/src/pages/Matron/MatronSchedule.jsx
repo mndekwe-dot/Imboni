@@ -104,6 +104,7 @@ export function MatronSchedule() {
 
     if (loading) return (
         <PageLoading
+            variant="table"
             navItems={matronNavItems} secondaryItems={matronSecondaryItems}
             title={t('matron.schedule.title')}
             user={sessionUser}

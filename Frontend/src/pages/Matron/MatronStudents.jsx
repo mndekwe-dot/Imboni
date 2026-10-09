@@ -200,6 +200,7 @@ export function MatronStudents() {
 
     if (loading) return (
         <PageLoading
+            variant="table"
             navItems={matronNavItems} secondaryItems={matronSecondaryItems}
             title={t('matron.students.title')}
             user={sessionUser}

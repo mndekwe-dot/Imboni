@@ -350,6 +350,7 @@ export const MatronHealth = () => {
 
     if (loading) return (
         <PageLoading
+            variant="table"
             navItems={matronNavItems} secondaryItems={matronSecondaryItems}
             title={t('matron.health.title')}
             user={sessionUser}

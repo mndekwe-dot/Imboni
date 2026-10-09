@@ -563,6 +563,7 @@ export function DosTeachers() {
 
     if (loading) return (
         <PageLoading
+            variant="table"
             navItems={dosNavItems} secondaryItems={dosSecondaryItems}
             title={t('dos.teachers.title')}
             subtitle={t('dos.teachers.subtitle')}

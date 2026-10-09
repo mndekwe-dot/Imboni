@@ -150,6 +150,7 @@ export function AdminStaff() {
     const [params, setParams] = useSearchParams()
     const activeTab = TABS.includes(params.get('tab')) ? params.get('tab') : 'staff'
     const [stats,       setStats]       = useState(null)
+    const [statsLoading, setStatsLoading] = useState(true)
     const [showInvite,  setShowInvite]  = useState(false)
     const [invitations, setInvitations] = useState([])
 
@@ -162,6 +163,7 @@ export function AdminStaff() {
     useEffect(() => {
         getAdminTeacherStats().then(setStats)
             .catch(e => toast.error(errorMessage(e, t('common.loadFailed'))))
+            .finally(() => setStatsLoading(false))
         loadInvitations()
     }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -190,10 +192,10 @@ export function AdminStaff() {
         { icon: 'schedule', value: stats.part_time_count, label: t('admin.staff.partTime'),        trend: `${stats.part_time_pct}%`, colorClass: 'success' },
         { icon: 'group',    value: stats.student_teacher_ratio || '-', label: t('admin.staff.studentTeacher'), trend: stats.ratio_label || '', colorClass: 'warning' },
     ] : [
-        { icon: 'badge',    value: '-', label: t('admin.staff.totalTeachers'),  trend: t('common.loading'), colorClass: ''        },
-        { icon: 'work',     value: '-', label: t('admin.staff.fullTime'),        trend: t('common.loading'), colorClass: 'info'    },
-        { icon: 'schedule', value: '-', label: t('admin.staff.partTime'),        trend: t('common.loading'), colorClass: 'success' },
-        { icon: 'group',    value: '-', label: t('admin.staff.studentTeacher'),  trend: t('common.loading'), colorClass: 'warning' },
+        { icon: 'badge',    value: '-', label: t('admin.staff.totalTeachers'), colorClass: ''        },
+        { icon: 'work',     value: '-', label: t('admin.staff.fullTime'), colorClass: 'info'    },
+        { icon: 'schedule', value: '-', label: t('admin.staff.partTime'), colorClass: 'success' },
+        { icon: 'group',    value: '-', label: t('admin.staff.studentTeacher'), colorClass: 'warning' },
     ]
 
     const pendingCount = invitations.filter(i => !i.is_used && i.status !== 'cancelled').length
@@ -213,7 +215,7 @@ export function AdminStaff() {
                     <DashboardContent>
 
                         <div className="portal-stat-grid">
-                            {statCards.map((s, i) => <StatCard key={i} {...s} />)}
+                            {statCards.map((s, i) => <StatCard key={i} {...s} loading={statsLoading && !stats} />)}
                         </div>
 
                         <div className="u-row-sm u-justify-between u-wrap">

@@ -65,6 +65,7 @@ export function MatronDashboard() {
 
     if (loading) return (
         <PageLoading
+            variant="dashboard"
             navItems={matronNavItems} secondaryItems={matronSecondaryItems}
             title={t('nav.dashboard')}
             user={sessionUser}

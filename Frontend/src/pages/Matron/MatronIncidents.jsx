@@ -183,6 +183,7 @@ export function MatronIncidents() {
 
     if (loading) return (
         <PageLoading
+            variant="table"
             navItems={matronNavItems} secondaryItems={matronSecondaryItems}
             title={t('matron.incidents.title')}
             subtitle={t('matron.incidents.subtitle')}

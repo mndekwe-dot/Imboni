@@ -547,7 +547,6 @@
 /* ── Reports & Analytics (AdminReports) — chart cards + distribution legend.
    Pie/dot colours stay inline (data-driven); recharts LabelList style props
    are SVG props, not DOM styles. ── */
-.adm-chart-loading { height: 200px; display: flex; align-items: center; justify-content: center; color: var(--muted-foreground); font-size: var(--text-sm); }
 .adm-chart-nodata  { color: var(--muted-foreground); font-size: var(--text-sm); }
 .adm-dist-row      { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
 .adm-dist-legend   { display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
