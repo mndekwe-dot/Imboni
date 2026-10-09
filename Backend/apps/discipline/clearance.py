@@ -39,29 +39,18 @@ def clearance_for(students, day=None):
     if not students:
         return {}
 
-    from apps.finance.models import FeePayment
+    from apps.finance.balances import balances_for
     from apps.library.models import Fine, Loan
     from apps.matron.models import MedicationSchedule
     from apps.matron.sickbay_service import students_in_sick_bay
     from apps.discipline.exeat_service import students_away
-    from apps.student.models import Fee
 
     day = day or timezone.localdate()
     ids = [s.id for s in students]
     user_ids = [s.user_id for s in students if s.user_id]
 
-    # ── finance: charged and paid, each in one grouped query ────────────────
-    charged = {
-        r['student_id']: r['t'] or ZERO
-        for r in Fee.objects.filter(student_id__in=ids).order_by()
-        .values('student_id').annotate(t=Sum('amount'))
-    }
-    paid = {
-        r['fee__student_id']: r['t'] or ZERO
-        for r in FeePayment.objects
-        .filter(fee__student_id__in=ids, reversed_at__isnull=True).order_by()
-        .values('fee__student_id').annotate(t=Sum('amount'))
-    }
+    # ── finance: the same definition of "owed" the bursar uses ─────────────
+    owed_by = balances_for(ids)
 
     # ── library: books still out, fines still owed ──────────────────────────
     books_out = {
@@ -86,7 +75,7 @@ def clearance_for(students, day=None):
 
     out = {}
     for s in students:
-        owed = max(charged.get(s.id, ZERO) - paid.get(s.id, ZERO), ZERO)
+        owed = owed_by[s.id]['owed']
         lib_owed = fines_owed.get(s.user_id, ZERO)
         n_books = books_out.get(s.user_id, 0)
         meds = sorted(medication.get(s.id, []))

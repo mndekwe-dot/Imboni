@@ -18,6 +18,10 @@ class Student(models.Model):
 
     STATUS_CHOICES = [
         ('active', 'Active'),
+        # Admitted, but not yet on any class register: the school holds new
+        # students here until the bursar confirms their deposit (see
+        # apps.student.admission). Only ever set when the school turns that on.
+        ('pending_deposit', 'Awaiting deposit'),
         ('suspended', 'Suspended'),
         ('inactive', 'Inactive'),
         ('graduated', 'Graduated'),

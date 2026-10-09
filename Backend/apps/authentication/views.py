@@ -1063,6 +1063,7 @@ class CompleteRegistrationView(APIView):
         if invitation.role == 'student' and invitation.class_obj:
             try:
                 from apps.student.models import Student as StudentProfile
+                from apps.student.admission import holds_new_students, status_for_new_student
                 from apps.teacher.models import ClassAssignment
                 from apps.results.models import AcademicTerm
 
@@ -1081,11 +1082,16 @@ class CompleteRegistrationView(APIView):
                     grade           = invitation.class_obj.grade,
                     section         = invitation.class_obj.section,
                     enrollment_date = timezone.now().date(),
-                    status          = 'active',
+                    # 'active', or 'pending_deposit' when the school holds new
+                    # students until the bursar confirms their deposit.
+                    status          = status_for_new_student(),
                 )
 
                 current_term = AcademicTerm.objects.filter(is_current=True).first()
-                if current_term:
+                # A held student is not placed in a class: they must not reach a
+                # register before their enrolment is confirmed. Confirmation
+                # places them (apps.student.admission.confirm_enrolment).
+                if current_term and not holds_new_students():
                     ClassAssignment.objects.get_or_create(
                         class_obj=invitation.class_obj,
                         student=student_profile,
