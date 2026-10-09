@@ -1,0 +1,9 @@
+{
+  "downloadActive": "Téléchargement…",
+  "downloadDone": "Téléchargé",
+  "downloadFailed": "Échec du téléchargement",
+  "title": "Transferts",
+  "uploadActive": "Envoi en cours…",
+  "uploadDone": "Envoyé",
+  "uploadFailed": "Échec de l'envoi"
+}

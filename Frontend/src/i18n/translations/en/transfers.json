@@ -1,0 +1,9 @@
+{
+  "downloadActive": "Downloading…",
+  "downloadDone": "Downloaded",
+  "downloadFailed": "Download failed",
+  "title": "Transfers",
+  "uploadActive": "Uploading…",
+  "uploadDone": "Uploaded",
+  "uploadFailed": "Upload failed"
+}

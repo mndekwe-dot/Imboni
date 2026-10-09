@@ -1,4 +1,5 @@
 import client from './client'
+import { withTransfer } from '../utils/transfers'
 
 // Fetch the logged-in user's full profile from the server.
 // Returns fresh data — not the stale copy saved in localStorage at login time.
@@ -40,7 +41,9 @@ export const updateMyPreferences = (data) =>
 export const uploadAvatar = (file) => {
     const form = new FormData()
     form.append('avatar', file)     // 'avatar' must match the field name the backend expects
-    return client.patch('/imboni/account/avatar/', form, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-    })
+    return withTransfer({ direction: 'upload', name: file?.name }, progress =>
+        client.patch('/imboni/account/avatar/', form, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+            ...progress,
+        }))
 }

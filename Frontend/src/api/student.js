@@ -1,4 +1,5 @@
 import client from './client'
+import { sendBody } from './upload'
 
 // client.js's response interceptor already unwraps to response.data, so
 // these must NOT call .then(r => r.data) again — that was double-unwrapping
@@ -11,7 +12,7 @@ export const getStudentAttendanceStats    = ()              => client.get('/imbo
 export const getStudentAttendanceCalendar = (month, year)   => client.get('/imboni/student/attendance/calendar/', { params: { month, year } })
 export const getStudentTimetable          = ()              => client.get('/imboni/student/timetable/')
 export const getStudentAssignments        = (status)        => client.get('/imboni/student/assignments/', { params: status ? { status } : {} })
-export const submitAssignment             = (id, formData)  => client.post(`/imboni/student/assignments/${id}/submit/`, formData)
+export const submitAssignment             = (id, formData)  => sendBody('post', `/imboni/student/assignments/${id}/submit/`, formData)
 export const getStudentMaterials          = ()              => client.get('/imboni/student/materials/')
 export const getStudentActivities         = ()              => client.get('/imboni/student/activities/')
 export const getStudentActivityEvents     = ()              => client.get('/imboni/student/activities/events/')

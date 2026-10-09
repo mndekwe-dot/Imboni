@@ -37,11 +37,13 @@ import attendance from './attendance.json'
 import staff from './staff.json'
 import materials from './materials.json'
 import start from './start.json'
+import transfers from './transfers.json'
 
 export default {
     staff,
     materials,
     start,
+    transfers,
     attendance,
     acceptInvite,
     account,

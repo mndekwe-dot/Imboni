@@ -1,4 +1,5 @@
 import client from './client'
+import { withTransfer } from '../utils/transfers'
 
 // ── Children ────────────────────────────────────────────────────────────────
 export const getMyChildren = () => client.get('/imboni/parents/my-children/')
@@ -23,7 +24,8 @@ export const getChildPay       = (id)       => client.get(`/imboni/parents/${id}
 export const startChildPay     = (id, data) => client.post(`/imboni/parents/${id}/pay/`, data)
 export const getChildPayAttempt = (id, attempt) => client.get(`/imboni/parents/${id}/pay/${attempt}/`)
 export const downloadChildReportCard = (id) =>
-    client.get(`/imboni/parents/${id}/report-card/`, { responseType: 'blob' })
+    withTransfer({ direction: 'download', name: 'report-card.pdf' }, progress =>
+        client.get(`/imboni/parents/${id}/report-card/`, { responseType: 'blob', ...progress }))
 
 // ── Attendance ───────────────────────────────────────────────────────────────
 export const getChildAttendanceStats    = (id)            => client.get(`/imboni/attendance/students/${id}/stats/`)

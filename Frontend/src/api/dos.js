@@ -1,4 +1,5 @@
 import client from "./client";
+import { withTransfer } from "../utils/transfers";
 
 //  Dashboard 
 export const getDosDashboardStats = () => client.get("/imboni/dos/dashboard/stats/");
@@ -66,7 +67,8 @@ export const inviteDosStudent     = (data) => client.post('/imboni/dos/students/
 export const bulkInviteDosStudents = (file) => {
     const form = new FormData()
     form.append('file', file)
-    return client.post('/imboni/dos/students/invite/bulk/', form)
+    return withTransfer({ direction: 'upload', name: file?.name }, progress =>
+        client.post('/imboni/dos/students/invite/bulk/', form, progress))
 }
 
 // Classes
@@ -124,15 +126,19 @@ export const commitDosTimetable   = (data) => client.post('/imboni/dos/timetable
 
 // Report cards (PDF / ZIP downloads)
 export const downloadStudentReportCard = (id, termId) =>
-    client.get(`/imboni/dos/reports/student/${id}/`, {
-        params: termId ? { term_id: termId } : {},
-        responseType: 'blob',
-    })
+    withTransfer({ direction: 'download', name: 'report-card.pdf' }, progress =>
+        client.get(`/imboni/dos/reports/student/${id}/`, {
+            params: termId ? { term_id: termId } : {},
+            responseType: 'blob',
+            ...progress,
+        }))
 export const downloadClassReportCards = (classId, termId) =>
-    client.get(`/imboni/dos/reports/class/${classId}/`, {
-        params: termId ? { term_id: termId } : {},
-        responseType: 'blob',
-    })
+    withTransfer({ direction: 'download', name: 'report-cards.zip' }, progress =>
+        client.get(`/imboni/dos/reports/class/${classId}/`, {
+            params: termId ? { term_id: termId } : {},
+            responseType: 'blob',
+            ...progress,
+        }))
 
 // Analytics
 export const getDosAnalytics        = (params)     => client.get('/imboni/dos/analytics/', { params })
@@ -163,7 +169,9 @@ export const rejectDosExamPaper  = (id, reason)  => client.post(`/imboni/dos/exa
  * needs the Authorization header, so a plain <a href> would come back 403.
  */
 export const downloadExamPaperPdf = (id, scheme = false) =>
-    client.get(`/imboni/dos/exam-papers/${id}/print/`, {
-        params: scheme ? { scheme: 1 } : {},
-        responseType: 'blob',
-    })
+    withTransfer({ direction: 'download', name: scheme ? 'marking-scheme.pdf' : 'exam-paper.pdf' }, progress =>
+        client.get(`/imboni/dos/exam-papers/${id}/print/`, {
+            params: scheme ? { scheme: 1 } : {},
+            responseType: 'blob',
+            ...progress,
+        }))

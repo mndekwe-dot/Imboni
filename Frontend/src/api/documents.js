@@ -1,4 +1,5 @@
 import client from './client'
+import { withTransfer } from '../utils/transfers'
 
 /**
  * Downloading and printing what the server renders.
@@ -17,10 +18,13 @@ import client from './client'
 
 /** Fetch a document as a blob, with the caller's own filters applied. */
 async function fetchDocument(url, params, format) {
-    const response = await client.get(url, {
-        params: { ...params, format },
-        responseType: 'blob',
-    })
+    const name = `${url.split('/').filter(Boolean).pop() || 'document'}.${format}`
+    const response = await withTransfer({ direction: 'download', name }, progress =>
+        client.get(url, {
+            params: { ...params, format },
+            responseType: 'blob',
+            ...progress,
+        }))
     // The interceptor unwraps `response.data` on success, so what comes back
     // here is already the Blob.
     return response instanceof Blob ? response : response?.data
@@ -77,7 +81,9 @@ export async function printPdf(url, params = {}) {
 
 /** A document that is not a rendering of a list: a receipt, a payslip. */
 export async function openDocument(url, params = {}) {
-    const response = await client.get(url, { params, responseType: 'blob' })
+    const response = await withTransfer(
+        { direction: 'download', name: url.split('/').filter(Boolean).pop() || 'document' },
+        progress => client.get(url, { params, responseType: 'blob', ...progress }))
     const blob = response instanceof Blob ? response : response?.data
     const objectUrl = URL.createObjectURL(blob)
     const tab = window.open(objectUrl, '_blank')
