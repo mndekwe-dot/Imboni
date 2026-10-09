@@ -1,6 +1,6 @@
 import axios from 'axios'
 import {
-    cachePut, cacheGet, isQueueable, enqueue, initOfflineSync,
+    cachePut, cacheGet, isQueueable, enqueue, initOfflineSync, clearOfflineData,
 } from '../offline'
 import { setSubscriptionStatus } from './subscriptionState'
 
@@ -98,6 +98,7 @@ client.interceptors.response.use(
         if (error.response?.status === 401 && !original._retry) {
             const refresh = localStorage.getItem('imboni_refresh')
             if (!refresh) {
+                clearOfflineData({ writes: false })   // keep their unsent changes for their next sign-in
                 localStorage.clear()
                 window.location.href = '/login'
                 return Promise.reject(error)
@@ -127,6 +128,7 @@ client.interceptors.response.use(
                 return client(original)
             } catch (refreshError) {
                 _processQueue(refreshError, null)
+                clearOfflineData({ writes: false })   // keep their unsent changes for their next sign-in
                 localStorage.clear()
                 window.location.href = '/login'
                 return Promise.reject(refreshError)

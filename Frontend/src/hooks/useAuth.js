@@ -1,6 +1,9 @@
 import { useState } from "react";
 import {useNavigate} from 'react-router'
 import { loginUser,logoutUser, verifyTwoFactorLogin } from "../api/auth";
+import { pendingCount, clearOfflineData } from "../offline";
+import { confirmDialog } from "../utils/confirm";
+import i18n from "../i18n";
 import { ROLE_HOME } from "../utils/roles";
 import { resetSchoolConfigCache } from "./schoolConfigCache";
 import { resetLibraryFeatureCache } from './libraryFeatureCache'
@@ -50,6 +53,15 @@ export function useAuth(){
     }
 
     async function logout(redirectTo ='/login') {
+        // Changes made offline that have not reached the server yet live only in
+        // this browser. Logging out wipes them, so say so first and let the
+        // person stay to send them rather than lose attendance silently.
+        const unsent = await pendingCount()
+        if (unsent > 0) {
+            const proceed = await confirmDialog(i18n.t('auth.logoutUnsent', { count: unsent }),
+                { confirmLabel: i18n.t('auth.logoutDiscard'), danger: true })
+            if (!proceed) return
+        }
         try {
             await logoutUser()
         } catch (e) {
@@ -59,6 +71,8 @@ export function useAuth(){
             // own. Nothing for the user to act on, so it is logged, not shown.
             console.warn('Signed out locally; server-side token revoke failed:', e)
         }
+        // Nothing fetched for this person stays behind for the next one.
+        await clearOfflineData()
         setUser(null)
         // The school's structure is cached at module scope for the session.
         // It belongs to the school that was signed in, not to the browser —

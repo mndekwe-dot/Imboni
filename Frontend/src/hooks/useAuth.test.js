@@ -2,10 +2,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useAuth } from './useAuth'
 import { loginUser, logoutUser } from '../api/auth'
+import { pendingCount, clearOfflineData } from '../offline'
 
 const mockNavigate = vi.fn()
 
 vi.mock('../api/auth')
+vi.mock('../offline')
 vi.mock('react-router', () => ({
   useNavigate: () => mockNavigate,
 }))
@@ -97,5 +99,32 @@ describe('useAuth', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/login', { replace: true })
     expect(warn).toHaveBeenCalled()
     warn.mockRestore()
+  })
+
+  it('wipes what was saved for offline use when somebody logs out', async () => {
+    logoutUser.mockResolvedValue()
+    const { result } = renderHook(() => useAuth())
+    await act(async () => { await result.current.logout() })
+    expect(clearOfflineData).toHaveBeenCalled()
+  })
+
+  it('stays signed in when the person backs out of discarding unsent changes', async () => {
+    pendingCount.mockResolvedValue(2)
+    vi.spyOn(window, 'confirm').mockReturnValue(false)
+    const { result } = renderHook(() => useAuth())
+    await act(async () => { await result.current.logout() })
+    expect(window.confirm).toHaveBeenCalledWith(expect.stringContaining('2 change'))
+    expect(logoutUser).not.toHaveBeenCalled()
+    expect(clearOfflineData).not.toHaveBeenCalled()
+  })
+
+  it('logs out and discards them once the person agrees', async () => {
+    pendingCount.mockResolvedValue(2)
+    logoutUser.mockResolvedValue()
+    vi.spyOn(window, 'confirm').mockReturnValue(true)
+    const { result } = renderHook(() => useAuth())
+    await act(async () => { await result.current.logout() })
+    expect(logoutUser).toHaveBeenCalled()
+    expect(clearOfflineData).toHaveBeenCalled()
   })
 })

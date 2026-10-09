@@ -1,9 +1,9 @@
 import 'fake-indexeddb/auto'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { db } from './db'
 import {
   cacheKey, cachePut, cacheGet,
-  isQueueable, enqueue, pendingCount, flushOutbox,
+  isQueueable, enqueue, pendingCount, flushOutbox, clearOfflineData,
 } from './index'
 
 beforeEach(async () => {
@@ -111,5 +111,50 @@ describe('outbox', () => {
     const result = await flushOutbox(client)
 
     expect(result).toEqual({ sent: 1, failed: 1, remaining: 0 })
+  })
+
+  describe('shared computers', () => {
+    const signIn = id => localStorage.setItem('imboni_user', JSON.stringify({ id }))
+    afterEach(() => localStorage.clear())
+
+    it('never serves a user’s cached pages to the next user', async () => {
+      signIn(1)
+      await cachePut('/imboni/teacher/my-classes/', undefined, [{ id: 1 }])
+      expect((await cacheGet('/imboni/teacher/my-classes/', undefined)).data).toEqual([{ id: 1 }])
+      signIn(2)
+      expect(await cacheGet('/imboni/teacher/my-classes/', undefined)).toBeNull()
+    })
+
+    it('does not send queued writes under another login, and drops them', async () => {
+      signIn(1)
+      await enqueue('post', '/imboni/matron/night-check/', { n: 1 }, 'a')
+      signIn(2)
+      const client = { request: vi.fn().mockResolvedValue({}) }
+      const result = await flushOutbox(client)
+      expect(client.request).not.toHaveBeenCalled()
+      expect(result.remaining).toBe(0)
+    })
+
+    it('keeps unsent writes of a signed-out user for when they sign back in', async () => {
+      signIn(1)
+      await enqueue('post', '/imboni/matron/night-check/', { n: 1 }, 'a')
+      localStorage.clear()            // session expired
+      const client = { request: vi.fn().mockResolvedValue({}) }
+      await flushOutbox(client)
+      expect(client.request).not.toHaveBeenCalled()
+      expect(await pendingCount()).toBe(1)
+      signIn(1)
+      expect((await flushOutbox(client)).sent).toBe(1)
+    })
+
+    it('clears the cache and the outbox on request, or only the cache', async () => {
+      await cachePut('/imboni/x/', undefined, 'A')
+      await enqueue('post', '/imboni/matron/night-check/', { n: 1 }, 'a')
+      await clearOfflineData({ writes: false })
+      expect(await cacheGet('/imboni/x/', undefined)).toBeNull()
+      expect(await pendingCount()).toBe(1)
+      await clearOfflineData()
+      expect(await pendingCount()).toBe(0)
+    })
   })
 })

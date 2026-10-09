@@ -5,6 +5,18 @@
  */
 import { db, idbAvailable } from './db'
 
+// Whose data this is. Everything stored here is tagged with the signed-in
+// user's id, so a shared computer never serves one person's cached pages to the
+// next, and never sends one person's queued writes under another's login.
+function currentOwner() {
+    try {
+        const id = JSON.parse(localStorage.getItem('imboni_user') || 'null')?.id
+        return id == null ? '' : String(id)
+    } catch {
+        return ''
+    }
+}
+
 // ── Which writes may be queued offline ────────────────────────────────────────
 // Only idempotent endpoints belong here: replaying them after reconnect must
 // be safe (attendance/medication use upserts keyed on natural keys).
@@ -39,14 +51,15 @@ export function cacheKey(url, params) {
 export async function cachePut(url, params, data) {
     if (!idbAvailable) return
     try {
-        await db.apiCache.put({ key: cacheKey(url, params), data, savedAt: Date.now() })
+        await db.apiCache.put({ key: cacheKey(url, params), data, savedAt: Date.now(), owner: currentOwner() })
     } catch { /* cache is best-effort */ }
 }
 
 export async function cacheGet(url, params) {
     if (!idbAvailable) return null
     try {
-        return await db.apiCache.get(cacheKey(url, params)) || null
+        const hit = await db.apiCache.get(cacheKey(url, params))
+        return hit && (hit.owner ?? '') === currentOwner() ? hit : null
     } catch {
         return null
     }
@@ -71,7 +84,25 @@ export async function enqueue(method, url, body, dedupeKey) {
         method, url, body: body ?? null,
         dedupeKey: dedupeKey || `once|${url}|${Date.now()}`,
         queuedAt: Date.now(),
+        owner: currentOwner(),
     })
+    emitPending()
+}
+
+/**
+ * Forget what was saved for offline use.
+ *
+ * `reads` is the cached pages (student lists, marks, fees...), which must not
+ * outlive the sign-in that fetched them. `writes` is the outbox of unsent
+ * changes: dropped only when the person has been told and agreed, or when the
+ * next person to sign in is somebody else.
+ */
+export async function clearOfflineData({ reads = true, writes = true } = {}) {
+    if (!idbAvailable) return
+    try {
+        if (reads) await db.apiCache.clear()
+        if (writes) await db.outbox.clear()
+    } catch { /* best-effort: nothing useful to do if storage is blocked */ }
     emitPending()
 }
 
@@ -95,7 +126,19 @@ export async function pendingCount() {
 export async function flushOutbox(client) {
     if (!idbAvailable) return { sent: 0, failed: 0, remaining: 0 }
 
-    const items = await db.outbox.orderBy('queuedAt').toArray()
+    const me = currentOwner()
+    let items = await db.outbox.orderBy('queuedAt').toArray()
+    if (me) {
+        // Signed in as somebody: another user's leftovers are never sent as
+        // them. They are deleted, not kept for a login that may never come.
+        const foreign = items.filter(i => (i.owner ?? '') !== me)
+        if (foreign.length) await db.outbox.bulkDelete(foreign.map(i => i.id))
+        items = items.filter(i => (i.owner ?? '') === me)
+    } else {
+        // Signed out (an expired session): only untagged items go; the signed-out
+        // user's own wait for them to sign back in.
+        items = items.filter(i => !i.owner)
+    }
     let sent = 0
     let failed = 0
 
