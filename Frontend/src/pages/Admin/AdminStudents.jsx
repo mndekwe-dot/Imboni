@@ -21,6 +21,7 @@ import '../../styles/discipline.css'
 import { SearchBar } from '../../components/ui/SearchBar'
 import { useToast } from '../../context/ToastContext'
 import { partialLoad } from '../../utils/errors'
+import { useDebouncedValue } from '../../hooks/useDebouncedValue'
 import { ModalOverlay } from '../../components/ui/ModalOverlay'
 
 function initials(name = '') {
@@ -240,12 +241,19 @@ function StudentRow({ student, onView }) {
     )
 }
 
+// Rows per page. The server sends only this many, so the page costs the same
+// whether the school has 50 students or 1,500.
+const PAGE_SIZE = 8
+
 export function AdminStudents() {
     const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const [studentList, setStudentList] = useState([])
+    const [total,       setTotal]       = useState(0)
+    const [page,        setPage]        = useState(1)
     const [stats,       setStats]       = useState(null)
+    const [statsLoading, setStatsLoading] = useState(true)
     const [loading,     setLoading]     = useState(true)
     const [search,      setSearch]      = useState('')
     const [section,     setSection]     = useState('')
@@ -253,37 +261,52 @@ export function AdminStudents() {
     const [classVal,    setClassVal]    = useState('')
     const [viewing,     setViewing]     = useState(null)
 
+    // The box updates as you type; the server is only asked once typing pauses.
+    const query = useDebouncedValue(search.trim(), 300)
+
+    // The headline numbers do not depend on the filters, so they load once.
     useEffect(() => {
+        getAdminStudentStats().catch(partialLoad(toast, null))
+            .then(setStats)
+            .finally(() => setStatsLoading(false))
+    }, [toast])
+
+    // One page of students, filtered and searched by the server.
+    useEffect(() => {
+        let alive = true
         setLoading(true)
-        const grade = year || undefined
-        Promise.all([
-            getAdminStudents(grade ? { grade } : {}).catch(partialLoad(toast, [])),
-            getAdminStudentStats().catch(partialLoad(toast, null)),
-        ]).then(([students, s]) => {
-            setStudentList(Array.isArray(students) ? students : (students?.results ?? []))
-            setStats(s)
-        }).finally(() => setLoading(false))
-    }, [year, toast])
+        getAdminStudents({
+            page, page_size: PAGE_SIZE,
+            grade: year || undefined,
+            section: classVal || undefined,
+            search: query || undefined,
+        }).catch(partialLoad(toast, []))
+            .then(res => {
+                if (!alive) return          // a newer request has superseded this one
+                const rows = Array.isArray(res) ? res : (res?.results ?? [])
+                setStudentList(rows)
+                setTotal(Array.isArray(res) ? res.length : (res?.count ?? rows.length))
+            })
+            .finally(() => { if (alive) setLoading(false) })
+        return () => { alive = false }
+    }, [page, year, classVal, query, toast])
 
+    // Any change to what is being asked for starts again from page 1.
+    useEffect(() => { setPage(1) }, [year, classVal, query])
+
+    // Always four tiles: bars while the figures load, dashes if they never arrive
+    // (the toast says why), never a strip that appears and disappears.
     const statCards = stats ? [
-        { icon: 'groups',       value: stats.total_students  || 0, label: t('common.totalStudents'),  trend: t('admin.students.allEnrolled'),               colorClass: ''        },
-        { icon: 'person_add',   value: stats.new_admissions  || 0, label: t('admin.students.newAdmissions'),  trend: t('admin.students.thisTerm'),                  colorClass: 'info'    },
-        { icon: 'check_circle', value: stats.active_students || 0, label: t('common.active'),          trend: t('admin.students.enrollmentPct', { pct: stats.enrollment_pct || 0 }), colorClass: 'success' },
-        { icon: 'trending_up',  value: `${stats.avg_performance || 0}%`, label: t('admin.students.avgPerformance'), trend: stats.avg_performance_change >= 0 ? `+${stats.avg_performance_change}%` : `${stats.avg_performance_change}%`, colorClass: 'warning' },
+        { icon: 'groups',       value: stats?.total_students  || 0, label: t('common.totalStudents'),  trend: t('admin.students.allEnrolled'),               colorClass: ''        },
+        { icon: 'person_add',   value: stats?.new_admissions  || 0, label: t('admin.students.newAdmissions'),  trend: t('admin.students.thisTerm'),                  colorClass: 'info'    },
+        { icon: 'check_circle', value: stats?.active_students || 0, label: t('common.active'),          trend: t('admin.students.enrollmentPct', { pct: stats?.enrollment_pct || 0 }), colorClass: 'success' },
+        { icon: 'trending_up',  value: `${stats?.avg_performance || 0}%`, label: t('admin.students.avgPerformance'), trend: stats?.avg_performance_change >= 0 ? `+${stats?.avg_performance_change}%` : `${stats?.avg_performance_change}%`, colorClass: 'warning' },
     ] : [
-        { icon: 'groups',       value: '-', label: t('common.totalStudents'),   trend: t('common.loading'), colorClass: ''        },
-        { icon: 'person_add',   value: '-', label: t('admin.students.newAdmissions'),   trend: t('common.loading'), colorClass: 'info'    },
-        { icon: 'check_circle', value: '-', label: t('common.active'),           trend: t('common.loading'), colorClass: 'success' },
-        { icon: 'trending_up',  value: '-', label: t('admin.students.avgPerformance'),  trend: t('common.loading'), colorClass: 'warning' },
+        { icon: 'groups',       value: '-', label: t('common.totalStudents'),          colorClass: ''        },
+        { icon: 'person_add',   value: '-', label: t('admin.students.newAdmissions'),  colorClass: 'info'    },
+        { icon: 'check_circle', value: '-', label: t('common.active'),                 colorClass: 'success' },
+        { icon: 'trending_up',  value: '-', label: t('admin.students.avgPerformance'), colorClass: 'warning' },
     ]
-
-    const filtered = studentList.filter(s => {
-        const name = studentName(s).toLowerCase()
-        const q    = search.toLowerCase()
-        const matchSearch = !q || name.includes(q) || studentCode(s).toLowerCase().includes(q)
-        const matchClass  = !classVal || (s.section || '').toUpperCase() === classVal.toUpperCase()
-        return matchSearch && matchClass
-    })
 
     return (
         <>
@@ -306,7 +329,7 @@ export function AdminStudents() {
                     <DashboardContent>
 
                         <div className="portal-stat-grid">
-                            {statCards.map((s, i) => <StatCard key={i} {...s} />)}
+                            {statCards.map((s, i) => <StatCard key={i} {...s} loading={statsLoading} />)}
                         </div>
 
                         <ClassPicker
@@ -326,22 +349,25 @@ export function AdminStudents() {
                             />
                         </div>
 
-                        {loading ? (
-                            <p className="u-muted u-pad">{t('admin.students.loadingStudents')}</p>
-                        ) : (
-                            <DataTable
-                                title={t('admin.students.allStudents')}
-                                data={filtered}
-                                columns={[t('common.student'), t('common.class'), t('admin.students.houseDorm'), t('common.status'), t('common.actions')]}
-                                renderRow={s => (
-                                    <StudentRow key={s.id || s.student_id} student={s} onView={setViewing} />
-                                )}
-                                emptyIcon="groups"
-                                emptyTitle={t('admin.students.emptyTitle')}
-                                emptyDesc={search ? t('admin.students.noResultsFor', { query: search }) : t('admin.students.noMatch')}
-                                onClearFilters={() => { setSearch(''); setSection(''); setYear(''); setClassVal('') }}
-                            />
-                        )}
+                        <DataTable
+                            title={t('admin.students.allStudents')}
+                            data={studentList}
+                            total={total}
+                            page={page}
+                            onPageChange={setPage}
+                            pageSize={PAGE_SIZE}
+                            loading={loading}
+                            loadingLabel={t('admin.students.loadingStudents')}
+                            skeletonAvatar
+                            columns={[t('common.student'), t('common.class'), t('admin.students.houseDorm'), t('common.status'), t('common.actions')]}
+                            renderRow={s => (
+                                <StudentRow key={s.id || s.student_id} student={s} onView={setViewing} />
+                            )}
+                            emptyIcon="groups"
+                            emptyTitle={t('admin.students.emptyTitle')}
+                            emptyDesc={search ? t('admin.students.noResultsFor', { query: search }) : t('admin.students.noMatch')}
+                            onClearFilters={() => { setSearch(''); setSection(''); setYear(''); setClassVal('') }}
+                        />
 
                     </DashboardContent>
                 </main>
