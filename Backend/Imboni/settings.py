@@ -258,6 +258,12 @@ if not DEBUG and not TESTING:
     }
 
 # Media files configuration
+# Question and exam-paper pictures travel inside the JSON body as data URIs, and
+# a paper can carry several. Django's 2.5 MB default for a non-file body was
+# smaller than one ordinary photo, so saving such a paper failed outright.
+# nginx's client_max_body_size (25m) is still the outer limit.
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
