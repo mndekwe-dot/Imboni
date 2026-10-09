@@ -2945,3 +2945,34 @@ body.tm-panel-open { overflow: hidden; }
 .dos-tt-conflict-title { font-size: var(--text-sm); margin-bottom: 0.75rem; }
 .dos-tt-conflict-list  { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.4rem; }
 .dos-tt-conflict-item  { font-size: var(--text-sm); }
+
+/* ── Marks submission grid (MarksProgressTab) ─────────────────────────────
+   A row per class, a column per subject. Each cell carries an icon and a count
+   as well as a colour, so it reads in greyscale and for colour-blind users. */
+.mp-legend { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0; padding: 0.75rem 1.25rem; list-style: none; }
+.mp-chip {
+  display: inline-flex; align-items: center; gap: 0.375rem;
+  padding: 0.25rem 0.625rem; border-radius: var(--radius-full);
+  font-size: var(--text-caption); color: var(--foreground);
+}
+.mp-chip .material-symbols-rounded { font-size: var(--icon-sm); }
+.mp-chip strong { font-variant-numeric: tabular-nums; }
+
+.mp-scroll { overflow-x: auto; }
+.mp-table { min-width: max-content; }
+.mp-table th, .mp-table td { text-align: center; white-space: nowrap; }
+.mp-class { text-align: left; position: sticky; left: 0; z-index: 1; background: var(--card); font-weight: 600; }
+.mp-subject { font-weight: 600; }
+
+.mp-cell { font-variant-numeric: tabular-nums; }
+.mp-cell .material-symbols-rounded { font-size: var(--icon-sm); vertical-align: middle; }
+.mp-count { margin-left: 0.25rem; font-size: var(--text-caption); }
+.mp-cell.is-none { color: var(--muted-foreground); }
+
+.mp-cell.is-approved,  .mp-chip.is-approved  { background: var(--success-light);     color: var(--success); }
+.mp-cell.is-submitted, .mp-chip.is-submitted { background: var(--info-light);        color: var(--info); }
+.mp-cell.is-partial,   .mp-chip.is-partial   { background: var(--warning-light);     color: var(--warning); }
+.mp-cell.is-missing,   .mp-chip.is-missing   { background: var(--destructive-light); color: var(--destructive); }
+.mp-cell.is-empty                            { background: var(--muted);             color: var(--muted-foreground); }
+/* The legend names the state in the page's own text colour: the icon carries the hue. */
+.mp-chip.is-approved, .mp-chip.is-submitted, .mp-chip.is-partial, .mp-chip.is-missing { color: var(--foreground); }

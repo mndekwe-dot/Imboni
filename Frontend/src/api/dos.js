@@ -175,3 +175,7 @@ export const downloadExamPaperPdf = (id, scheme = false) =>
             responseType: 'blob',
             ...progress,
         }))
+
+// Marks submission: who has handed in what this term, and a nudge for those who have not.
+export const getMarksProgress = (params) => client.get('/imboni/dos/results/progress/', { params })
+export const remindTeachers  = (data = {}) => client.post('/imboni/dos/results/remind/', data)
