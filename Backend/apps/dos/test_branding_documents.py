@@ -193,3 +193,73 @@ class TestInstallableApp:
         assert client.get('/imboni/dos/branding/icon/192/').status_code == 404
         setting.logo.save('mark.png', png_upload(), save=True)
         assert client.get('/imboni/dos/branding/icon/100/').status_code == 404
+
+
+@pytest.mark.django_db
+class TestBrandColor:
+    def test_a_readable_colour_saves_and_is_public(self, make_authenticated_client, client):
+        api, _ = make_authenticated_client('admin')
+        assert api.patch(SETTINGS_URL, {'brand_color': '#7c2d12'}, format='json').status_code == 200
+        assert client.get('/imboni/dos/branding/').json()['brand_color'] == '#7c2d12'
+
+    def test_a_colour_white_text_cannot_be_read_on_is_refused(self, make_authenticated_client):
+        api, _ = make_authenticated_client('admin')
+        res = api.patch(SETTINGS_URL, {'brand_color': '#ffeb3b'}, format='json')
+        assert res.status_code == 400 and 'brand_color' in res.json()
+
+    def test_junk_is_refused_and_blank_resets(self, make_authenticated_client, setting):
+        api, _ = make_authenticated_client('admin')
+        assert api.patch(SETTINGS_URL, {'brand_color': 'red'}, format='json').status_code == 400
+        assert api.patch(SETTINGS_URL, {'brand_color': '#7c2d12'}, format='json').status_code == 200
+        assert api.patch(SETTINGS_URL, {'brand_color': ''}, format='json').status_code == 200
+        setting.refresh_from_db()
+        assert setting.brand_color == ''
+
+    def test_the_letterhead_uses_the_schools_colour(self, setting):
+        from django.template.loader import render_to_string
+        setting.brand_color = '#7c2d12'
+        setting.save()
+        html = render_to_string('documents/finance_cash.html', document_context('Cash', position={}, movements=[]))
+        assert '#7c2d12' in html and '#14532d' not in html
+
+
+@pytest.mark.django_db
+class TestDocumentWording:
+    def test_defaults_when_nothing_is_set(self, setting):
+        from apps.common.branding import document_text
+        assert document_text()['report_signatory_right'] == 'The School HeadMaster'
+
+    def test_the_school_can_reword_what_it_prints(self, make_authenticated_client, setting):
+        api, _ = make_authenticated_client('admin')
+        body = {'document_text': {'motto': 'Learn to lead', 'report_signatory_right': 'Head Teacher',
+                                  'footer_text': 'P.O. Box 12, Kigali'}}
+        assert api.patch(SETTINGS_URL, body, format='json').status_code == 200
+        from django.template.loader import render_to_string
+        html = render_to_string('documents/finance_cash.html', document_context('Cash', position={}, movements=[]))
+        assert 'Learn to lead' in html and 'P.O. Box 12, Kigali' in html
+        assert document_context('x')['doc']['report_signatory_right'] == 'Head Teacher'
+
+    def test_wording_is_escaped_not_run_as_a_template(self, setting):
+        from django.template.loader import render_to_string
+        setting.document_text = {'motto': '<script>x</script>{{ 7|add:7 }}'}
+        setting.save()
+        html = render_to_string('documents/finance_cash.html', document_context('Cash', position={}, movements=[]))
+        assert '<script>x' not in html and '14' not in html.split('lh-contact')[1][:80]
+
+    def test_unknown_keys_and_overlong_text_are_refused(self, make_authenticated_client):
+        api, _ = make_authenticated_client('admin')
+        assert api.patch(SETTINGS_URL, {'document_text': {'template': '<b>'}}, format='json').status_code == 400
+        assert api.patch(SETTINGS_URL, {'document_text': {'motto': 'x' * 500}}, format='json').status_code == 400
+
+    def test_exam_default_instructions_fill_in_only_when_the_paper_has_none(self, setting):
+        from django.template.loader import render_to_string
+        setting.document_text = {'exam_instructions': 'Answer all questions.'}
+        setting.save()
+        paper = type('P', (), {'title': 'T', 'class_obj': type('C', (), {'name': 'S1'})(), 'instructions': '',
+                               'term': type('Tm', (), {'term': 'Term 1', 'year': 2026})(), 'total_marks': 10})()
+        ctx = {**branding_context(), 'paper': paper, 'sections': [], 'scheme': False, 'draft': False,
+               'total_marks': 10, 'printed_on': None}
+        assert 'Answer all questions.' in render_to_string('reports/exam_paper.html', ctx)
+        paper.instructions = 'Use black ink.'
+        out = render_to_string('reports/exam_paper.html', ctx)
+        assert 'Use black ink.' in out and 'Answer all questions.' not in out

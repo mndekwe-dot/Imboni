@@ -2311,12 +2311,12 @@ class SchoolSettingsView(APIView):
 
 class SchoolBrandingView(APIView):
     """
-    GET /imboni/dos/branding/  — the school's name and logo, unauthenticated.
+    GET /imboni/dos/branding/  — the school's name, logo and colour, unauthenticated.
 
     The sign-in screen has to show whose school this is BEFORE anyone signs in,
     so this cannot sit behind IsDOSOrAdmin like the rest of school-settings.
 
-    It returns two fields and nothing else. The tenant is already decided by
+    It returns three fields and nothing else. The tenant is already decided by
     the Host header (django-tenants resolves the subdomain), so this leaks
     nothing that visiting the subdomain did not already reveal - but that is
     only true while the field list stays exactly this short. Do not widen it:
@@ -2334,6 +2334,9 @@ class SchoolBrandingView(APIView):
             # Absolute, because the sign-in page may be served from a different
             # origin than the media host in some deployments.
             'logo': request.build_absolute_uri(logo.url) if logo else None,
+            # '' means the product's own blue. Public because the sign-in page
+            # is already in the school's colour before anyone signs in.
+            'brand_color': settings.brand_color or '',
         })
 
 

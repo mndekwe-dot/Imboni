@@ -4,11 +4,10 @@ import { getSchoolBranding } from '../api/branding'
 /**
  * The school's own name and logo, for the sidebar and the sign-in screens.
  *
- * Branding is deliberately just these two things. A school cannot set its own
- * chrome colour, because a school free to choose one is free to choose a pale
- * colour that swallows its own sidebar — and no amount of palette derivation
- * makes white text on pale yellow readable. The chrome is fixed; the identity
- * is the mark and the name.
+ * Branding is the school's name, its mark and one colour. The colour is only
+ * accepted when white text stays readable on it (the sidebar and every primary
+ * button put white on it), which is checked in the picker and again on the
+ * server, so a school cannot choose one that swallows its own sidebar.
  *
  * Cached at module scope rather than fetched per mount: every page renders a
  * Sidebar, and branding changes about once in a school's lifetime. Without
@@ -31,7 +30,7 @@ function load() {
         /* A school with no branding set is the normal case, and the sign-in
            screen must render either way — so a failure here resolves to
            empty rather than rejecting and taking the page down with it. */
-        .catch(() => { cache = cache || { school_name: '', logo: null }; return cache })
+        .catch(() => { cache = cache || { school_name: '', logo: null, brand_color: '' }; return cache })
         .finally(() => { inFlight = null })
     return inFlight
 }
@@ -57,6 +56,7 @@ export function useSchoolBranding() {
     return {
         schoolName: branding?.school_name || '',
         logo: branding?.logo || null,
+        brandColor: branding?.brand_color || '',
         loaded: branding !== null,
     }
 }

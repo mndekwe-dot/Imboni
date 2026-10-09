@@ -65,7 +65,7 @@ class TestBrandingExposesNothingElse:
 
         body = client.get(URL).json()
 
-        assert set(body) == {'school_name', 'logo'}
+        assert set(body) == {'school_name', 'logo', 'brand_color'}
         assert 'currency' not in body
         assert 'timezone' not in body
         assert 'terms' not in body

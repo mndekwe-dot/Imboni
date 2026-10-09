@@ -38,4 +38,12 @@ describe('useBrandedTab', () => {
         expect(document.querySelector('link[rel~="icon"]').getAttribute('href')).toBe('/icon-192.png')
         expect(document.querySelector('link[rel="manifest"]').getAttribute('href')).toBe('/manifest.webmanifest')
     })
+
+    it('recolours the page for the school and restores the product colour on unmount', async () => {
+        getSchoolBranding.mockResolvedValue({ school_name: 'Green Hills', logo: null, brand_color: '#7c2d12' })
+        const { unmount } = renderHook(() => useBrandedTab())
+        await waitFor(() => expect(document.documentElement.style.getPropertyValue('--primary')).toBe('#7c2d12'))
+        unmount()
+        expect(document.documentElement.style.getPropertyValue('--primary')).toBe('')
+    })
 })

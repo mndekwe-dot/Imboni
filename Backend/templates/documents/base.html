@@ -28,8 +28,8 @@ it needs.
 
         body { font-family: Helvetica, Arial, sans-serif; font-size: 9.5pt; color: #111; }
 
-        .lh          { width: 100%; border-bottom: 1.5pt solid #14532d; padding-bottom: 6pt; }
-        .lh-school   { font-size: 15pt; font-weight: bold; color: #14532d; }
+        .lh          { width: 100%; border-bottom: 1.5pt solid {{ brand_color }}; padding-bottom: 6pt; }
+        .lh-school   { font-size: 15pt; font-weight: bold; color: {{ brand_color }}; }
         .lh-contact  { font-size: 8pt; color: #555; }
         .lh-meta     { text-align: right; font-size: 8pt; color: #555; }
 
@@ -40,13 +40,13 @@ it needs.
         table.grid th {
             background: #f0f4f1; border-bottom: 1pt solid #cbd5cd;
             padding: 5pt 4pt; text-align: left; font-size: 8.5pt;
-            text-transform: uppercase; letter-spacing: 0.3pt; color: #14532d;
+            text-transform: uppercase; letter-spacing: 0.3pt; color: {{ brand_color }};
         }
         table.grid td { border-bottom: 0.5pt solid #e2e8e4; padding: 5pt 4pt; }
         /* Money reads right-aligned or the eye cannot compare two figures. */
         .num { text-align: right; }
         table.grid tr.total td {
-            font-weight: bold; border-top: 1pt solid #14532d; border-bottom: none;
+            font-weight: bold; border-top: 1pt solid {{ brand_color }}; border-bottom: none;
             background: #f7faf8;
         }
 
@@ -98,13 +98,14 @@ it needs.
     </tr>
 </table>
 
+{% if doc.motto %}<div class="lh-contact" style="font-style: italic; margin-top: 2pt;">{{ doc.motto }}</div>{% endif %}
 <div class="doc-title">{{ title }}</div>
 {% if subtitle %}<div class="doc-subtitle">{{ subtitle }}</div>{% endif %}
 
 {% block content %}{% endblock %}
 
 <div id="page-footer">
-    {{ school_name }} &middot; {{ title }} &middot; page <pdf:pagenumber> of <pdf:pagecount>
+    {{ school_name }} &middot; {{ title }}{% if doc.footer_text %} &middot; {{ doc.footer_text }}{% endif %} &middot; page <pdf:pagenumber> of <pdf:pagecount>
 </div>
 
 </body>

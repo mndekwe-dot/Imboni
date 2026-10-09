@@ -6,6 +6,8 @@ import { useNotifications } from '../../hooks/useNotifications'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { SchoolStructureEditor } from '../../components/settings/SchoolStructureEditor'
 import { SchoolBrandingBlock } from '../../components/settings/SchoolBrandingBlock'
+import { BrandColorBlock } from '../../components/settings/BrandColorBlock'
+import { DocumentWordingBlock } from '../../components/settings/DocumentWordingBlock'
 import { refreshSchoolBranding } from '../../hooks/useSchoolBranding'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { yearsFromConfig } from '../../utils/classes'
@@ -208,6 +210,7 @@ function SchoolInfoSection() {
             </div>
 
             <SchoolBrandingBlock />
+            <BrandColorBlock />
 
             <div className="settings-block">
                 <div className="settings-block-label">
@@ -308,6 +311,8 @@ function SchoolInfoSection() {
                     {saved ? t('settings.savedBang') : saving ? t('common.saving') : t('admin.settings.saveChanges')}
                 </button>
             </div>
+
+            <DocumentWordingBlock initial={setting.document_text} />
         </div>
     )
 }

@@ -244,6 +244,18 @@ class SchoolSetting(models.Model):
     contact_email = models.EmailField(blank=True, default='')
     contact_phone = models.CharField(max_length=30, blank=True, default='')
 
+    # The school's own colour: buttons, links and the sidebar follow it. Blank
+    # means the product's blue. A colour is only accepted when white text stays
+    # readable on it (WCAG AA), which is what the chrome and every primary
+    # button put on it, so a school cannot pick one that swallows its sidebar.
+    brand_color = models.CharField(max_length=7, blank=True, default='')
+
+    # The wording a school may change on what it prints. Every key is optional
+    # and plain text (see apps.common.branding.DOCUMENT_TEXT_FIELDS); there is
+    # deliberately no raw-HTML editing, which on a multi-tenant server would let
+    # a school run template code.
+    document_text = models.JSONField(default=dict, blank=True)
+
     # ISO 4217 code the school bills in. Amounts were formatted with a literal
     # in the UI ('KES' in one modal, 'RWF' elsewhere), so a school outside
     # Rwanda had no way to correct it and the two disagreed with each other.

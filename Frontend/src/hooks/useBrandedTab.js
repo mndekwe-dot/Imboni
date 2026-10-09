@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { useSchoolBranding } from './useSchoolBranding'
+import { applyBrandTheme } from '../utils/brandTheme'
 
 const DEFAULT_TITLE = 'Imboni'
 
@@ -10,12 +11,13 @@ const DEFAULT_TITLE = 'Imboni'
  * who works at another, finds the right one by its title and icon. Without
  * this every tab on every school reads "Imboni". The school's name replaces
  * the title and its logo the favicon; with neither set the product's own stay.
+ * Its colour recolours the whole interface from here too.
  *
  * Call it once per screen that shows the school's chrome (the sidebar and the
  * sign-in pages already do). It puts the original back on unmount.
  */
 export function useBrandedTab() {
-    const { schoolName, logo } = useSchoolBranding()
+    const { schoolName, logo, brandColor } = useSchoolBranding()
 
     useEffect(() => {
         if (!schoolName) return
@@ -23,6 +25,12 @@ export function useBrandedTab() {
         document.title = schoolName
         return () => { document.title = previous || DEFAULT_TITLE }
     }, [schoolName])
+
+    useEffect(() => {
+        if (!brandColor) return
+        applyBrandTheme(brandColor)
+        return () => applyBrandTheme('')
+    }, [brandColor])
 
     // The installable app too: "Add to home screen" and "Install" read the
     // manifest, so the shortcut carries the school's name and mark. Only once

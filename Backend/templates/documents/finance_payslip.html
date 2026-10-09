@@ -1,6 +1,6 @@
 {% extends "documents/base.html" %}{% load humanize %}
 {% block doc_styles %}
-    .net { font-size: 16pt; font-weight: bold; color: #14532d; }
+    .net { font-size: 16pt; font-weight: bold; color: {{ brand_color }}; }
 {% endblock %}
 {% block content %}
 <table class="grid">

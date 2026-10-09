@@ -135,10 +135,10 @@
         </div>
     {% endif %}
 
-    {% if paper.instructions %}
+    {% if paper.instructions or doc.exam_instructions %}
         <div class="instructions">
             <div class="h">Instructions to candidates</div>
-            {{ paper.instructions|linebreaksbr }}
+            {{ paper.instructions|default:doc.exam_instructions|linebreaksbr }}
         </div>
     {% endif %}
 

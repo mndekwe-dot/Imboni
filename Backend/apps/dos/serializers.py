@@ -337,7 +337,22 @@ class SchoolSettingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SchoolSetting
-        fields = ['timezone', 'school_name', 'terms', 'currency', 'logo', 'contact_email', 'contact_phone']
+        fields = ['timezone', 'school_name', 'terms', 'currency', 'logo', 'contact_email', 'contact_phone',
+                  'brand_color', 'document_text']
+
+    def validate_brand_color(self, value):
+        from apps.common.branding import validate_brand_color
+        try:
+            return validate_brand_color(value)
+        except ValueError as exc:
+            raise serializers.ValidationError(str(exc))
+
+    def validate_document_text(self, value):
+        from apps.common.branding import clean_document_text
+        try:
+            return clean_document_text(value)
+        except ValueError as exc:
+            raise serializers.ValidationError(str(exc))
 
     def validate_currency(self, value):
         # ISO 4217 is three uppercase letters. Stored uppercase so the UI can

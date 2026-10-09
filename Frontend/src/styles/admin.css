@@ -576,3 +576,25 @@
   background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: var(--space-2);
 }
 .brand-logo-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+
+/* ── School colour and document wording ── */
+.brand-color { display: flex; flex-direction: column; gap: var(--space-3); }
+.brand-color-swatches { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.brand-swatch {
+  width: 32px; height: 32px; border-radius: var(--radius-full); border: 2px solid var(--card);
+  box-shadow: 0 0 0 1px var(--border); cursor: pointer; padding: 0;
+}
+.brand-swatch.is-on { box-shadow: 0 0 0 2px var(--foreground); }
+.brand-color-input { display: flex; gap: var(--space-2); align-items: center; }
+.brand-color-input .form-input { max-width: 120px; font-variant-numeric: tabular-nums; }
+.brand-color-picker { width: 44px; height: 44px; padding: 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card); cursor: pointer; }
+.brand-color-preview { display: flex; gap: var(--space-2); align-items: center; flex-wrap: wrap; }
+.brand-preview-bar, .brand-preview-btn {
+  color: #fff; font-size: var(--text-sm); font-weight: 600; padding: var(--space-2) var(--space-4); border-radius: var(--radius);
+}
+.brand-color-note { font-size: var(--text-sm); color: var(--muted-foreground); }
+.brand-color-note.is-bad { color: var(--destructive-text); font-weight: 600; }
+.doc-wording { display: flex; flex-direction: column; gap: var(--space-3); margin-top: var(--space-5); }
+.doc-wording-group { font-weight: 600; margin-top: var(--space-3); }
+.doc-wording-field { display: flex; flex-direction: column; gap: var(--space-1); font-size: var(--text-sm); }
+.doc-wording-field textarea { resize: vertical; }

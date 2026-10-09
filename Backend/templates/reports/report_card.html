@@ -228,11 +228,12 @@
     <!-- Footer -->
     <div class="footer">
         <div>
-            <div>Class Teacher's Signature:</div>
+            {% if doc.report_note %}<div style="margin-bottom: 8px; max-width: 360px;">{{ doc.report_note|linebreaksbr }}</div>{% endif %}
+            <div>{{ doc.report_signatory_left }}</div>
             <div class="signature-line"></div>
         </div>
         <div class="headmaster">
-            The School HeadMaster
+            {{ doc.report_signatory_right }}
             {% if stamp_url %}
             <br>
             <img class="stamp" src="{{ stamp_url }}" alt="School Stamp">
