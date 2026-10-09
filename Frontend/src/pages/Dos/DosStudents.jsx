@@ -223,18 +223,18 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                         <div className="form-group">
                             <label className="form-label">{t('common.firstNameRequired')}</label>
                             <input className="form-control" placeholder={t('dos.students.egFirstName')} autoFocus
-                                value={student.first_name} onChange={e => setStudent(p => ({ ...p, first_name: e.target.value }))} />
+                                value={student.first_name} onChange={e => setStudent(p => ({ ...p, first_name: e.target.value }))}  aria-label={t('dos.students.egFirstName')}/>
                         </div>
                         <div className="form-group">
                             <label className="form-label">{t('common.lastNameRequired')}</label>
                             <input className="form-control" placeholder={t('dos.students.egLastName')}
-                                value={student.last_name} onChange={e => setStudent(p => ({ ...p, last_name: e.target.value }))} />
+                                value={student.last_name} onChange={e => setStudent(p => ({ ...p, last_name: e.target.value }))}  aria-label={t('dos.students.egLastName')}/>
                         </div>
                     </div>
                     <div className="form-group">
                         <label className="form-label">{t('common.emailAddressRequired')}</label>
                         <input className="form-control" type="email" placeholder="student@example.com"
-                            value={student.email} onChange={e => setStudent(p => ({ ...p, email: e.target.value }))} />
+                            value={student.email} onChange={e => setStudent(p => ({ ...p, email: e.target.value }))}  aria-label="student@example.com"/>
                     </div>
                     {/* Streams follow the year: the hand-built pair offered every
                         stream in the school under S1, A-Level combinations included. */}
@@ -251,24 +251,24 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                         <div className="form-group">
                             <label className="form-label">{t('common.firstNameRequired')}</label>
                             <input className="form-control" placeholder={t('dos.students.egParentFirstName')}
-                                value={parent.first_name} onChange={e => setParent(p => ({ ...p, first_name: e.target.value }))} />
+                                value={parent.first_name} onChange={e => setParent(p => ({ ...p, first_name: e.target.value }))}  aria-label={t('dos.students.egParentFirstName')}/>
                         </div>
                         <div className="form-group">
                             <label className="form-label">{t('common.lastNameRequired')}</label>
                             <input className="form-control" placeholder={t('dos.students.egLastName')}
-                                value={parent.last_name} onChange={e => setParent(p => ({ ...p, last_name: e.target.value }))} />
+                                value={parent.last_name} onChange={e => setParent(p => ({ ...p, last_name: e.target.value }))}  aria-label={t('dos.students.egLastName')}/>
                         </div>
                     </div>
                     <div className="resp-grid-2 dos-grid-gap">
                         <div className="form-group">
                             <label className="form-label">{t('common.emailAddress')}</label>
                             <input className="form-control" type="email" placeholder="parent@example.com"
-                                value={parent.email} onChange={e => setParent(p => ({ ...p, email: e.target.value }))} />
+                                value={parent.email} onChange={e => setParent(p => ({ ...p, email: e.target.value }))}  aria-label="parent@example.com"/>
                         </div>
                         <div className="form-group">
                             <label className="form-label">{t('common.phoneNumber')}</label>
                             <input className="form-control" placeholder={t('dos.students.phonePlaceholder')}
-                                value={parent.phone_number} onChange={e => setParent(p => ({ ...p, phone_number: e.target.value }))} />
+                                value={parent.phone_number} onChange={e => setParent(p => ({ ...p, phone_number: e.target.value }))}  aria-label={t('dos.students.phonePlaceholder')}/>
                         </div>
                     </div>
                     <p className="dos-form-note">
@@ -586,7 +586,7 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated }) {
                             </div>
                             <div className="form-group dos-mb-half">
                                 <label className="form-label">{t('common.notes')} <span className="dos-optional">{t('common.optional')}</span></label>
-                                <input className="form-control" placeholder={t('dos.students.egLeaderNotes')} value={leaderNotes} onChange={e => setLeaderNotes(e.target.value)} />
+                                <input className="form-control" placeholder={t('dos.students.egLeaderNotes')} value={leaderNotes} onChange={e => setLeaderNotes(e.target.value)}  aria-label={t('dos.students.egLeaderNotes')}/>
                             </div>
                             <div className="modal-confirm-actions">
                                 <button className="btn btn-outline btn-sm" onClick={() => { setAppointOpen(false); setLeaderRole(''); setLeaderNotes('') }}>{t('common.cancel')}</button>

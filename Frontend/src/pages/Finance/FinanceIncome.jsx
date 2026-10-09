@@ -197,7 +197,7 @@ function IncomeModal({ categories, accounts, onClose, onSaved }) {
                     <div className="fin-add-category-row">
                         <input className="form-input" value={newCategory}
                             onChange={e => setNewCategory(e.target.value)}
-                            placeholder={t('finance.income.newCategoryPlaceholder')} />
+                            placeholder={t('finance.income.newCategoryPlaceholder')}  aria-label={t('finance.income.newCategoryPlaceholder')}/>
                         <button type="button" className="btn btn-outline btn-sm"
                             onClick={addCategory} disabled={!newCategory.trim()}>
                             {t('common.add')}

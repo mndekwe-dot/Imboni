@@ -65,7 +65,7 @@ function ConfigSection({ title, description, items, onAdd, onRemove, placeholder
                     onChange={e => setInput(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAdd()}
                     placeholder={placeholder}
-                />
+                 aria-label={placeholder}/>
                 <button className="btn btn-primary btn-sm" onClick={handleAdd}>
                     <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('common.add')}
                 </button>
@@ -92,7 +92,7 @@ function YearInput({ onAdd }) {
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handle()}
                 placeholder={t('settings.structure.yearPlaceholder')}
-            />
+             aria-label={t('settings.structure.yearPlaceholder')}/>
             <button className="btn btn-primary btn-sm" onClick={handle}>
                 <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('settings.structure.addYear')}
             </button>
@@ -137,11 +137,11 @@ function YearBlock({ year, onRename, onRemove, onAddStream, onRemoveStream }) {
                 ) : (
                     <>
                         <span className="adm-editblock-title">{year.name}</span>
-                        <button className="btn-icon-clean adm-icon-muted" onClick={() => setEditing(true)} title={t('settings.structure.renameYear')}>
+                        <button className="btn-icon-clean adm-icon-muted" onClick={() => setEditing(true)} title={t('settings.structure.renameYear')} aria-label={t('settings.structure.renameYear')}>
                             <span className="material-symbols-rounded u-fs-1" aria-hidden="true">edit</span>
                         </button>
                         <div className="adm-spacer" />
-                        <button className="btn-icon-clean adm-icon-danger" onClick={onRemove} title={t('settings.structure.removeYear')}>
+                        <button className="btn-icon-clean adm-icon-danger" onClick={onRemove} title={t('settings.structure.removeYear')} aria-label={t('settings.structure.removeYear')}>
                             <span className="material-symbols-rounded u-fs-1" aria-hidden="true">delete</span>
                         </button>
                     </>
@@ -167,7 +167,7 @@ function YearBlock({ year, onRename, onRemove, onAddStream, onRemoveStream }) {
                     onChange={e => setStreamInput(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAddStream()}
                     placeholder={t('settings.structure.streamPlaceholder')}
-                />
+                 aria-label={t('settings.structure.streamPlaceholder')}/>
                 <button className="btn btn-outline btn-sm" onClick={handleAddStream}>
                     <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('settings.structure.stream')}
                 </button>

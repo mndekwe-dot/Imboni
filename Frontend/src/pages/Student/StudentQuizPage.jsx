@@ -113,7 +113,7 @@ function QuestionCard({ q, qi, total, answer, onChange, submitted, result }) {
                         value={answer || ''}
                         disabled={submitted}
                         onChange={e => !submitted && onChange(e.target.value)}
-                    />
+                     aria-label={q.type === 'fill_blank' ? 'Fill in the blank…' : 'Type your answer…'}/>
                     {isGraded && result?.correct_answer && (
                         <div className="sqz-sa-feedback" style={{ color: isCorrect ? 'var(--success)' : '#dc2626' }}>
                             {isCorrect ? 'Correct!' : `Model answer: ${result.correct_answer}`}

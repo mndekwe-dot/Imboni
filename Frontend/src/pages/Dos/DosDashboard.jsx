@@ -432,7 +432,7 @@ export function DosDashboard() {
                                             onChange={e => setTaskTitle(e.target.value)}
                                             onKeyDown={e => e.key === 'Enter' && handleCreateTask()}
                                             autoFocus
-                                        />
+                                         aria-label={t('common.taskTitlePlaceholder')}/>
                                         <div className="u-row-sm u-wrap">
                                             {['low', 'medium', 'high'].map(p => (
                                                 <label key={p} className={`dos-prio-opt${taskPriority === p ? ' on' : ''}`}>

@@ -255,7 +255,7 @@ export function DisDashboard() {
                                                     onChange={e => setTaskTitle(e.target.value)}
                                                     onKeyDown={e => e.key === 'Enter' && handleCreateTask()}
                                                     autoFocus
-                                                />
+                                                 aria-label={t('common.taskTitlePlaceholder')}/>
                                                 <div className="dis-prio-row">
                                                     {['low', 'medium', 'high'].map(p => (
                                                         <label key={p} className={`dis-prio-opt${taskPriority === p ? ' on' : ''}`}>

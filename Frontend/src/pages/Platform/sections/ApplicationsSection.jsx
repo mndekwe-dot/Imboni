@@ -7,6 +7,7 @@ import {
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
 import { formatDate } from '../../../utils/date'
+import { SkeletonList } from '../../../components/ui/Skeleton'
 
 const STATUS_CLS = { pending: 'warn', approved: 'info', rejected: 'bad', provisioned: 'ok' }
 const FILTERS = [['', 'All'], ['pending', 'Pending'], ['approved', 'Approved'], ['provisioned', 'Provisioned'], ['rejected', 'Rejected']]
@@ -152,7 +153,7 @@ export function ApplicationsSection() {
                 </div>
 
                 {loading ? (
-                    <p className="platform-muted">Loading…</p>
+                    <SkeletonList items={3} />
                 ) : apps.length === 0 ? (
                     <p className="platform-muted">No applications. Prospective schools apply at <code>/apply</code>.</p>
                 ) : (

@@ -4,6 +4,7 @@ import {
 } from '../../../api/platform'
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
+import { SkeletonList } from '../../../components/ui/Skeleton'
 
 const STATUS_CLS = { open: 'warn', in_progress: 'info', resolved: 'ok', closed: 'bad' }
 const PRIORITY_CLS = { low: 'info', normal: 'info', high: 'warn', urgent: 'bad' }
@@ -161,7 +162,7 @@ export function TicketsSection() {
                         </select>
                     </div>
                     {loading ? (
-                        <p className="platform-muted">Loading…</p>
+                        <SkeletonList items={3} />
                     ) : tickets.length === 0 ? (
                         <p className="platform-muted">No tickets.</p>
                     ) : tickets.map(t => (
@@ -211,7 +212,7 @@ export function TicketsSection() {
                             </div>
 
                             <form onSubmit={sendReply}>
-                                <textarea className="form-input" rows={3} placeholder="Write a reply…" value={reply} onChange={e => setReply(e.target.value)} />
+                                <textarea className="form-input" rows={3} placeholder="Write a reply…" value={reply} onChange={e => setReply(e.target.value)}  aria-label="Write a reply…"/>
                                 <div className="platform-reply-actions">
                                     <div className="platform-status-actions">
                                         {selected.status !== 'resolved' && <button type="button" className="btn btn-outline btn-sm" disabled={busy} onClick={() => changeStatus('resolved')}>Resolve</button>}

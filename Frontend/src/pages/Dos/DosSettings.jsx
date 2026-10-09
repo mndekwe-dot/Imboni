@@ -88,11 +88,11 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                     <>
                         <span className="dset-type-title">{typeName}</span>
                         <span className="dset-type-count">{t('settings.lessonCount', { count: subjects.length })}</span>
-                        <button className="btn-icon-clean dset-icon-muted" onClick={() => setEditingType(true)} title={t('settings.renameType')}>
+                        <button className="btn-icon-clean dset-icon-muted" onClick={() => setEditingType(true)} title={t('settings.renameType')} aria-label={t('settings.renameType')}>
                             <span className="material-symbols-rounded u-fs-1" aria-hidden="true">edit</span>
                         </button>
                         <div className="dset-spacer" />
-                        <button className="btn-icon-clean dos-danger-text" onClick={() => onDeleteType(typeName)} title={t('settings.deleteTypeAndLessons')}>
+                        <button className="btn-icon-clean dos-danger-text" onClick={() => onDeleteType(typeName)} title={t('settings.deleteTypeAndLessons')} aria-label={t('settings.deleteTypeAndLessons')}>
                             <span className="material-symbols-rounded u-fs-1" aria-hidden="true">delete</span>
                         </button>
                     </>
@@ -127,10 +127,10 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                                 onChange={v => onLessonWeight(s.id, { timetable_weight: v })}
                                 title={t('dos.settings.timetableWeightTitle', { subject: s.name })}
                             />
-                            <button className="btn-icon-clean dset-icon-muted" onClick={() => startEditLesson(s)} title={t('common.rename')}>
+                            <button className="btn-icon-clean dset-icon-muted" onClick={() => startEditLesson(s)} title={t('common.rename')} aria-label={t('common.rename')}>
                                 <span className="material-symbols-rounded u-fs-095" aria-hidden="true">edit</span>
                             </button>
-                            <button className="btn-icon-clean dos-danger-text" onClick={() => onDeleteLesson(s.id)} title={t('common.delete')}>
+                            <button className="btn-icon-clean dos-danger-text" onClick={() => onDeleteLesson(s.id)} title={t('common.delete')} aria-label={t('common.delete')}>
                                 <span className="material-symbols-rounded u-fs-095" aria-hidden="true">delete</span>
                             </button>
                         </>
@@ -145,11 +145,11 @@ function TypeBlock({ typeName, subjects, onRenameType, onDeleteType, onAddLesson
                 <input className="form-input dset-input-lesson"
                     value={lessonName} onChange={e => setLessonName(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAddLesson()}
-                    placeholder={t('settings.lessonNamePlaceholder')} />
+                    placeholder={t('settings.lessonNamePlaceholder')}  aria-label={t('settings.lessonNamePlaceholder')}/>
                 <input className="form-input dset-input-code"
                     value={lessonCode} onChange={e => setLessonCode(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleAddLesson()}
-                    placeholder={t('settings.lessonCodePlaceholder')} />
+                    placeholder={t('settings.lessonCodePlaceholder')}  aria-label={t('settings.lessonCodePlaceholder')}/>
                 <button className="btn btn-outline btn-sm" onClick={handleAddLesson}>
                     <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('settings.lesson')}
                 </button>
@@ -382,7 +382,7 @@ export function DosSettings() {
                                             onChange={e => setNewTypeName(e.target.value)}
                                             onKeyDown={e => e.key === 'Enter' && handleAddType()}
                                             placeholder={t('settings.egSciences')}
-                                        />
+                                         aria-label={t('settings.egSciences')}/>
                                         <button className="btn btn-primary btn-sm" onClick={handleAddType}>
                                             <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span> {t('settings.addType')}
                                         </button>
@@ -431,7 +431,7 @@ export function DosSettings() {
                                             onChange={e => { setRoomInput(e.target.value); setRoomErr('') }}
                                             onKeyDown={e => e.key === 'Enter' && handleAddRoom()}
                                             placeholder={t('settings.roomPlaceholder')}
-                                        />
+                                         aria-label={t('settings.roomPlaceholder')}/>
                                         <input
                                             className="form-input"
                                             type="number" min="1"

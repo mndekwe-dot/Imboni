@@ -62,7 +62,7 @@
 .platform-form > .btn { margin-top: 0.85rem; }              /* submit button under a form */
 
 /* ── Chips ───────────────────────────────────────────────────────────────────── */
-.platform-chip { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: var(--text-caption); font-weight: 600; text-transform: capitalize; }
+.platform-chip { display: inline-block; padding: 0.15rem 0.6rem; border-radius: var(--radius-full); font-size: var(--text-caption); font-weight: 600; text-transform: capitalize; }
 .platform-chip-ok   { background: var(--success-light); color: var(--success); }
 .platform-chip-info { background: var(--primary-light); color: var(--primary); }
 .platform-chip-warn { background: rgba(245, 158, 11, 0.15); color: #b45309; }

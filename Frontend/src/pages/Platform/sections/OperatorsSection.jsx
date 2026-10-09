@@ -7,6 +7,7 @@ import {
 } from '../../../api/platform'
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
+import { SkeletonList } from '../../../components/ui/Skeleton'
 
 // What each role may do, in the operator's own words. Shown next to the picker
 // because "commercial" means nothing until you say what it costs and grants.
@@ -232,7 +233,7 @@ export function OperatorsSection() {
                         )}
 
                         {loading ? (
-                            <p className="platform-muted">Loading…</p>
+                            <SkeletonList items={3} />
                         ) : (
                             <div className="data-table-wrap">
                                 <table className="data-table">

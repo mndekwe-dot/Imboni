@@ -6,6 +6,7 @@ import { toList } from '../../api/client'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import '../../styles/dos.css'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 /* One row per student, low marks and chronic absence merged, with a chip per reason. */
 export function buildAttentionList(atRisk, chronic, t) {
@@ -75,7 +76,7 @@ export function StudentsNeedingAttention({ termId, limit, seeAllTo }) {
             </div>
             <div className="card-content">
                 {loading ? (
-                    <p className="empty-note">{t('common.loading')}</p>
+                    <SkeletonList items={3} />
                 ) : attention.length === 0 ? (
                     <p className="empty-note">{t('dos.results.attentionNone')}</p>
                 ) : (

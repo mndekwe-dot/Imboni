@@ -329,12 +329,11 @@
   gap: var(--space-3);
   padding: var(--space-3);
   border: 1px solid var(--border);
-  border-left-width: 3px;
   border-radius: var(--radius);
   background: var(--surface-2);
   margin-top: var(--space-3);
 }
-.scan-result-copy     { border-left-color: var(--success, #16a34a); }
-.scan-result-title    { border-left-color: var(--warning, #b45309); }
-.scan-result-isbn     { border-left-color: var(--primary); }
-.scan-result-unknown  { border-left-color: var(--destructive); }
+.scan-result-copy     { border-color: var(--success, #16a34a); }
+.scan-result-title    { border-color: var(--warning, #b45309); }
+.scan-result-isbn     { border-color: var(--primary); }
+.scan-result-unknown  { border-color: var(--destructive); }

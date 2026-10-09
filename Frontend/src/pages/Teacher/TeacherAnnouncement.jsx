@@ -112,7 +112,7 @@ function AnnouncementCard({ ann, onEdit, onDelete, onPublish, busy }) {
                             onClick={() => onPublish(ann)}
                             disabled={busy === ann.id}
                             title={t('common.publishNow')}
-                        >
+                         aria-label={t('common.publishNow')}>
                             <span className="material-symbols-rounded icon-sm" aria-hidden="true">send</span>
                             {busy === ann.id ? 'Publishing…' : 'Publish'}
                         </button>
@@ -121,14 +121,14 @@ function AnnouncementCard({ ann, onEdit, onDelete, onPublish, busy }) {
                         className="btn btn-outline btn-sm"
                         onClick={() => onEdit(ann)}
                         title={t('common.edit')}
-                    >
+                     aria-label={t('common.edit')}>
                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">edit</span>
                     </button>
                     <button
                         className="btn btn-outline btn-sm btn-destructive-outline"
                         onClick={() => onDelete(ann)}
                         title={t('common.delete')}
-                    >
+                     aria-label={t('common.delete')}>
                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
                     </button>
                 </div>
@@ -364,7 +364,7 @@ export function TeacherAnnouncement() {
                                             type="text" className="input" name="title"
                                             value={form.title} onChange={handleChange}
                                             placeholder={t('teacher.announcements.titlePlaceholder')}
-                                        />
+                                         aria-label={t('teacher.announcements.titlePlaceholder')}/>
                                     </div>
 
                                     {/* Message + char count */}
@@ -380,7 +380,7 @@ export function TeacherAnnouncement() {
                                             value={form.content} onChange={handleChange}
                                             placeholder={t('teacher.announcements.bodyPlaceholder')}
                                             maxLength={1000}
-                                        />
+                                         aria-label={t('teacher.announcements.bodyPlaceholder')}/>
                                     </div>
 
                                     {error && (

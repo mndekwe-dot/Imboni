@@ -77,7 +77,7 @@ function RejectModal({ result, onClose, onDone }) {
                             onChange={e => { setReason(e.target.value); setError('') }}
                             placeholder={t('admin.approvals.rejectReasonPlaceholder')}
                             autoFocus
-                        />
+                         aria-label={t('admin.approvals.rejectReasonPlaceholder')}/>
                     </div>
                     {error && <p className="form-error-text">{error}</p>}
                     <div className="u-row-sm u-justify-end">
@@ -127,10 +127,10 @@ function ResultRow({ result, selected, onSelect, onApprove, onReject, status }) 
             {status === 'pending' && (
                 <td>
                     <div className="u-flex u-gap-035">
-                        <button className="adm-btn u-success" title={t('common.approve')} onClick={() => onApprove(result.id)}>
+                        <button className="adm-btn u-success" title={t('common.approve')} onClick={() => onApprove(result.id)} aria-label={t('common.approve')}>
                             <span className="material-symbols-rounded" aria-hidden="true">check_circle</span>
                         </button>
-                        <button className="adm-btn u-destructive" title={t('common.reject')} onClick={() => onReject(result)}>
+                        <button className="adm-btn u-destructive" title={t('common.reject')} onClick={() => onReject(result)} aria-label={t('common.reject')}>
                             <span className="material-symbols-rounded" aria-hidden="true">cancel</span>
                         </button>
                     </div>

@@ -10,6 +10,8 @@ import { formatDate } from '../../utils/date'
 import { getMember, getMembers } from '../../api/library'
 import { formatAmount } from '../Finance/FinanceShell'
 import { LibraryShell } from './LibraryShell'
+import { asRow } from '../../utils/a11y'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 /**
  * Who may borrow, and what they have.
@@ -56,7 +58,7 @@ export function LibraryMembers() {
             {/* A list, not a card grid: the desk scans down names and counts,
                 and four columns of cards wrapped long names and IDs mid-word. */}
             {loading ? (
-                <p className="u-muted">{t('common.loading')}</p>
+                <SkeletonList items={3} />
             ) : (
                 <DataTable
                     icon="people"
@@ -77,7 +79,7 @@ export function LibraryMembers() {
                     emptyDesc={search ? t('common.trySearch') : t('library.members.emptyDesc')}
                     onClearFilters={search ? () => setSearch('') : undefined}
                     renderRow={m => (
-                        <tr key={m.id} className="lib-member-row" onClick={() => setOpenId(m.id)}>
+                        <tr key={m.id} className="lib-member-row" {...asRow(() => setOpenId(m.id))}>
                             <td>
                                 <div className="dt-cell-user">
                                     <div className="dt-avatar">{initials(m.name)}</div>
@@ -125,7 +127,7 @@ function MemberDetail({ id, onClose }) {
             onClose={onClose}
             footer={<button className="btn btn-primary" onClick={onClose}>{t('common.close')}</button>}
         >
-            {!data ? <p className="u-muted">{t('common.loading')}</p> : (
+            {!data ? <SkeletonList items={3} /> : (
                 <>
                     {/* Why they cannot borrow, in the words the server used —
                         "at their limit" and "has an overdue book" need

@@ -10,6 +10,7 @@ import { EmptyState } from '../ui/EmptyState'
 import { ListSection } from '../ui/ListSection'
 import { Modal } from '../ui/Modal'
 import { departmentName } from './departmentName'
+import { SkeletonList } from '../ui/Skeleton'
 
 /**
  * The parts of the school people work in, how many work in each, and who leads it.
@@ -67,7 +68,7 @@ export function DepartmentsPanel() {
                         {t('staff.addDepartment')}
                     </button>
                 )}>
-                {loading ? <p className="u-muted">{t('common.loading')}</p>
+                {loading ? <SkeletonList items={3} />
                     : departments.length === 0 ? (
                         <EmptyState icon="corporate_fare" title={t('staff.noDepartments')}
                             description={t('staff.noDepartmentsDesc')} />

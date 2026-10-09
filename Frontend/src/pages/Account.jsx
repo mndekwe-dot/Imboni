@@ -469,7 +469,7 @@ export function Account() {
                                                     placeholder={t('account.enterCurrentPassword')}
                                                     value={pwForm.old_password}
                                                     onChange={e => setPwForm(f => ({ ...f, old_password: e.target.value }))}
-                                                />
+                                                 aria-label={t('account.enterCurrentPassword')}/>
                                             </div>
                                             <div className="form-group">
                                                 <label className="form-label">{t('account.newPassword')}</label>
@@ -479,7 +479,7 @@ export function Account() {
                                                     placeholder={t('account.enterNewPassword')}
                                                     value={pwForm.new_password}
                                                     onChange={e => setPwForm(f => ({ ...f, new_password: e.target.value }))}
-                                                />
+                                                 aria-label={t('account.enterNewPassword')}/>
                                             </div>
                                         </div>
                                         <div className="form-group">
@@ -490,7 +490,7 @@ export function Account() {
                                                 placeholder={t('account.confirmNewPasswordPlaceholder')}
                                                 value={pwForm.confirm_password}
                                                 onChange={e => setPwForm(f => ({ ...f, confirm_password: e.target.value }))}
-                                            />
+                                             aria-label={t('account.confirmNewPasswordPlaceholder')}/>
                                         </div>
                                         <div className="form-actions">
                                             <button

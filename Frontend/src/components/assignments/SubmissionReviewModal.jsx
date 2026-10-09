@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Modal } from '../ui/Modal'
 import { getSubmissionReview, overrideSubmissionMarks } from '../../api/teacher'
 import { errorMessage } from '../../utils/errors'
+import { SkeletonList } from '../ui/Skeleton'
 
 /**
  * One student's quiz, with the marking open to correction.
@@ -98,7 +99,7 @@ export function SubmissionReviewModal({ submissionId, onClose, onSaved }) {
             }
         >
             {loading ? (
-                <p className="u-muted">{t('common.loading')}</p>
+                <SkeletonList items={3} />
             ) : !data ? (
                 <p className="u-muted">{error}</p>
             ) : (

@@ -18,6 +18,7 @@ import {
     getDebtors, getPayments, getStudentFinance, recordPayment, reversePayment,
 } from '../../api/finance'
 import { FinanceShell, Money, formatAmount, categoryName } from './FinanceShell'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 const METHODS = ['cash', 'momo', 'bank', 'cheque', 'waiver', 'other']
 
@@ -142,7 +143,7 @@ export function FinancePayments() {
                     </tr>
                 )}
             />
-            {loading && <p className="u-pad u-muted">{t('common.loading')}</p>}
+            {loading && <SkeletonList items={3} />}
         </FinanceShell>
     )
 }

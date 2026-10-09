@@ -6,6 +6,7 @@ import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { getLibrarySettings, saveLibrarySettings } from '../../api/library'
 import { LibraryShell } from './LibraryShell'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 /**
  * The library's own rules.
@@ -58,7 +59,7 @@ export function LibrarySettings() {
         <LibraryShell title={t('library.settings.title')} subtitle={t('library.settings.subtitle')}>
             <ListSection icon="settings" title={t('library.settings.rules')}>
                 {loading || !form ? (
-                    <p className="u-muted">{t('common.loading')}</p>
+                    <SkeletonList items={3} />
                 ) : (
                     <>
                         <div className="lib-form-grid">

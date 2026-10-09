@@ -69,7 +69,7 @@ function ForgotPasswordModal({ onClose }) {
                                     placeholder={t('auth.emailPlaceholder')}
                                     value={email}
                                     onChange={e => setEmail(e.target.value)}
-                                />
+                                 aria-label={t('auth.emailPlaceholder')}/>
                             </div>
                         </>
                     )}

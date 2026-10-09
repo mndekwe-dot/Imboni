@@ -23,7 +23,7 @@
 
 /* Thread inside the modal */
 .support-thread { display: flex; flex-direction: column; gap: 0.6rem; }
-.support-msg { border-radius: 10px; padding: 0.65rem 0.85rem; max-width: 90%; }
+.support-msg { border-radius: var(--radius); padding: 0.65rem 0.85rem; max-width: 90%; }
 .support-msg-you { background: var(--muted, #f3f4f6); align-self: flex-start; }
 .support-msg-operator { background: var(--primary-light); align-self: flex-end; }
 .support-msg-who { font-size: var(--text-caption); color: var(--muted-foreground); font-weight: 600; margin-bottom: 0.2rem; }

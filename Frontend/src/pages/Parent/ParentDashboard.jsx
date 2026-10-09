@@ -17,6 +17,7 @@ import '../../styles/components.css'
 import '../../styles/parent.css'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage, partialLoad } from '../../utils/errors'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 const ASSESSMENT_ICON = {
     quiz:          { iconClass: 'quiz',  icon: 'quiz'        },
@@ -185,7 +186,7 @@ export function ParentDashboard() {
                     />
                     <DashboardContent>
                         {loadingChildren ? (
-                            <p className="u-pad u-muted">Loading…</p>
+                            <SkeletonList items={3} />
                         ) : children.length === 0 ? (
                             <p className="u-pad u-muted">No children linked to your account yet.</p>
                         ) : (
@@ -214,7 +215,7 @@ export function ParentDashboard() {
                                             </div>
                                             <div className="card-content">
                                                 {loadingData ? (
-                                                    <p className="u-muted">Loading…</p>
+                                                    <SkeletonList items={3} />
                                                 ) : assessments.length === 0 ? (
                                                     <p className="u-muted">No assessments recorded yet.</p>
                                                 ) : (

@@ -18,6 +18,7 @@ import { formatDate } from '../../utils/date'
 import { LibraryShell } from './LibraryShell'
 import { pill } from '../../utils/tone'
 import { formatAmount } from '../Finance/FinanceShell'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 /**
  * Counting the shelves against the catalogue.
@@ -97,7 +98,7 @@ export function LibraryStocktake() {
 
             <ListSection icon="inventory" title={t('library.stocktake.counts')}
                 count={loading ? null : counts.length}>
-                {loading ? <p className="u-muted">{t('common.loading')}</p>
+                {loading ? <SkeletonList items={3} />
                     : counts.length === 0 ? (
                         <EmptyState icon="inventory" title={t('library.stocktake.none')}
                             description={t('library.stocktake.noneDesc')}
@@ -315,7 +316,7 @@ function CountModal({ id, onClose, onChanged }) {
     return (
         <Modal onClose={onClose} title={data?.stocktake?.name || t('library.stocktake.title')}
             size="lg">
-            {!data ? <p className="u-muted">{t('common.loading')}</p> : (
+            {!data ? <SkeletonList items={3} /> : (
                 <>
                     <div className="figure-strip">
                         <div>

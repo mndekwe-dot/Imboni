@@ -144,7 +144,7 @@ function AnnCard({ ann, onEdit, onDelete, onPublish }) {
                             <span className="material-symbols-rounded" aria-hidden="true">send</span> {t('common.publish')}
                         </button>
                     )}
-                    <button className="adm-btn danger" onClick={() => onDelete(ann)} title={t('common.delete')}>
+                    <button className="adm-btn danger" onClick={() => onDelete(ann)} title={t('common.delete')} aria-label={t('common.delete')}>
                         <span className="material-symbols-rounded" aria-hidden="true">delete</span>
                     </button>
                 </div>
@@ -223,7 +223,7 @@ function AnnForm({ initial, audienceOptions, templates, onSave, onCancel, saving
                         onChange={e => set('title', e.target.value)}
                         placeholder={t('announcements.titlePlaceholderPlain')}
                         autoFocus
-                    />
+                     aria-label={t('announcements.titlePlaceholderPlain')}/>
                 </div>
                 <div className="form-group form-group-0">
                     <label className="form-label">{t('common.category')}</label>
@@ -251,7 +251,7 @@ function AnnForm({ initial, audienceOptions, templates, onSave, onCancel, saving
                     value={form.content}
                     onChange={e => set('content', e.target.value)}
                     placeholder={t('announcements.bodyPlaceholderLong')}
-                />
+                 aria-label={t('announcements.bodyPlaceholderLong')}/>
             </div>
 
             {error && <p className="form-error-text">{error}</p>}
@@ -443,7 +443,7 @@ export function AdminAnnouncements() {
                                         className="btn-icon-clean"
                                         onClick={() => { setComposing(false); setEditing(null) }}
                                         title={t('common.close')}
-                                    >
+                                     aria-label={t('common.close')}>
                                         <span className="material-symbols-rounded" aria-hidden="true">close</span>
                                     </button>
                                 </div>

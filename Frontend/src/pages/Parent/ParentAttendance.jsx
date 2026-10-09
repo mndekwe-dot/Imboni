@@ -16,6 +16,7 @@ import '../../styles/components.css'
 import '../../styles/parent.css'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 const toList = d => Array.isArray(d) ? d : (d?.results ?? [])
 
@@ -95,7 +96,7 @@ export function ParentAttendance() {
 
                     <DashboardContent>
                         {loading ? (
-                            <p className="u-pad u-muted">Loading…</p>
+                            <SkeletonList items={3} />
                         ) : !child ? (
                             <p className="u-pad u-muted">No children linked to your account yet.</p>
                         ) : (

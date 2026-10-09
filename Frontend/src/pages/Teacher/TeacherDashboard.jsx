@@ -29,6 +29,8 @@ import '../../styles/teacher.css'
 import { useToast } from '../../context/ToastContext'
 import { partialLoad, errorMessage } from '../../utils/errors'
 import { ModalOverlay } from '../../components/ui/ModalOverlay'
+import { asButton } from '../../utils/a11y'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 function barColor(v) {
     if (v >= 80) return '#10b981'
@@ -48,7 +50,7 @@ function relTime(ts, translate) {
 function ScheduleCard({ time, room, className, subject, status, statusClass, cardClass, showMark, onMark, onClick }) {
     const { t } = useTranslation()
     return (
-        <div className={`schedule-card ${cardClass} cursor-ptr`} onClick={onClick}>
+        <div className={`schedule-card ${cardClass} cursor-ptr`} {...asButton(onClick)}>
             <div className="schedule-info">
                 <div className="schedule-time">
                     <div className="schedule-time-main">{time}</div>
@@ -195,7 +197,7 @@ function CreateTaskModal({ onClose, onCreated }) {
                             onChange={e => setTitle(e.target.value)}
                             placeholder={t('teacher.dashboard.taskPlaceholder')}
                             autoFocus
-                        />
+                         aria-label={t('teacher.dashboard.taskPlaceholder')}/>
                     </div>
 
                     <div className="form-group">
@@ -374,7 +376,7 @@ export function TeacherDashboard() {
 
                         {loading ? (
                             <div className="dash-card">
-                                <p className="u-muted">{t('common.loading')}</p>
+                                <SkeletonList items={3} />
                             </div>
                         ) : (
                             <>

@@ -12,6 +12,7 @@ import { formatDate } from '../../utils/date'
 import { readStoredUser } from '../../utils/roles'
 import { createAcquisition, decideAcquisition, getAcquisitions, receiveAcquisition } from '../../api/library'
 import { LibraryShell } from './LibraryShell'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 const FILTERS = ['all', 'pending', 'approved', 'received', 'declined']
 
@@ -120,7 +121,7 @@ export function LibraryAcquisitions() {
                 count={loading ? null : t('library.requestCount', { count: rows.length })}
             >
                 {loading ? (
-                    <p className="u-muted">{t('common.loading')}</p>
+                    <SkeletonList items={3} />
                 ) : rows.length === 0 ? (
                     <EmptyState
                         icon="shopping_cart"

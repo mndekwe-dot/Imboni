@@ -3,6 +3,7 @@ import { Modal } from '../../../components/ui/Modal'
 import { getExpenses, createExpense, updateExpense, deleteExpense } from '../../../api/platform'
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
+import { SkeletonList } from '../../../components/ui/Skeleton'
 
 const CATEGORIES = [
     ['hosting', 'Hosting / Infrastructure'], ['payments', 'Payment processing'],
@@ -107,7 +108,7 @@ export function ExpensesSection() {
                 )}
 
                 {loading ? (
-                    <p className="platform-muted">Loading…</p>
+                    <SkeletonList items={3} />
                 ) : items.length === 0 ? (
                     <p className="platform-muted">No bills tracked yet. Add the services you pay for to see upcoming and overdue amounts.</p>
                 ) : (

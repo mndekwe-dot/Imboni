@@ -20,6 +20,7 @@ import { Modal } from '../../components/ui/Modal'
 import { formatAmount } from '../Finance/FinanceShell'
 import { LibraryShell } from './LibraryShell'
 import { ClassSetsPanel } from './LibraryClassSets'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 const LOAN_FILTERS = ['open', 'overdue', 'returned']
 
@@ -169,7 +170,7 @@ export function LibraryCirculation() {
                         count={loading ? null : t('library.loanCount', { count: loans.length })}
                     >
                         {loading ? (
-                            <p className="u-muted">{t('common.loading')}</p>
+                            <SkeletonList items={3} />
                         ) : loans.length === 0 ? (
                             <EmptyState
                                 icon="task_alt"

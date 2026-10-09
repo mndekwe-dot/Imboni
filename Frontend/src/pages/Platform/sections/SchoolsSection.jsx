@@ -122,7 +122,7 @@ export function SchoolsSection() {
                                                         <button className="btn btn-sm btn-outline pf-ml"
                                                                 disabled={busy}
                                                                 title="Reads and exports keep working; nothing new can be saved"
-                                                                onClick={() => act(s, 'restrict')}>
+                                                                onClick={() => act(s, 'restrict')} aria-label="Reads and exports keep working; nothing new can be saved">
                                                             {busy ? '…' : 'Restrict'}
                                                         </button>
                                                         <button className="btn btn-sm btn-outline platform-danger pf-ml"

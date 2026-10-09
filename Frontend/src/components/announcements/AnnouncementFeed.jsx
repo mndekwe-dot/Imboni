@@ -71,7 +71,7 @@ function ComposeModal({ onClose, onPublish, authorName }) {
                     value={form.title}
                     onChange={handle}
                     placeholder={t('announcements.titlePlaceholder')}
-                />
+                 aria-label={t('announcements.titlePlaceholder')}/>
             </div>
 
             <div className="resp-grid-2 resp-grid-2--tight">
@@ -101,7 +101,7 @@ function ComposeModal({ onClose, onPublish, authorName }) {
                     value={form.body}
                     onChange={handle}
                     placeholder={t('announcements.bodyPlaceholder')}
-                />
+                 aria-label={t('announcements.bodyPlaceholder')}/>
             </div>
 
             {form.type === 'urgent' && (
@@ -235,7 +235,7 @@ export function AnnouncementFeed({
                                             placeholder={t('announcements.search')}
                                             value={search}
                                             onChange={e => setSearch(e.target.value)}
-                                        />
+                                         aria-label={t('announcements.search')}/>
                                         {search && (
                                             <button onClick={() => setSearch('')} className="modal-search-clear" aria-label={t('common.close')}>
                                                 <span className="material-symbols-rounded" aria-hidden="true">close</span>

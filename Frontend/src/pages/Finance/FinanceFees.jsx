@@ -13,6 +13,7 @@ import { formatDate } from '../../utils/date'
 import { getFees } from '../../api/finance'
 import { Money, categoryName } from './FinanceShell'
 import { badge } from '../../utils/tone'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 const FILTERS = ['all', 'outstanding', 'overdue', 'cleared']
 
@@ -122,7 +123,7 @@ export function ChargesPanel() {
                     </tr>
                 )}
             />
-            {loading && <p className="u-pad u-muted">{t('common.loading')}</p>}
+            {loading && <SkeletonList items={3} />}
         </>
     )
 }

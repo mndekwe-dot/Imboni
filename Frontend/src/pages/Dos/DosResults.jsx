@@ -291,7 +291,7 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
                         <textarea className="form-control es-textarea-v" rows={3}
                             placeholder={t('dos.results.notePlaceholder')}
                             value={comment} onChange={e => setComment(e.target.value)}
-                        />
+                         aria-label={t('dos.results.notePlaceholder')}/>
                     </div>
                 </div>
             )}

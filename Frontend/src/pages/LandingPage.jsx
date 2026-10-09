@@ -142,7 +142,6 @@ export function LandingPage() {
             <section className="landing-hero">
                 <div className="hero-bg-image" />
                 <div className="hero-bg-overlay" />
-                <div className="hero-grid" />
 
                 <div className="hero-inner">
                     <div className="hero-content">
@@ -220,7 +219,6 @@ export function LandingPage() {
                                 </div>
                             </div>
                         </div>
-                        <div className="hero-mockup-glow" />
                     </div>
                 </div>
 
@@ -232,7 +230,6 @@ export function LandingPage() {
             {/* ── About ── */}
             <section className="landing-section" id="about">
                 <div className="section-header">
-                    <div className="section-label">{t('landing.about.label')}</div>
                     <h2 className="section-title">{t('landing.about.title')}</h2>
                     <p className="section-subtitle">
                         {t('landing.about.subtitle')}
@@ -265,7 +262,6 @@ export function LandingPage() {
             {/* ── Portals ── */}
             <section className="landing-section alt" id="portals">
                 <div className="section-header">
-                    <div className="section-label">{t('landing.portals.label')}</div>
                     <h2 className="section-title">{t('landing.portals.title')}</h2>
                     <p className="section-subtitle">
                         {t('landing.portals.subtitle')}
@@ -299,7 +295,6 @@ export function LandingPage() {
             {/* ── Features ── */}
             <section className="landing-section" id="features">
                 <div className="section-header">
-                    <div className="section-label">{t('landing.features.label')}</div>
                     <h2 className="section-title">{t('landing.features.title')}</h2>
                     <p className="section-subtitle">
                         {t('landing.features.subtitle')}
@@ -339,7 +334,6 @@ export function LandingPage() {
                         <div className="boarding-visual-glow" />
                     </div>
                     <div>
-                        <div className="section-label">{t('landing.boarding.label')}</div>
                         <h2 className="section-title">{t('landing.boarding.title')}</h2>
                         <p className="section-subtitle lp-sub-mb-175">
                             {t('landing.boarding.subtitle')}
@@ -362,7 +356,6 @@ export function LandingPage() {
             <section className="landing-section" id="contact">
                 <div className="contact-split">
                     <div>
-                        <div className="section-label">{t('landing.contact.label')}</div>
                         <h2 className="section-title">{t('landing.contact.title')}</h2>
                         <p className="section-subtitle lp-sub-mb-2">
                             {t('landing.contact.subtitle')}
@@ -386,11 +379,11 @@ export function LandingPage() {
                         <div className="contact-form-title">{t('landing.contact.formTitle')}</div>
                         <div className="contact-form-group">
                             <label className="contact-form-label">{t('landing.contact.yourName')}</label>
-                            <input type="text" className="contact-form-input" placeholder={t('landing.contact.namePlaceholder')} />
+                            <input type="text" className="contact-form-input" placeholder={t('landing.contact.namePlaceholder')}  aria-label={t('landing.contact.namePlaceholder')}/>
                         </div>
                         <div className="contact-form-group">
                             <label className="contact-form-label">{t('common.emailAddress')}</label>
-                            <input type="email" className="contact-form-input" placeholder="your@email.com" />
+                            <input type="email" className="contact-form-input" placeholder="your@email.com"  aria-label="your@email.com"/>
                         </div>
                         <div className="contact-form-group">
                             <label className="contact-form-label">{t('common.role')}</label>
@@ -405,7 +398,7 @@ export function LandingPage() {
                         </div>
                         <div className="contact-form-group">
                             <label className="contact-form-label">{t('landing.contact.message')}</label>
-                            <textarea className="contact-form-input" rows={4} placeholder={t('landing.contact.messagePlaceholder')}></textarea>
+                            <textarea className="contact-form-input" rows={4} placeholder={t('landing.contact.messagePlaceholder')} aria-label={t('landing.contact.messagePlaceholder')}></textarea>
                         </div>
                         <button className="contact-form-btn">
                             <span className="material-symbols-rounded" aria-hidden="true">send</span>
@@ -418,9 +411,6 @@ export function LandingPage() {
             {/* ── CTA strip ── */}
             <section className="landing-cta-strip">
                 <div className="cta-strip-inner">
-                    <div className="cta-strip-orb" />
-                    <div className="cta-strip-orb cta-strip-orb-2" />
-                    <div className="section-label cta-strip-label">{t('landing.cta.label')}</div>
                     <h2 className="cta-strip-title">{t('landing.cta.title')}</h2>
                     <p className="cta-strip-subtitle">
                         {t('landing.cta.subtitle')}

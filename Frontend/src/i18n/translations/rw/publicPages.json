@@ -1,0 +1,107 @@
+{
+  "notFound": {
+    "title": "Urupapuro ntirubonetse",
+    "subtitle": "Urupapuro ushaka ntirubaho. Dore aho wakomereza:",
+    "back": "Subira inyuma",
+    "home": "Subira ku rupapuro rwa mbere"
+  },
+  "about": {
+    "title": "Ibyerekeye Imboni",
+    "subtitle": "Porogaramu y’imicungire y’ishuri yakozwe by’umwihariko ku mashuri yisumbuye yo mu Rwanda.",
+    "whyTitle": "Impamvu twayikoze",
+    "why1": "Amashuri menshi yisumbuye yo mu Rwanda akoresha impapuro n’imbonerahamwe za mudasobwa. Gahunda y’amasomo imara iminsi kuyitegura, ikangirika umwarimu umwe nahinduka. Amanota ava ku mwarimu ajya ku Muyobozi w’Amasomo ku mpapuro, agatinda, agasubirwamo cyangwa agatakara. Ubwitabire buba mu bitabo ntawe ushobora kubivanamo igiteranyo kugeza igihembwe kirangiye. Amakuru y’icumbi, ay’ubuzima n’ay’imyitwarire aba mu bitabo bitatu bitandukanye.",
+    "why2": "Nta na kimwe muri ibyo ari ikibazo cya tekinoloji muri rusange. Ni imirimo runaka abantu runaka bakora buri cyumweru, kandi ishobora gukorwa na mudasobwa yose. Imboni ibereyeho kubikora itabwiye ishuri guhindura uko risanzwe rikora.",
+    "differentTitle": "Icyayihaye umwihariko",
+    "different": "Imboni yubakiye ku miterere y’ishuri ryisumbuye ryo mu Rwanda aho kuba iyahinduwe ivuye ku gicuruzwa rusange. Ibice bya O-Level na A-Level, amashami, ibihembwe bitatu, isuzuma rihoraho kuri 30 n’ibizamini kuri 70, abacumbitse n’abataha, abarezi n’Abayobozi b’Imyitwarire: ibi ni ibice by’ingenzi bya sisitemu, si imirima yongeweho ku gicuruzwa cyakorewe ahandi.",
+    "values": {
+      "children": {
+        "title": "Abana mbere ya byose",
+        "body": "Iyi sisitemu ibitse amanota, inyandiko z’ubuzima n’inyandiko z’imyitwarire by’abana batarageza imyaka y’ubukure. Icyemezo cyose cyo kuyubaka gitangira aho, si ku byoroshye kubaka."
+      },
+      "offline": {
+        "title": "Yubatswe ku muyoboro nyakuri",
+        "body": "Ibitabo by’ubwitabire, gutanga imiti n’isuzuma ry’ijoro bibikwa nta murandasi, bikoherezwa umurandasi nugaruka. Umurandasi wazimye ntugomba na rimwe gutuma igitabo gitakara."
+      },
+      "time": {
+        "title": "Garura igihe",
+        "body": "Gahunda y’amasomo, iy’ibizamini, iy’inshingano n’ishyirwa mu macumbi bikorwa na mudasobwa aho gukorwa n’intoki. Ni iminsi isubizwa buri gihembwe."
+      },
+      "separate": {
+        "title": "Buri shuri ukwaryo",
+        "body": "Buri shuri rigira ububiko bwaryo bwonyine. Ishuri ntirishobora na rimwe kubona inyandiko z’irindi, kuko amakuru atabitswe mu mbonerahamwe imwe."
+      }
+    },
+    "whereTitle": "Aho turi",
+    "where": "Imboni itunganyirizwa i Musanze, mu Ntara y’Amajyaruguru, mu Rwanda. Dukorana butaziguye n’amashuri akoresha sisitemu, kandi icyerekezo cyacu gishingira ku byo basaba, si ku bisa neza mu iyerekana.",
+    "talkTitle": "Tuvugane",
+    "talk": "Niba uyobora ishuri ugashaka kubona sisitemu irimo amashuri n’amasomo yawe, <contact>twandikire</contact>. Niba ushaka kubanza kuyigerageza wowe ubwawe, <pricing>Gahunda y’Ubuntu</pricing> ni sisitemu yose kandi itegurwa mu minota mike."
+  },
+  "contact": {
+    "title": "Twandikire",
+    "subtitle": "Ufite ibibazo kuri sisitemu, ibiciro cyangwa gutangiza ishuri ryawe? Vugana n’umuntu.",
+    "email": "Imeri",
+    "emailNote": "Ni nziza ku bibazo birambuye. Dusubiza mu munsi umwe w’akazi.",
+    "phone": "Telefone",
+    "phoneNote": "Kuva ku wa mbere kugeza ku wa gatanu, saa mbiri za mu gitondo kugeza saa kumi n’imwe (isaha ya Kigali).",
+    "office": "Ibiro",
+    "officeAddress": "Musanze, Intara y’Amajyaruguru, u Rwanda",
+    "officeNote": "Gusura ni ku masezerano.",
+    "joinTitle": "Wifuza ko ishuri ryawe riba kuri Imboni?",
+    "joinIntro": "Hari inzira ebyiri, bitewe n’ibyo wifuza kwikorera.",
+    "selfTitle": "Itegurire ako kanya",
+    "self": "<signup>Andikisha ishuri ryawe</signup> maze ubutaka bwawe bwite (subdomain) buhite butegurwa, kuri Gahunda y’Ubuntu, hamwe na konti y’umuyobozi. Ushobora gutangira kuzana amashuri n’abanyeshuri ako kanya. Nta kiganiro gisabwa.",
+    "assistedTitle": "Tubikorane",
+    "assisted": "<apply>Saba kwinjira</apply> maze turebe amakuru yawe, tuguhamagare, dutegure ishuri hamwe n’amashuri, amasomo n’abakozi nyabo, kugira ngo ubone ishuri ryawe aho kubona iyerekana.",
+    "existingTitle": "Usanzwe ukoresha Imboni?",
+    "existing": "Ibisabwa by’ubufasha bitangirwa muri sisitemu aho kuba hano, ku buryo bigera ku ishuri ryawe n’umukozi ubitanze. Injira ukoreshe ubufasha buri muri porogaramu yawe. Niba utabasha kwinjira rwose, twandikire ubwire ishuri ukomokaho.",
+    "dataTitle": "Ibibazo ku bubiko bw’amakuru",
+    "data": "Ibisabwa ku nyandiko z’abanyeshuri, kuzibona, kuzikosora cyangwa kuzisiba bikorwa hakurikijwe <privacy>politiki y’ibanga</privacy>. Twandikire utwerekane “gusaba amakuru” mu mutwe w’ubutumwa, tuzagusubiza mu gihe cyagenwe aho."
+  },
+  "pricing": {
+    "title": "Gahunda zihuye n’ishuri ryawe",
+    "subtitle": "Tangira ku buntu ukomeze hejuru igihe abanyeshuri biyongereye. Konti z’ababyeyi ni ubuntu kuri gahunda zose kandi ntizibarwa mu mubare ntarengwa wawe.",
+    "students": "abanyeshuri",
+    "staff": "abakozi",
+    "unlimited": "Nta mupaka",
+    "free": {
+      "name": "Ubuntu",
+      "for": "Amashuri mato atangira, cyangwa umuntu wese ushaka kugerageza sisitemu yose akoresheje amakuru nyayo.",
+      "cta": "Tangira ku buntu",
+      "f1": "Porogaramu zose uko ari karindwi",
+      "f2": "Amanota, ubwitabire n’imyitwarire",
+      "f3": "Gutegura gahunda y’amasomo n’ibizamini",
+      "f4": "Konti z’ababyeyi nta mupaka"
+    },
+    "basic": {
+      "name": "Isanzwe",
+      "for": "Amashuri yisumbuye asanzwe afite abanyeshuri bose ba O-Level cyangwa A-Level.",
+      "cta": "Andikisha ishuri ryawe",
+      "badge": "Amashuri menshi",
+      "f1": "Ibiri byose muri Ubuntu",
+      "f2": "Icumbi, ifunguro n’inshingano",
+      "f3": "Kwinjiza amashuri na gahunda icyarimwe",
+      "f4": "Kubika kopi mu buryo bwikora",
+      "f5": "Ubutumire kuri imeri na SMS"
+    },
+    "premium": {
+      "name": "Yihariye",
+      "for": "Amashuri manini n’amatsinda afite ibigo byinshi cyangwa amashami menshi.",
+      "cta": "Tuvugane",
+      "f1": "Ibiri byose muri Isanzwe",
+      "f2": "Abanyeshuri n’abakozi nta mupaka",
+      "f3": "Ubufasha bw’ibanze",
+      "f4": "Ubufasha bwo gutangira"
+    },
+    "faqTitle": "Ibibazo bikunze kubazwa",
+    "q1": "Ababyeyi barishyura?",
+    "a1": "Oya. Konti z’ababyeyi ni ubuntu kuri gahunda zose kandi ntizibarwa mu mubare w’abakozi cyangwa abanyeshuri. Abanyeshuri n’abakozi ni bo bonyine bafata imyanya.",
+    "q2": "Umwanya w’umukozi ubarwa ute?",
+    "a2": "Abarimu, Umuyobozi w’Amasomo, umurezi, abashinzwe imyitwarire n’abayobozi. Ababyeyi n’abanyeshuri babarwa ukwabo.",
+    "q3": "Bigenda bite nituramuka turenze gahunda?",
+    "a3": "Nta kintu gisibwa. Ntiwemererwa kongeramo abanyeshuri cyangwa abakozi barenze umupaka kugeza ugiye kuri gahunda ikurikira, kandi ibiri muri sisitemu byose bikomeza gukora.",
+    "q4": "Dushobora kubanza kuyigerageza dukoresheje amakuru yacu?",
+    "a4": "Yego. Gahunda y’Ubuntu ni sisitemu yose, si iyerekana. Injiza amashuri make, ukoreshe amanota y’igihembwe, hanyuma ufate icyemezo.",
+    "q5": "Amakuru yacu abikwa he?",
+    "a5": "Buri shuri rifite ububiko bwaryo bwonyine, nta mbonerahamwe isangiwe. Reba <privacy>politiki y’ibanga</privacy> ku buryo inyandiko z’abanyeshuri zitwarwa."
+  }
+}

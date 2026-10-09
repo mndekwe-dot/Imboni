@@ -4,6 +4,7 @@ import { StatCard } from '../../../components/layout/StatCard'
 import { getPayments, createPayment, deletePayment, getPlatformSchools } from '../../../api/platform'
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
+import { SkeletonList } from '../../../components/ui/Skeleton'
 
 const money = (v, c) => `${c || 'USD'} ${Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`
 const usd = (v) => `$${Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -109,7 +110,7 @@ export function RevenueSection() {
                     )}
 
                     {loading ? (
-                        <p className="platform-muted">Loading…</p>
+                        <SkeletonList items={3} />
                     ) : payments.length === 0 ? (
                         <p className="platform-muted">No payments yet. They&apos;ll appear automatically once Stripe is live, or record one manually.</p>
                     ) : (

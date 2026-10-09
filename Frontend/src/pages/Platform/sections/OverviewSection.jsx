@@ -4,6 +4,7 @@ import { StatCard } from '../../../components/layout/StatCard'
 import { getPlatformSummary } from '../../../api/platform'
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
+import { asButton } from '../../../utils/a11y'
 
 const money = (v) => `$${Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
@@ -31,7 +32,7 @@ export function OverviewSection() {
         <>
             <p className="platform-section-title">Money in</p>
             <div className="platform-cards">
-                <div onClick={go('/platform/revenue')} className="pf-clickable">
+                <div {...asButton(go('/platform/revenue'))} className="pf-clickable">
                     <StatCard icon="account_balance" value={money(sum.revenue.total)} label="Total revenue"
                               trend={`${sum.revenue.payments_count} payment(s)`} colorClass="success" />
                 </div>
@@ -40,21 +41,21 @@ export function OverviewSection() {
 
             <p className="platform-section-title">Money out</p>
             <div className="platform-cards">
-                <div onClick={go('/platform/expenses')} className="pf-clickable">
+                <div {...asButton(go('/platform/expenses'))} className="pf-clickable">
                     <StatCard icon="request_quote" value={money(sum.expenses.due_total)} label="Bills due" />
                 </div>
-                <div onClick={go('/platform/expenses')} className="pf-clickable">
+                <div {...asButton(go('/platform/expenses'))} className="pf-clickable">
                     <StatCard icon="warning" value={sum.expenses.overdue_count} label="Overdue"
                               trend={money(sum.expenses.overdue_total)} colorClass={sum.expenses.overdue_count ? 'red' : ''} />
                 </div>
-                <div onClick={go('/platform/expenses')} className="pf-clickable">
+                <div {...asButton(go('/platform/expenses'))} className="pf-clickable">
                     <StatCard icon="event_upcoming" value={sum.expenses.upcoming_30d_count} label="Due in 30 days" colorClass="info" />
                 </div>
             </div>
 
             <p className="platform-section-title">Support</p>
             <div className="platform-cards">
-                <div onClick={go('/platform/support')} className="pf-clickable">
+                <div {...asButton(go('/platform/support'))} className="pf-clickable">
                     <StatCard icon="support_agent" value={sum.tickets.unresolved} label="Open tickets"
                               trend={`${sum.tickets.open} new · ${sum.tickets.in_progress} in progress`}
                               colorClass={sum.tickets.unresolved ? 'warning' : ''} />

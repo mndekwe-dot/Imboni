@@ -255,7 +255,7 @@ function LogTab({ student, onReportSaved }) {
                 <input
                     className="form-input" name="title" value={form.title}
                     onChange={handleChange} placeholder={t('modals.conduct.titlePlaceholder')}
-                />
+                 aria-label={t('modals.conduct.titlePlaceholder')}/>
             </div>
 
             {isNeg && (
@@ -290,7 +290,7 @@ function LogTab({ student, onReportSaved }) {
                                 setForm(prev => ({ ...prev, marks_deducted: e.target.value === '' ? '' : v }))
                             }}
                             placeholder={t('modals.conduct.egFive')}
-                        />
+                         aria-label={t('modals.conduct.egFive')}/>
                     </div>
                 </>
             )}
@@ -301,7 +301,7 @@ function LogTab({ student, onReportSaved }) {
                     className="form-input form-textarea" rows="3"
                     name="description" value={form.description}
                     onChange={handleChange} placeholder={t('modals.conduct.descPlaceholder')}
-                />
+                 aria-label={t('modals.conduct.descPlaceholder')}/>
             </div>
 
             <div className="scm-form-row-2">
@@ -318,7 +318,7 @@ function LogTab({ student, onReportSaved }) {
                     <input
                         className="form-input" name="location" value={form.location}
                         onChange={handleChange} placeholder={t('modals.conduct.egLocation')}
-                    />
+                     aria-label={t('modals.conduct.egLocation')}/>
                 </div>
             </div>
 

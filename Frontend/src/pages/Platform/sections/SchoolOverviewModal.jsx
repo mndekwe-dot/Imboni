@@ -4,6 +4,7 @@ import { getSchoolOverview, suspendSchool, reactivateSchool, setSchoolModules, o
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
 import { StatusChip } from './SchoolsSection'
+import { SkeletonList } from '../../../components/ui/Skeleton'
 
 const money = (v, c) => `${c || 'USD'} ${Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`
 const num = v => (v === null || v === undefined ? '-' : v)
@@ -85,7 +86,7 @@ export function SchoolOverviewModal({ schoolId, onClose, onStatusChange }) {
     return (
         <Modal title={s?.name || 'School'} icon="apartment" onClose={onClose} size="lg">
             {loading || !s ? (
-                <p className="platform-muted">Loading…</p>
+                <SkeletonList items={3} />
             ) : (
                 <>
                     <div className="pf-row pf-mb">

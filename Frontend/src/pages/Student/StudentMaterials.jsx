@@ -14,6 +14,7 @@ import { studentNavItems, studentSecondaryItems } from './studentNav'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 /** Notes, slides and videos the class's teachers have shared this term. */
 export function StudentMaterials() {
@@ -52,7 +53,7 @@ export function StudentMaterials() {
                     />
                     <DashboardContent>
                         {loading ? (
-                            <p className="u-pad u-muted">{t('common.loading')}</p>
+                            <SkeletonList items={3} />
                         ) : error ? (
                             <p className="form-error">{error}</p>
                         ) : (

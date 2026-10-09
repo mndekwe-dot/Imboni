@@ -9,6 +9,7 @@ import { errorMessage } from '../../utils/errors'
 import { classLabel } from '../../utils/classes'
 import '../../styles/components.css'
 import '../../styles/matron.css'
+import { SkeletonList } from '../ui/Skeleton'
 
 /**
  * One boarder, opened from the roll.
@@ -157,7 +158,7 @@ export function MatronStudentModal({ student, onClose, onMedicalChange }) {
 
             <h3 className="stu-modal-section">{t('matron.students.recentRecord')}</h3>
             {loading ? (
-                <p className="empty-note">{t('common.loading')}</p>
+                <SkeletonList items={3} />
             ) : incidents.length === 0 ? (
                 <p className="empty-note">{t('matron.students.noRecord')}</p>
             ) : (

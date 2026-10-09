@@ -6,6 +6,7 @@ import {
 } from '../../../api/platform'
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
+import { SkeletonList } from '../../../components/ui/Skeleton'
 
 const money = (v, c) => `${c || 'USD'} ${Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}`
 const today = () => new Date().toISOString().slice(0, 10)
@@ -123,7 +124,7 @@ export function ContractsSection() {
                 )}
 
                 {loading ? (
-                    <p className="platform-muted">Loading…</p>
+                    <SkeletonList items={3} />
                 ) : items.length === 0 ? (
                     <p className="platform-muted">No contracts yet. Create one and sign it to start tracking its lifecycle.</p>
                 ) : (

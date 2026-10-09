@@ -14,6 +14,7 @@ import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { formatDate } from '../../utils/date'
 import { FinanceShell, Money, formatAmount } from './FinanceShell'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 /**
  * Where the money actually is.
@@ -74,7 +75,7 @@ export function FinanceCash() {
                         {t('finance.cash.addAccount')}
                     </button>
                 }>
-                {loading ? <p className="u-muted">{t('common.loading')}</p>
+                {loading ? <SkeletonList items={3} />
                     : accounts.length === 0 ? (
                         <EmptyState icon="savings" title={t('finance.cash.noAccounts')}
                             description={t('finance.cash.noAccountsDesc')}
