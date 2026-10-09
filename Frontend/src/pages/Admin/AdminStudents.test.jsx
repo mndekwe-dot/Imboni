@@ -86,43 +86,126 @@ describe('AdminStudents', () => {
       expect(document.querySelector('tbody .adm-av')).toHaveTextContent('AU')
     })
 
-    it('finds a student by name or by code', async () => {
+    it('asks the server to search, by name or by code, once typing pauses', async () => {
+      // A stand-in for the real endpoint: it does the searching the page used to do.
+      getAdminStudents.mockImplementation(async ({ search } = {}) => {
+        const q = (search || '').toLowerCase()
+        const rows = REAL.filter(r => !q || r.full_name.toLowerCase().includes(q)
+          || r.student_code.toLowerCase().includes(q))
+        return { count: rows.length, results: rows }
+      })
       renderWithRouter(<AdminStudents />)
       await screen.findByText('Amina Uwase')
       const box = screen.getByPlaceholderText('Search students…')
 
-      fireEvent.change(box, { target: { value: 'amina' } })
-      expect(screen.getByText('Amina Uwase')).toBeInTheDocument()
-
       fireEvent.change(box, { target: { value: 'stu-001' } })
+      await waitFor(() => expect(getAdminStudents).toHaveBeenLastCalledWith(
+        expect.objectContaining({ search: 'stu-001', page: 1 })))
       expect(screen.getByText('Amina Uwase')).toBeInTheDocument()
 
       fireEvent.change(box, { target: { value: 'nobody' } })
-      expect(screen.queryByText('Amina Uwase')).toBeNull()
+      await waitFor(() => expect(screen.queryByText('Amina Uwase')).toBeNull())
+    })
+
+    it('does not ask the server on every keystroke', async () => {
+      renderWithRouter(<AdminStudents />)
+      await screen.findByText('Amina Uwase')
+      const calls = () => getAdminStudents.mock.calls.length
+      const before = calls()
+      const box = screen.getByPlaceholderText('Search students…')
+
+      for (const v of ['a', 'am', 'ami', 'amin']) fireEvent.change(box, { target: { value: v } })
+
+      expect(calls()).toBe(before)               // nothing sent while typing
+      await waitFor(() => expect(getAdminStudents).toHaveBeenLastCalledWith(
+        expect.objectContaining({ search: 'amin' })))
+      expect(calls()).toBe(before + 1)           // one request for the whole burst
+    })
+
+    it('asks for one page at a time, not the whole school', async () => {
+      renderWithRouter(<AdminStudents />)
+      await screen.findByText('Amina Uwase')
+      expect(getAdminStudents).toHaveBeenCalledWith(expect.objectContaining({ page: 1, page_size: 8 }))
+    })
+
+    it('shows the server\'s total and asks for the next page when you page forward', async () => {
+      const many = Array.from({ length: 8 }, (_, i) => ({ ...REAL[0], student_id: `u${i}`, student_code: `STU-${i}`, full_name: `Pupil ${i}` }))
+      getAdminStudents.mockResolvedValue({ count: 19, results: many })
+      renderWithRouter(<AdminStudents />)
+      await screen.findByText('Pupil 0')
+      expect(screen.getByText('1-8 of 19')).toBeInTheDocument()
+
+      fireEvent.click(screen.getByLabelText('Next'))
+      await waitFor(() => expect(getAdminStudents).toHaveBeenLastCalledWith(expect.objectContaining({ page: 2 })))
+    })
+
+    it('goes back to page 1 when the search changes', async () => {
+      const many = Array.from({ length: 8 }, (_, i) => ({ ...REAL[0], student_id: `u${i}`, student_code: `STU-${i}`, full_name: `Pupil ${i}` }))
+      getAdminStudents.mockResolvedValue({ count: 19, results: many })
+      renderWithRouter(<AdminStudents />)
+      await screen.findByText('Pupil 0')
+      fireEvent.click(screen.getByLabelText('Next'))
+      await waitFor(() => expect(getAdminStudents).toHaveBeenLastCalledWith(expect.objectContaining({ page: 2 })))
+
+      fireEvent.change(screen.getByPlaceholderText('Search students…'), { target: { value: 'pupil' } })
+      await waitFor(() => expect(getAdminStudents).toHaveBeenLastCalledWith(
+        expect.objectContaining({ page: 1, search: 'pupil' })))
+    })
+
+    it('shows skeleton rows under the real headers while a page loads', async () => {
+      getAdminStudents.mockReturnValue(new Promise(() => {}))
+      renderWithRouter(<AdminStudents />)
+      expect(await screen.findByRole('columnheader', { name: 'Class' })).toBeInTheDocument()
+      expect(document.querySelectorAll('tbody tr.skel-tr').length).toBe(8)
+      expect(screen.getByText('Loading students…')).toBeInTheDocument()
+    })
+
+    it('shows bars in the stat tiles, not the word Loading, while the figures arrive', async () => {
+      getAdminStudentStats.mockReturnValue(new Promise(() => {}))
+      renderWithRouter(<AdminStudents />)
+      await screen.findByText('Amina Uwase')
+      const tiles = document.querySelectorAll('.portal-stat-card')
+      expect(tiles).toHaveLength(4)
+      tiles.forEach(t => {
+        expect(t).toHaveClass('is-loading')
+        expect(t.querySelector('.skel-stat-value')).toBeInTheDocument()
+      })
+    })
+
+    it('still shows the four tiles, with dashes, if the figures never come', async () => {
+      getAdminStudentStats.mockRejectedValue(new Error('down'))
+      renderWithRouter(<AdminStudents />)
+      await screen.findByText('Amina Uwase')
+      await waitFor(() => expect(document.querySelectorAll('.portal-stat-card')).toHaveLength(4))
+      expect(document.querySelectorAll('.portal-stat-card.is-loading')).toHaveLength(0)
     })
   })
 
-  it('filters the table by search text', async () => {
-    getAdminStudents.mockResolvedValue(STUDENTS)
+  it('shows what the server returns for a search', async () => {
+    getAdminStudents.mockImplementation(async ({ search } = {}) => {
+      const rows = search ? STUDENTS.filter(s => s.name.includes(search)) : STUDENTS
+      return { count: rows.length, results: rows }
+    })
     getAdminStudentStats.mockResolvedValue(STATS)
     renderWithRouter(<AdminStudents />)
     await waitFor(() => expect(screen.getByText('Eric Niyonsenga')).toBeInTheDocument())
 
     fireEvent.change(screen.getByPlaceholderText('Search students…'), { target: { value: 'Alice' } })
 
-    expect(screen.queryByText('Eric Niyonsenga')).not.toBeInTheDocument()
+    await waitFor(() => expect(screen.queryByText('Eric Niyonsenga')).not.toBeInTheDocument())
     expect(screen.getByText('Alice Mutesi')).toBeInTheDocument()
   })
 
-  it('shows the empty state when no student matches the filters', async () => {
-    getAdminStudents.mockResolvedValue(STUDENTS)
+  it('shows the empty state when the server finds no student', async () => {
+    getAdminStudents.mockImplementation(async ({ search } = {}) =>
+      search ? { count: 0, results: [] } : { count: STUDENTS.length, results: STUDENTS })
     getAdminStudentStats.mockResolvedValue(STATS)
     renderWithRouter(<AdminStudents />)
     await waitFor(() => expect(screen.getByText('Eric Niyonsenga')).toBeInTheDocument())
 
     fireEvent.change(screen.getByPlaceholderText('Search students…'), { target: { value: 'nonexistent-xyz' } })
 
-    expect(screen.getByText('No students found')).toBeInTheDocument()
+    expect(await screen.findByText('No students found')).toBeInTheDocument()
   })
 
   it('opens the detail modal and shows profile/attendance/results once loaded', async () => {

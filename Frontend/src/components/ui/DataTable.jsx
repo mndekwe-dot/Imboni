@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { SkeletonRows } from './Skeleton'
 import '../../styles/tables.css'
 
 /**
@@ -21,6 +22,21 @@ import '../../styles/tables.css'
  *   onClearFilters {fn}       Called by "Clear Filters" button — omit to hide it
  *   headerRight    {node}     JSX rendered right of the title (buttons, badges)
  *   rowHeight      {number}   px per row for minHeight calc (default 68)
+ *
+ * Loading:
+ *   loading        {bool}     The rows have not arrived. The real header stays
+ *                             and skeleton rows fill the body, so the columns are
+ *                             right by construction and nothing moves when the
+ *                             data lands.
+ *   loadingLabel   {string}   What a screen reader announces meanwhile.
+ *   skeletonAvatar {bool}     First column is a person: round avatar + name.
+ *
+ * Server paging (omit all three and the table pages `data` itself, as before):
+ *   total          {number}   Rows on the server across ALL pages. Passing it
+ *                             switches the table to server mode: `data` is then
+ *                             just the CURRENT page, and nothing is sliced here.
+ *   page           {number}   Current page, 1-based (controlled).
+ *   onPageChange   {fn}       (page) => void
  */
 export function DataTable({
     title,
@@ -35,19 +51,33 @@ export function DataTable({
     onClearFilters,
     headerRight,
     rowHeight = 68,
+    loading = false,
+    loadingLabel,
+    skeletonAvatar = false,
+    total,
+    page = 1,
+    onPageChange,
 }) {
-    const [page, setPage] = useState(1)
+    const serverPaged = typeof total === 'number'
+    const [localPage, setLocalPage] = useState(1)
+    // `page` is the caller's in server mode, ours otherwise.
+    const current = serverPaged ? page : localPage
+    const setPage = serverPaged ? (p => onPageChange?.(typeof p === 'function' ? p(page) : p)) : setLocalPage
+    // Rows across every page: the server's count, or what we were handed.
+    const count   = serverPaged ? total : data.length
 
-    // Reset to page 1 when data length changes (filter applied externally)
-    useEffect(() => { setPage(1) }, [data.length])
+    // Reset to page 1 when data length changes (filter applied externally).
+    // Not in server mode: there the page is the caller's to control, and
+    // `data.length` is the page size, which says nothing about a filter.
+    useEffect(() => { if (!serverPaged) setLocalPage(1) }, [data.length, serverPaged])
 
-    const pageCount = Math.max(1, Math.ceil(data.length / pageSize))
-    const safePage  = Math.min(page, pageCount)
-    const paginated = data.slice((safePage - 1) * pageSize, safePage * pageSize)
+    const pageCount = Math.max(1, Math.ceil(count / pageSize))
+    const safePage  = Math.min(current, pageCount)
+    const paginated = serverPaged ? data : data.slice((safePage - 1) * pageSize, safePage * pageSize)
     const bodyMinH  = pageSize * rowHeight
 
-    const start = data.length === 0 ? 0 : (safePage - 1) * pageSize + 1
-    const end   = Math.min(safePage * pageSize, data.length)
+    const start = count === 0 ? 0 : (safePage - 1) * pageSize + 1
+    const end   = Math.min(safePage * pageSize, count)
 
     function pages() {
         if (pageCount <= 7) return Array.from({ length: pageCount }, (_, i) => i + 1)
@@ -74,11 +104,11 @@ export function DataTable({
                     {title}
                 </span>
                 <div className="dt-header-right">
-                    {data.length > 0 && (
+                    {!loading && count > 0 && (
                         <span className="dt-count">
-                            {data.length <= pageSize
-                                ? `${data.length} row${data.length !== 1 ? 's' : ''}`
-                                : `${start}-${end} of ${data.length}`}
+                            {count <= pageSize
+                                ? `${count} row${count !== 1 ? 's' : ''}`
+                                : `${start}-${end} of ${count}`}
                         </span>
                     )}
                     {headerRight}
@@ -86,8 +116,8 @@ export function DataTable({
             </div>
 
             {/* Body — always present, fixed minHeight */}
-            <div className="dt-body" style={{ minHeight: bodyMinH }}>
-                {data.length === 0 ? (
+            <div className="dt-body" style={{ minHeight: bodyMinH }} aria-busy={loading || undefined}>
+                {count === 0 && !loading ? (
                     <div className="dt-empty" style={{ minHeight: bodyMinH }}>
                         <span className="material-symbols-rounded" aria-hidden="true">{emptyIcon}</span>
                         <p className="dt-empty-title">{emptyTitle}</p>
@@ -112,7 +142,10 @@ export function DataTable({
                             </tr>
                         </thead>
                         <tbody>
-                            {paginated.map((item, i) => renderRow(item, (safePage - 1) * pageSize + i))}
+                            {loading
+                                ? <SkeletonRows rows={pageSize} cols={columns.length || 1}
+                                    avatarFirst={skeletonAvatar} label={loadingLabel} />
+                                : paginated.map((item, i) => renderRow(item, (safePage - 1) * pageSize + i))}
                         </tbody>
                     </table>
                 )}
@@ -121,7 +154,7 @@ export function DataTable({
             {/* Footer — always present */}
             <div className="dt-footer">
                 <span className="dt-page-info">
-                    {data.length === 0 ? 'No results' : `Page ${safePage} of ${pageCount}`}
+                    {loading ? '\u00a0' : count === 0 ? 'No results' : `Page ${safePage} of ${pageCount}`}
                 </span>
                 <div className="dt-pagination">
                     <button className="dt-page-btn" disabled={safePage <= 1} onClick={() => setPage(1)} title="First page" aria-label="First page">
