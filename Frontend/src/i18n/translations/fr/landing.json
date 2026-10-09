@@ -101,24 +101,12 @@
   "hero": {
     "badge": "Plateforme de gestion pour internats",
     "cta": "Accéder à votre portail",
+    "screenshotAlt": "Le tableau de bord élève d’Imboni : présence, conduite, emploi du temps du jour, devoirs à venir et notes récentes.",
     "secondary": "En savoir plus",
     "subtitle": "Imboni réunit élèves, enseignants, parents et personnel d'internat sur une plateforme unique, pour une communication claire et une vie scolaire qui tourne rond.",
     "titleAccent": "connecté.",
     "titleLine1": "Chaque aspect de",
     "titleLine2": "la vie scolaire,"
-  },
-  "mock": {
-    "attendance": "Présences",
-    "dueSoon": "À rendre bientôt",
-    "notif1": "L'examen de physique est déplacé au 14 mars",
-    "notif1Time": "il y a 2 min",
-    "notif2": "Les résultats du trimestre 2 sont publiés",
-    "notif2Time": "il y a 1 h",
-    "notif3": "Rencontre parents-enseignants, 20 mars",
-    "notif3Time": "il y a 3 h",
-    "notifLabel": "Notifications récentes",
-    "role": "Élève · S4A",
-    "subjects": "Matières"
   },
   "portals": {
     "disDesc": "Suivez la conduite des élèves, gérez les activités d'internat, les horaires de repas et la coordination du personnel.",

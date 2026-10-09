@@ -101,24 +101,12 @@
   "hero": {
     "badge": "Urubuga rwo gucunga ibigo byakira abanyeshuri",
     "cta": "Injira ku rubuga rwawe",
+    "screenshotAlt": "Ikibaho cy’umunyeshuri cya Imboni: ubwitabire, imyitwarire, gahunda y’uyu munsi, imikoro iri imbere n’amanota aheruka.",
     "secondary": "Menya byinshi",
     "subtitle": "Imboni ihuza abanyeshuri, abarimu, ababyeyi n'abakozi b'amacumbi ku rubuga rumwe, ituma itumanaho risobanuka n'ubuzima bw'ikigo bugenda neza.",
     "titleAccent": "gihujwe.",
     "titleLine1": "Buri gice cy'",
     "titleLine2": "ubuzima bw'ikigo,"
-  },
-  "mock": {
-    "attendance": "Ubwitabire",
-    "dueSoon": "Bigiye kurangira",
-    "notif1": "Ikizamini cya Fiziki cyimuriwe ku ya 14 Werurwe",
-    "notif1Time": "iminota 2 ishize",
-    "notif2": "Amanota y'igihembwe cya 2 yatangajwe",
-    "notif2Time": "isaha 1 ishize",
-    "notif3": "Inama y'ababyeyi n'abarimu, 20 Werurwe",
-    "notif3Time": "amasaha 3 ashize",
-    "notifLabel": "Integuza ziheruka",
-    "role": "Umunyeshuri · S4A",
-    "subjects": "Amasomo"
   },
   "portals": {
     "disDesc": "Gukurikirana imyitwarire y'abanyeshuri, gucunga ibikorwa byo ku kigo, gahunda yo kurya no guhuza abakozi.",

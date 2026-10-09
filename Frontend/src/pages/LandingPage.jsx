@@ -3,6 +3,7 @@ import { LanguageSwitcher } from '../components/ui/LanguageSwitcher'
 import { Link } from 'react-router'
 import { useTranslation } from 'react-i18next'
 import logo from '../assets/images/imboni-logo.webp'
+import heroScreenshot from '../assets/images/hero-student-dashboard.webp'
 
 // These tables are evaluated once at module load, before a language is known,
 // so they hold translation keys and the component resolves them at render.
@@ -93,12 +94,6 @@ const boardingHouses = [
     { name: 'Sabyinyo',  groupKey: 'common.boys'  },
 ]
 
-const mockNotifs = [
-    { icon: 'priority_high', color: '#ef4444', key: 'notif1' },
-    { icon: 'school',        color: '#0d9488', key: 'notif2' },
-    { icon: 'event',         color: '#f97316', key: 'notif3' },
-]
-
 // Contact details are data, not copy — only the labels are translated.
 const contactItems = [
     { icon: 'location_on', labelKey: 'landing.contact.address', valueKey: 'landing.contact.addressValue' },
@@ -171,53 +166,17 @@ export function LandingPage() {
                         </div>
                     </div>
 
-                    {/* RIGHT — UI mockup */}
+                    {/* RIGHT: the real student dashboard (a screenshot of the app
+                        running on sample data), not a drawing of one. */}
                     <div className="hero-visual">
                         <div className="hero-mockup">
-                            <div className="mockup-bar">
+                            <div className="mockup-bar" aria-hidden="true">
                                 <div className="mockup-dots">
                                     <span /><span /><span />
                                 </div>
-                                <div className="mockup-url">imboni.edu/student</div>
                             </div>
-                            <div className="mockup-body">
-                                <div className="mockup-header">
-                                    <div className="mockup-avatar">UA</div>
-                                    <div>
-                                        <div className="mockup-name">Uwase Amina</div>
-                                        <div className="mockup-role">{t('landing.mock.role')}</div>
-                                    </div>
-                                </div>
-                                <div className="mockup-stat-row">
-                                    <div className="mockup-stat-card" style={{ '--mc': '#0d9488' }}>
-                                        <span className="material-symbols-rounded" aria-hidden="true">menu_book</span>
-                                        <div className="msc-val">8</div>
-                                        <div className="msc-lbl">{t('landing.mock.subjects')}</div>
-                                    </div>
-                                    <div className="mockup-stat-card" style={{ '--mc': '#f97316' }}>
-                                        <span className="material-symbols-rounded" aria-hidden="true">assignment</span>
-                                        <div className="msc-val">3</div>
-                                        <div className="msc-lbl">{t('landing.mock.dueSoon')}</div>
-                                    </div>
-                                    <div className="mockup-stat-card" style={{ '--mc': '#4f46e5' }}>
-                                        <span className="material-symbols-rounded" aria-hidden="true">check_circle</span>
-                                        <div className="msc-val">94%</div>
-                                        <div className="msc-lbl">{t('landing.mock.attendance')}</div>
-                                    </div>
-                                </div>
-                                <div className="mockup-notif-label">{t('landing.mock.notifLabel')}</div>
-                                <div className="mockup-notifs">
-                                    {mockNotifs.map((n, i) => (
-                                        <div key={i} className="mockup-notif">
-                                            <div className="mockup-notif-icon" style={{ background: `${n.color}20`, color: n.color }}>
-                                                <span className="material-symbols-rounded" aria-hidden="true">{n.icon}</span>
-                                            </div>
-                                            <div className="mockup-notif-text">{t(`landing.mock.${n.key}`)}</div>
-                                            <div className="mockup-notif-time">{t(`landing.mock.${n.key}Time`)}</div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
+                            <img className="hero-screenshot" src={heroScreenshot} width="1280" height="633"
+                                alt={t('landing.hero.screenshotAlt')} fetchPriority="high" />
                         </div>
                     </div>
                 </div>
