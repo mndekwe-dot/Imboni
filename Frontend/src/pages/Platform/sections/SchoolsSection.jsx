@@ -7,6 +7,7 @@ import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
 import { SchoolOverviewModal } from './SchoolOverviewModal'
 import { confirmDialog } from '../../../utils/confirm'
+import { SkeletonTable } from '../../../components/ui/Skeleton'
 
 const STATUS_CLASS = {
     active:    'ok',
@@ -79,7 +80,7 @@ export function SchoolsSection() {
                 </div>
 
                 {loading ? (
-                    <p className="platform-muted">{t('platform.schools.loading')}</p>
+                    <SkeletonTable rows={5} cols={5} label={t('platform.schools.loading')} />
                 ) : schools.length === 0 ? (
                     <p className="platform-muted"><Trans i18nKey="platform.schools.empty" components={{ code: <code /> }} /></p>
                 ) : (

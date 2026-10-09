@@ -20,6 +20,7 @@ import { Modal } from '../../components/ui/Modal'
 import { classLabel as formatClass, sectionsFromClasses } from '../../utils/classes'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { SkeletonTable } from '../../components/ui/Skeleton'
 
 /* Monday to Saturday: the days the academic grid draws. */
 const ACADEMIC_DAYS = DAYS.slice(0, 6)
@@ -503,7 +504,7 @@ export function DosTimetablePanel() {
                     {!classId ? (
                         <p className="dos-tt-note">{t('dos.timetable.chooseClass')}</p>
                     ) : loading || !periods ? (
-                        <p className="dos-tt-note">{t('dos.timetable.loadingTimetable')}</p>
+                        <SkeletonTable rows={7} cols={6} label={t('dos.timetable.loadingTimetable')} />
                     ) : (
                         <Timetable
                             type="academic"

@@ -11,6 +11,7 @@ import '../../styles/components.css'
 import '../../styles/teacher.css'
 import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { SkeletonTable } from '../../components/ui/Skeleton'
 
 /**
  * The teacher's own weekly timetable.
@@ -73,7 +74,7 @@ export function TeacherTimetable() {
                         <div className="card">
                             <div className="card-content">
                                 {loading ? (
-                                    <p className="tt-note">{t('common.loading')}</p>
+                                    <SkeletonTable rows={7} cols={6} label={t('common.loading')} />
                                 ) : error ? (
                                     <p className="tt-note tt-note--error">{error}</p>
                                 ) : (

@@ -20,6 +20,7 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
 import '../../styles/tables.css'
+import { SkeletonPage } from '../../components/ui/Skeleton'
 
 /**
  * The staff a Discipline Director supervises.
@@ -227,7 +228,7 @@ export function DisStaff() {
                     <DashboardContent>
 
                         {loading ? (
-                            <p className="u-pad u-muted">{t('dis.staff.loading')}</p>
+                            <SkeletonPage variant="table" label={t('dis.staff.loading')} />
                         ) : (
                             <>
                                 <div className="portal-stat-grid mb-5">

@@ -17,6 +17,7 @@ import '../../styles/components.css'
 import '../../styles/student.css'
 import { StatCard } from '../../components/layout/StatCard'
 import { formatBytes } from '../../components/materials/MaterialList'
+import { SkeletonCards } from '../../components/ui/Skeleton'
 
 const STATUS_TABS = ['All', 'Pending', 'Submitted', 'Overdue']
 
@@ -382,7 +383,7 @@ export function StudentAssignments() {
 
                         {/* Assignments: paper and online */}
                         {loading ? (
-                            <p className="u-pad u-muted">{t('student.assignments.loading')}</p>
+                            <SkeletonCards count={3} lines={3} label={t('student.assignments.loading')} />
                         ) : filtered.length === 0 ? (
                             <EmptyState
                                 icon="assignment"

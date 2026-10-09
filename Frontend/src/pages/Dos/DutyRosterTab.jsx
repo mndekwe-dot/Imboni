@@ -7,6 +7,7 @@ import {
     getTerms, getDutyPosts, createDutyPost, updateDutyPost, deleteDutyPost,
     getDutyRoster, generateDutyRoster, commitDutyRoster,
 } from '../../api/dos'
+import '../../styles/tables.css'
 
 const DAYS = [
     { value: 'monday',    labelKey: 'common.mon' },

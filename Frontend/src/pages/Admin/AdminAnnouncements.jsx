@@ -24,6 +24,7 @@ import '../../styles/tables.css'
 import { SearchBar } from '../../components/ui/SearchBar'
 import '../../styles/announcements.css'
 import { ModalOverlay } from '../../components/ui/ModalOverlay'
+import { SkeletonCards } from '../../components/ui/Skeleton'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -506,7 +507,7 @@ export function AdminAnnouncements() {
 
                         {/* Feed */}
                         {loading ? (
-                            <p className="u-muted u-pad">{t('common.loading')}</p>
+                            <SkeletonCards count={3} lines={3} label={t('common.loading')} />
                         ) : visible.length === 0 ? (
                             <EmptyState
                                 icon="campaign"

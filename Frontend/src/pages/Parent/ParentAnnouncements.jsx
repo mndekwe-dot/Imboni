@@ -23,6 +23,7 @@ import { usePagination } from '../../hooks/usePagination'
 import '../../styles/tables.css'
 import { useToast } from '../../context/ToastContext'
 import { partialLoad } from '../../utils/errors'
+import { SkeletonCards } from '../../components/ui/Skeleton'
 
 const CATEGORY_COLOR = {
     urgent:   { bg: 'var(--destructive-surface)', border: 'var(--destructive)', badge: 'var(--destructive-surface)', text: 'var(--destructive-text)', icon: 'priority_high'  },
@@ -253,7 +254,7 @@ export function ParentAnnouncements() {
                             count={loading ? null : t('announcements.count', { count: visible.length })}
                         >
                             {loading ? (
-                                <p className="u-muted">{t('announcements.loading')}</p>
+                                <SkeletonCards count={3} lines={3} label={t('announcements.loading')} />
                             ) : visible.length === 0 ? (
                                 <EmptyState
                                     icon="inbox"

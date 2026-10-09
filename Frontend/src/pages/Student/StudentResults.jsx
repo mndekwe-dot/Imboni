@@ -15,6 +15,7 @@ import '../../styles/components.css'
 import '../../styles/student.css'
 import { useToast } from '../../context/ToastContext'
 import { partialLoad } from '../../utils/errors'
+import { SkeletonCards } from '../../components/ui/Skeleton'
 
 // DRF paginates by default (PageNumberPagination, PAGE_SIZE 20), so list
 // endpoints answer with { count, next, previous, results } rather than a bare
@@ -180,7 +181,7 @@ export function StudentResults() {
                     <DashboardContent>
 
                         {loading ? (
-                            <p className="u-pad u-muted">{t('student.results.loading')}</p>
+                            <SkeletonCards count={2} lines={5} label={t('student.results.loading')} />
                         ) : terms.length === 0 ? (
                             <p className="u-pad u-muted">{t('student.results.empty')}</p>
                         ) : (

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import '../../styles/skeleton.css'
+import '../../styles/tables.css'
 
 /**
  * Skeleton — placeholders shaped like the content that is loading.
@@ -48,13 +49,13 @@ export function SkeletonText({ lines = 3, label }) {
     )
 }
 
-export function SkeletonList({ items = 4, label }) {
+export function SkeletonList({ items = 4, label, avatar = true, quiet = false, flush = false }) {
     return (
-        <div className="skel-stack skel-page">
-            <Announce label={label} />
+        <div className={`skel-stack${flush ? '' : ' skel-page'}`}>
+            <Announce label={label} quiet={quiet} />
             {Array.from({ length: items }, (_, i) => (
                 <div className="skel-row" key={i}>
-                    <Bar className="skel-avatar" />
+                    {avatar && <Bar className="skel-avatar" />}
                     <div className="skel-grow">
                         <Bar className="skel-line" width="45%" />
                         <Bar className="skel-line" width="75%" />
@@ -162,11 +163,10 @@ export function SkeletonToolbar() {
  * same tile as StatCard, so it is the right size at every breakpoint without
  * keeping a second set of dimensions in step.
  */
-export function SkeletonStatStrip({ count = 4, label }) {
-    const { t } = useTranslation()
+export function SkeletonStatStrip({ count = 4, label, quiet = false }) {
     return (
         <>
-            <span className="sr-only" role="status" aria-live="polite">{label || t('common.loading')}</span>
+            <Announce label={label} quiet={quiet} />
             <div className="portal-stat-grid" aria-hidden="true">
                 {Array.from({ length: count }, (_, i) => (
                     <div className="portal-stat-card is-loading" key={i}>
@@ -223,11 +223,12 @@ export function SkeletonDataTable({ rows = 8, cols = 5, avatarFirst = true }) {
  *   settings    a stack of panels
  */
 export function SkeletonPage({ variant = 'table', stats = 4, label }) {
-    const { t } = useTranslation()
-    const announce = label || t('common.loading')
+    // The page announces the wait once, itself, so it still does when it has no
+    // stat strip to hang the announcement on.
     return (
         <>
-            {variant !== 'settings' && stats > 0 && <SkeletonStatStrip count={stats} label={announce} />}
+            <Announce label={label} />
+            {variant !== 'settings' && stats > 0 && <SkeletonStatStrip count={stats} quiet />}
             {variant === 'dashboard' && (
                 <div className="cards-grid" aria-hidden="true">
                     <SkeletonCard lines={7} quiet />
@@ -242,7 +243,6 @@ export function SkeletonPage({ variant = 'table', stats = 4, label }) {
             )}
             {variant === 'settings' && (
                 <div className="skel-stack-lg" aria-hidden="true">
-                    <span className="sr-only" role="status" aria-live="polite">{announce}</span>
                     <SkeletonCard lines={4} quiet />
                     <SkeletonCard lines={5} quiet />
                     <SkeletonCard lines={3} quiet />
@@ -271,24 +271,29 @@ export function SkeletonChart({ bars = 7, label, quiet = false }) {
     )
 }
 
-/**
- * The Admin dashboard's "Recent activity" rows while they load: the same row,
- * icon square and text block as the real list (.adm-activity-*), so it is the
- * right size by construction.
- */
-export function SkeletonActivity({ items = 5, label }) {
+/** Several panels one under another: a feed of announcements, a list of tickets. */
+export function SkeletonCards({ count = 3, lines = 3, label }) {
     return (
-        <div aria-busy="true">
+        <div className="skel-stack">
             <Announce label={label} />
-            {Array.from({ length: items }, (_, i) => (
-                <div className="adm-activity-item" key={i} aria-hidden="true">
-                    <span className="skel adm-activity-icon" />
-                    <div className="adm-activity-details">
-                        <div className="skel skel-line" style={{ width: i % 2 ? '58%' : '74%' }} />
-                        <div className="skel skel-line" style={{ width: '28%' }} />
-                    </div>
-                </div>
+            {Array.from({ length: count }, (_, i) => (
+                <SkeletonCard key={i} lines={lines} quiet />
             ))}
         </div>
+    )
+}
+
+/**
+ * A heading that has not arrived: a short bar in the heading's place, with the
+ * words kept for screen readers. For a modal whose title is the record's name,
+ * which is not known until the record loads.
+ */
+export function SkeletonTitle({ label }) {
+    const { t } = useTranslation()
+    return (
+        <>
+            <span className="skel skel-heading" aria-hidden="true" />
+            <span className="sr-only">{label || t('common.loading')}</span>
+        </>
     )
 }

@@ -20,7 +20,7 @@ import { StatCard } from '../../components/layout/StatCard'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { ModalOverlay } from '../../components/ui/ModalOverlay'
-import { SkeletonList } from '../../components/ui/Skeleton'
+import { SkeletonCards, SkeletonList } from '../../components/ui/Skeleton'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -502,7 +502,7 @@ export function DisSettings() {
                                 )}
 
                                 {facLoading ? (
-                                    <p className="disc-loading-text">{t('dis.settings.loadingFacilities')}</p>
+                                    <SkeletonCards count={2} lines={4} label={t('dis.settings.loadingFacilities')} />
                                 ) : (
                                     <>
                                         {/* ── Dormitory Sections ── */}

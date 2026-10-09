@@ -471,32 +471,31 @@ export function DisBoarding() {
                             </div>
                         </div>
 
-                        {loading ? (
-                            <p className="u-pad u-muted">{t('dis.boarding.loading')}</p>
-                        ) : (
-                            <DataTable
-                                title={t('dis.boarding.students')}
-                                data={visible}
-                                columns={[
-                                    t('common.student'), t('common.class'), t('common.admissionNo'),
-                                    t('common.dormitory'), t('dis.boarding.roomBed'), t('common.type'),
-                                    t('dis.boarding.checkIn'), t('common.actions'),
-                                ]}
-                                renderRow={(r, i) => (
-                                    <BoardingRow
-                                        key={r.id || i}
-                                        record={r}
-                                        dormSectionMap={dormSectionMap}
-                                        onEdit={setEditingRecord}
-                                        onDelete={handleDelete}
-                                    />
-                                )}
-                                emptyIcon="hotel"
-                                emptyTitle={t('dis.boarding.noRecords')}
-                                emptyDesc={filter === 'all' ? t('dis.boarding.noRecordsDesc') : t('dis.boarding.noStudentsIn', { section: filter })}
-                                onClearFilters={filter !== 'all' ? () => setFilter('all') : undefined}
-                            />
-                        )}
+                        <DataTable
+                            loading={loading}
+                            loadingLabel={t('dis.boarding.loading')}
+                            skeletonAvatar
+                            title={t('dis.boarding.students')}
+                            data={visible}
+                            columns={[
+                                t('common.student'), t('common.class'), t('common.admissionNo'),
+                                t('common.dormitory'), t('dis.boarding.roomBed'), t('common.type'),
+                                t('dis.boarding.checkIn'), t('common.actions'),
+                            ]}
+                            renderRow={(r, i) => (
+                                <BoardingRow
+                                    key={r.id || i}
+                                    record={r}
+                                    dormSectionMap={dormSectionMap}
+                                    onEdit={setEditingRecord}
+                                    onDelete={handleDelete}
+                                />
+                            )}
+                            emptyIcon="hotel"
+                            emptyTitle={t('dis.boarding.noRecords')}
+                            emptyDesc={filter === 'all' ? t('dis.boarding.noRecordsDesc') : t('dis.boarding.noStudentsIn', { section: filter })}
+                            onClearFilters={filter !== 'all' ? () => setFilter('all') : undefined}
+                        />
 
                         </>}
 

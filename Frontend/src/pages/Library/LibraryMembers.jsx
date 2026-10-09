@@ -11,7 +11,7 @@ import { getMember, getMembers } from '../../api/library'
 import { formatAmount } from '../Finance/FinanceShell'
 import { LibraryShell } from './LibraryShell'
 import { asRow } from '../../utils/a11y'
-import { SkeletonList } from '../../components/ui/Skeleton'
+import { SkeletonList, SkeletonTitle } from '../../components/ui/Skeleton'
 
 /**
  * Who may borrow, and what they have.
@@ -121,7 +121,7 @@ function MemberDetail({ id, onClose }) {
 
     return (
         <Modal
-            title={data?.member?.name || t('common.loading')}
+            title={data?.member?.name || <SkeletonTitle />}
             icon="person"
             size="wide"
             onClose={onClose}

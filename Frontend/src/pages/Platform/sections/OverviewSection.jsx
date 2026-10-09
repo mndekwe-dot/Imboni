@@ -6,6 +6,7 @@ import { getPlatformSummary } from '../../../api/platform'
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
 import { asButton } from '../../../utils/a11y'
+import { SkeletonPage } from '../../../components/ui/Skeleton'
 
 const money = (v) => `$${Number(v || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
@@ -25,7 +26,7 @@ export function OverviewSection() {
         return () => { alive = false }
     }, [toast, t])
 
-    if (loading) return <p className="platform-muted">{t('platform.overview.loading')}</p>
+    if (loading) return <SkeletonPage variant="dashboard" label={t('platform.overview.loading')} />
     if (!sum) return null
 
     const go = (to) => () => navigate(to)

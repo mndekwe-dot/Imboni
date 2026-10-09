@@ -9,7 +9,6 @@ import { useCurrentTerm } from '../../hooks/useCurrentTerm'
 import { WelcomeBanner, bannerRole } from '../../components/layout/WelcomeBanner'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { StatCard } from '../../components/layout/StatCard'
-import { SkeletonActivity } from '../../components/ui/Skeleton'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import { getAdminDashboardStats, getAdminRecentActivity } from '../../api/admin'
@@ -40,6 +39,29 @@ const ACTIVITY_ICON = {
     approval: { icon: 'check_circle', cls: 'success' },
     staff:    { icon: 'person_add',   cls: 'info'    },
     pending:  { icon: 'pending',      cls: 'warning' },
+}
+
+/**
+ * The Admin dashboard's "Recent activity" rows while they load: the same row,
+ * icon square and text block as the real list (.adm-activity-*), so it is the
+ * right size by construction.
+ */
+function SkeletonActivity({ items = 5, label }) {
+    const { t } = useTranslation()
+    return (
+        <div aria-busy="true">
+            <span className="sr-only" role="status" aria-live="polite">{label || t('common.loading')}</span>
+            {Array.from({ length: items }, (_, i) => (
+                <div className="adm-activity-item" key={i} aria-hidden="true">
+                    <span className="skel adm-activity-icon" />
+                    <div className="adm-activity-details">
+                        <div className="skel skel-line" style={{ width: i % 2 ? '58%' : '74%' }} />
+                        <div className="skel skel-line" style={{ width: '28%' }} />
+                    </div>
+                </div>
+            ))}
+        </div>
+    )
 }
 
 export function AdminDashboard() {

@@ -24,6 +24,7 @@ import {
     getTeacherAttendanceStudents,
     markTeacherAttendance,
 } from '../../api/teacher'
+import { SkeletonPage, SkeletonTable } from '../../components/ui/Skeleton'
 
 const STATUS_COLORS = {
     present: 'var(--success)',
@@ -228,7 +229,7 @@ export function TeacherAttendance() {
                     />
                     <DashboardContent>
                         {loadingClasses ? (
-                            <EmptyState icon="sync" title={t('common.loadingClasses')} description={t('teacher.attendance.fetchingClasses')} />
+                            <SkeletonPage variant="table" stats={0} label={t('common.loadingClasses')} />
                         ) : (
                             <>
                                 <ClassPicker
@@ -266,7 +267,7 @@ export function TeacherAttendance() {
                                 {!classKey ? (
                                     <EmptyState icon="fact_check" title={t('common.noClassSelected')} description={t('teacher.attendance.pickerHintAttendance')} />
                                 ) : loadingStudents ? (
-                                    <EmptyState icon="sync" title="Loading…" description={`Fetching students for ${classKey}.`} />
+                                    <SkeletonTable rows={8} cols={5} label={t('common.loadingStudents')} />
                                 ) : (
                                     <>
                                         <div className="mini-stats-row">

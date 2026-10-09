@@ -180,7 +180,7 @@ function ConsentCard() {
         >
             <div>
                 {loading ? (
-                    <p className="u-muted">{t('parent.children.loadingConsent')}</p>
+                    <SkeletonList items={2} avatar={false} flush label={t('parent.children.loadingConsent')} />
                 ) : (
                     <div className="u-stack-sm">
                         {requests.map(req => (
@@ -297,7 +297,7 @@ export function ParentChildren() {
                             count={loading ? null : t('parent.children.childCount', { count: children.length })}
                         >
                             {loading ? (
-                                <p className="u-muted">{t('parent.children.loadingChildren')}</p>
+                                <SkeletonList items={2} flush label={t('parent.children.loadingChildren')} />
                             ) : children.length === 0 ? (
                                 <EmptyState
                                     icon="family_restroom"

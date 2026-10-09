@@ -26,6 +26,7 @@ import { formatDate } from '../../utils/date'
 import { downloadCsv, failedRowsTable } from '../../utils/exportTable'
 import { Student360Modal } from '../../components/modals/Student360Modal'
 import { SearchBar } from '../../components/ui/SearchBar'
+import { SkeletonText } from '../../components/ui/Skeleton'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const AVATAR_COLORS = ['var(--primary)', 'var(--success-text)', 'var(--warning-text)', 'var(--cat-indigo)', 'var(--destructive)', 'var(--info-text)', 'var(--cat-violet)', 'var(--cat-rose)']
@@ -501,7 +502,7 @@ function StudentDetailDrawer({ studentId, onClose, onStudentUpdated }) {
                 </div>
             }
         >
-            {loading && <p className="dos-drawer-loading">{t('common.loading')}</p>}
+            {loading && <SkeletonText lines={6} label={t('common.loading')} />}
 
             {!loading && student && (
                 <>

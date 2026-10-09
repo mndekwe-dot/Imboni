@@ -16,6 +16,7 @@ import { matronNavItems, matronSecondaryItems } from './matronNav'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/matron.css'
+import '../../styles/tables.css'
 
 const TONE = { ok: 'badge-soft-success', low: 'badge-soft-warning', out: 'badge-soft-danger',
     expiring: 'badge-soft-warning', expired: 'badge-soft-danger' }

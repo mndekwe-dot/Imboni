@@ -7,6 +7,7 @@ import '../../styles/components.css'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { ModalOverlay } from '../ui/ModalOverlay'
+import { SkeletonList } from '../../components/ui/Skeleton'
 
 const TABS = [
     { key: 'profile', labelKey: 'modals.conduct.tabProfile', icon: 'person' },
@@ -129,7 +130,7 @@ function ProfileTab({ student, stats, history, histLoading }) {
                 </div>
 
                 {histLoading ? (
-                    <p className="scm-note">{t('modals.conduct.loadingHistory')}</p>
+                    <SkeletonList items={3} flush label={t('modals.conduct.loadingHistory')} />
                 ) : history.length === 0 ? (
                     <div className="scm-empty">
                         <span className="material-symbols-rounded scm-empty-icon" aria-hidden="true">

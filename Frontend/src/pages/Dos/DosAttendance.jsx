@@ -30,6 +30,7 @@ import '../../styles/components.css'
 import '../../styles/dos.css'
 import '../../styles/discipline.css'
 import { SkeletonList } from '../../components/ui/Skeleton'
+import '../../styles/tables.css'
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 

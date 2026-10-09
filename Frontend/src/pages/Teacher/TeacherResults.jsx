@@ -28,6 +28,7 @@ import { errorMessage } from '../../utils/errors'
 import { downloadCsv } from '../../utils/exportTable'
 import { matchScores, scoreTemplate } from '../../utils/scoreImport'
 import { confirmDialog } from '../../utils/confirm'
+import { SkeletonPage, SkeletonTable } from '../../components/ui/Skeleton'
 
 const ASSESSMENT_TYPES = [
     { value: 'quiz',         label: 'Quiz'         },
@@ -481,7 +482,7 @@ export function TeacherResults() {
                             </div>
                         )}
                         {loadingClasses ? (
-                            <EmptyState icon="sync" title={t('common.loadingClasses')} description={t('teacher.attendance.fetchingClasses')} />
+                            <SkeletonPage variant="table" stats={0} label={t('common.loadingClasses')} />
                         ) : (
                             <>
                                 <ClassPicker
@@ -532,7 +533,7 @@ export function TeacherResults() {
                                 {!selectedClass ? (
                                     <EmptyState icon="school" title={t('common.noClassSelected')} description={t('teacher.results.pickerHintResults')} />
                                 ) : loadingData ? (
-                                    <EmptyState icon="sync" title="Loading…" description={`Fetching results for ${classKey}.`} />
+                                    <SkeletonTable rows={8} cols={5} label={t('common.loading')} />
                                 ) : (
                                     <>
                                         {rows.length > 0 && (

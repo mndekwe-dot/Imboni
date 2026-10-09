@@ -16,6 +16,7 @@ import '../../styles/support.css'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { asButton } from '../../utils/a11y'
+import { SkeletonCards } from '../../components/ui/Skeleton'
 
 const STATUS_LABEL = { open: 'Open', in_progress: 'In progress', resolved: 'Resolved', closed: 'Closed' }
 
@@ -160,7 +161,7 @@ export function AdminSupport() {
                         {/* My tickets */}
                         <h3 className="support-h3">Your tickets</h3>
                         {loading ? (
-                            <p className="support-muted">Loading…</p>
+                            <SkeletonCards count={2} lines={2} />
                         ) : tickets.length === 0 ? (
                             <p className="support-muted">You haven&apos;t raised any tickets yet.</p>
                         ) : (

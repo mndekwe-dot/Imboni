@@ -21,6 +21,7 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 import { StatCard } from '../../components/layout/StatCard'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { SkeletonCards, SkeletonList } from '../../components/ui/Skeleton'
 
 /* Category keys, resolved inside the component. As plain strings the whole
    filter row stayed English under the language switch. */
@@ -172,7 +173,7 @@ function ConsentRequestsPanel() {
                 )}
 
                 {loading ? (
-                    <p className="u-muted">{t('dis.activities.loadingRequests')}</p>
+                    <SkeletonList items={3} label={t('dis.activities.loadingRequests')} />
                 ) : requests.length === 0 ? (
                     <p className="u-muted">
                         {t('dis.activities.empty')}
@@ -297,7 +298,7 @@ export function DisActivities() {
                         </div>
 
                         {loading ? (
-                            <p className="u-pad u-muted">{t('dis.activities.loading')}</p>
+                            <SkeletonCards count={3} lines={2} label={t('dis.activities.loading')} />
                         ) : visible.length === 0 ? (
                             <EmptyState
                                 icon="sports_soccer"

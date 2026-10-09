@@ -24,6 +24,7 @@
  * of them in a row were cut off mid-currency on the finance dashboard.
  */
 import { isValidElement } from 'react'
+import '../../styles/skeleton.css'
 
 const FIGURE = /^[\s\d.,%+\-−–/:()]*[A-Z]{0,3}[+-]?[\s\d.,%]*$/
 
