@@ -153,6 +153,26 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
     }
 
+    # Pictures that are public by design: the school logo shows on the sign-in
+    # page before anyone has signed in, and avatars are shown across the school.
+    # Served by nginx straight from the media volume (Django will not serve
+    # them with DEBUG off). Only these two folders: the volume also holds
+    # student documents, message attachments and assignment files, and serving
+    # the whole of /media/ would hand every one of those to anyone who could
+    # guess a filename. Those stay behind the proxy block below.
+    location ^~ /media/school-logos/ {
+        alias /srv/media/school-logos/;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Cache-Control "public, max-age=86400";
+        try_files $uri =404;
+    }
+    location ^~ /media/avatars/ {
+        alias /srv/media/avatars/;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Cache-Control "public, max-age=86400";
+        try_files $uri =404;
+    }
+
     location /media/ {
         proxy_pass http://imboni_backend;
         proxy_http_version 1.1;
