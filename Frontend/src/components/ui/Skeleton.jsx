@@ -16,7 +16,10 @@ import '../../styles/skeleton.css'
  * Pick the variant that matches what is arriving:
  *   <SkeletonText lines={3} />        paragraphs and prose
  *   <SkeletonList items={5} />        avatar + two lines, repeated
- *   <SkeletonTable rows={5} cols={4} />
+ *   <SkeletonTable rows={5} cols={4} />   a whole table, when the page has no table to keep
+ *   <SkeletonRows rows={6} cols={5} />    <tr>s for a page's OWN <tbody>: keep the real
+ *                                         <thead>, swap only the body. Columns then match by
+ *                                         construction and cannot drift from the page.
  *   <SkeletonStats count={4} />       the stat-card strip on dashboards
  *   <SkeletonCard />                  a single panel
  */
@@ -103,6 +106,50 @@ export function SkeletonCard({ lines = 4, label }) {
             {Array.from({ length: lines }, (_, i) => (
                 <Bar key={i} className="skel-line" width={i === lines - 1 ? '55%' : '100%'} />
             ))}
+        </div>
+    )
+}
+
+/**
+ * Rows for a table the page already renders. The caller keeps its own <table>
+ * and <thead>, and puts this where the data rows go:
+ *
+ *   <tbody>{loading ? <SkeletonRows rows={6} cols={5} avatarFirst /> : rows}</tbody>
+ *
+ * `avatarFirst` gives the first cell the round avatar + name shape that people
+ * tables use. The announcement lives in the first cell so there is one live
+ * region per table, not one per row.
+ */
+export function SkeletonRows({ rows = 5, cols = 4, avatarFirst = false, label }) {
+    const { t } = useTranslation()
+    return Array.from({ length: rows }, (_, r) => (
+        <tr key={r} className="skel-tr">
+            {Array.from({ length: cols }, (_, c) => (
+                <td key={c}>
+                    {r === 0 && c === 0 && (
+                        <span className="sr-only" role="status" aria-live="polite">{label || t('common.loading')}</span>
+                    )}
+                    {c === 0 && avatarFirst ? (
+                        <div className="skel-cell-avatar" aria-hidden="true">
+                            <div className="skel skel-avatar" />
+                            <div className="skel skel-cell" style={{ width: '60%' }} />
+                        </div>
+                    ) : (
+                        <div className="skel skel-cell" style={{ width: c === 0 ? '70%' : `${45 + ((r + c) % 3) * 15}%` }} aria-hidden="true" />
+                    )}
+                </td>
+            ))}
+        </tr>
+    ))
+}
+
+/** A search box and a couple of filter pills: the bar above most tables. */
+export function SkeletonToolbar() {
+    return (
+        <div className="skel-toolbar" aria-hidden="true">
+            <div className="skel skel-search" />
+            <div className="skel skel-pill" />
+            <div className="skel skel-pill" />
         </div>
     )
 }
