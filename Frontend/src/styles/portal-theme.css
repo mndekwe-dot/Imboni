@@ -78,12 +78,12 @@
 
 /* Hover slid the item 4px sideways. A row that moves under the cursor is
    harder to click than one that just lights up. */
-[data-portal] .sidebar-nav-item:hover:not(.active) {
+@media (hover: hover) { [data-portal] .sidebar-nav-item:hover:not(.active) {
   background-color: rgba(255, 255, 255, 0.09);
   color: #ffffff;
   transform: none;
-}
-[data-portal] .sidebar.collapsed .sidebar-nav-item:hover { transform: none; }
+} }
+@media (hover: hover) { [data-portal] .sidebar.collapsed .sidebar-nav-item:hover { transform: none; } }
 
 /* ── 2. Header ───────────────────────────────────────────── */
 
@@ -142,13 +142,13 @@
   color: rgba(255, 255, 255, 0.88);
 }
 
-[data-portal] .notification-btn:hover,
+@media (hover: hover) { [data-portal] .notification-btn:hover,
 [data-portal] .mobile-menu-btn:hover {
   background: rgba(255, 255, 255, 0.22);
   border-color: rgba(255, 255, 255, 0.3);
   color: #ffffff;
   transform: none;
-}
+} }
 
 /* The badge ring has to match whatever it sits on, or it draws a pale halo. */
 [data-portal] .notification-badge {
@@ -254,7 +254,7 @@
 
 /* Hover lift is for things you can click. A card that only holds
    content is not clickable, so it does not move. */
-[data-portal] .card:hover { box-shadow: var(--shadow-sm); }
+@media (hover: hover) { [data-portal] .card:hover { box-shadow: var(--shadow-sm); } }
 
 [data-portal] .card-header {
   padding: var(--space-4) var(--space-5);
@@ -342,10 +342,10 @@
   gap: var(--space-4);
 }
 
-[data-portal] .portal-stat-card:hover {
+@media (hover: hover) { [data-portal] .portal-stat-card:hover {
   box-shadow: var(--shadow-sm);
   border-color: var(--border-hover);
-}
+} }
 
 [data-portal] .portal-stat-icon {
   width: 42px;
@@ -417,17 +417,17 @@
   color: var(--primary-foreground);
   box-shadow: var(--shadow-xs);
 }
-[data-portal] .btn-primary:hover:not(:disabled) {
+@media (hover: hover) { [data-portal] .btn-primary:hover:not(:disabled) {
   background-color: var(--primary-hover);
   box-shadow: var(--shadow-sm);
-}
+} }
 
 [data-portal] .btn-secondary {
   background-color: var(--secondary);
   color: var(--secondary-foreground);
   box-shadow: none;
 }
-[data-portal] .btn-secondary:hover:not(:disabled) { background-color: var(--secondary-hover); }
+@media (hover: hover) { [data-portal] .btn-secondary:hover:not(:disabled) { background-color: var(--secondary-hover); } }
 
 [data-portal] .btn-outline {
   background-color: var(--card);
@@ -435,18 +435,18 @@
   color: var(--foreground);
   box-shadow: none;
 }
-[data-portal] .btn-outline:hover:not(:disabled) {
+@media (hover: hover) { [data-portal] .btn-outline:hover:not(:disabled) {
   background-color: var(--surface-3);
   border-color: var(--border-hover);
-}
+} }
 
 [data-portal] .btn-danger,
 [data-portal] .btn-destructive {
   background-color: var(--destructive);
   color: #fff;
 }
-[data-portal] .btn-danger:hover:not(:disabled),
-[data-portal] .btn-destructive:hover:not(:disabled) { background-color: var(--destructive-hover); }
+@media (hover: hover) { [data-portal] .btn-danger:hover:not(:disabled),
+[data-portal] .btn-destructive:hover:not(:disabled) { background-color: var(--destructive-hover); } }
 
 /* One disabled treatment, not five */
 [data-portal] .btn:disabled,
@@ -460,10 +460,10 @@
   color: var(--muted-foreground);
   border-radius: var(--radius-sm);
 }
-[data-portal] .btn-icon-clean:hover {
+@media (hover: hover) { [data-portal] .btn-icon-clean:hover {
   color: var(--primary);
   background: var(--primary-surface);
-}
+} }
 
 /* ── 9. Inputs ───────────────────────────────────────────── */
 
@@ -478,11 +478,11 @@
   min-height: 40px;
 }
 
-[data-portal] .form-input:hover:not(:disabled),
+@media (hover: hover) { [data-portal] .form-input:hover:not(:disabled),
 [data-portal] .form-control:hover:not(:disabled),
 [data-portal] .form-select:hover:not(:disabled) {
   border-color: var(--border-hover);
-}
+} }
 
 [data-portal] .form-input:focus,
 [data-portal] .form-control:focus,
@@ -524,7 +524,7 @@
   border-bottom: 1px solid var(--border);
 }
 
-[data-portal] .data-table tbody tr:hover td { background: var(--surface-2); }
+@media (hover: hover) { [data-portal] .data-table tbody tr:hover td { background: var(--surface-2); } }
 
 /* ── 11. Badges ──────────────────────────────────────────── */
 
@@ -576,9 +576,9 @@
   border: 3px solid var(--background);
   border-radius: var(--radius-full);
 }
-[data-portal] .dashboard-content::-webkit-scrollbar-thumb:hover {
+@media (hover: hover) { [data-portal] .dashboard-content::-webkit-scrollbar-thumb:hover {
   background: var(--scrollbar-thumb-hover);
-}
+} }
 
 /* ── 15. Portal sign-in ──────────────────────────────────────
    /login/<portal> carries data-portal too, so the sign-in screen is already

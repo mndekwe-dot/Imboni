@@ -17,6 +17,7 @@ import { disNavItems, disSecondaryItems } from './disNav'
 import { formatDateShort } from '../../utils/date'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
+import { confirmDialog } from '../../utils/confirm'
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -214,7 +215,7 @@ export function DisAnnouncements() {
     }
 
     async function handleDelete(id) {
-        if (!window.confirm(t('announcements.deleteConfirm'))) return
+        if (!await confirmDialog(t('announcements.deleteConfirm'))) return
         try {
             await deleteDisAnnouncement(id)
             setAnnouncements(prev => prev.filter(a => a.id !== id))

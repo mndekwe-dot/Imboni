@@ -26,6 +26,7 @@ import { SearchBar } from '../../components/ui/SearchBar'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { StudentsNeedingAttention } from './StudentsNeedingAttention'
+import { confirmDialog } from '../../utils/confirm'
 
 const STATUS_MAP = { submitted: 'pending', approved: 'approved', rejected: 'rejected' }
 
@@ -524,7 +525,7 @@ export function DosResults() {
 
     // Every pending card the filters currently show, in one request.
     async function approveAllShown() {
-        if (!window.confirm(t('dos.results.approveAllConfirm', { count: pendingShown.length }))) return
+        if (!await confirmDialog(t('dos.results.approveAllConfirm', { count: pendingShown.length }))) return
         try {
             await bulkApproveResults(pendingShown.flatMap(c => c.ids))
             const done = new Set(pendingShown.map(c => c.key))

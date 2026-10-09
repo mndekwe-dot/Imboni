@@ -4,7 +4,7 @@
    use bare var(--muted) as a TEXT colour, faithful to the
    original inline styles.
    ============================================================ */
-.sgn-page        { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--background); padding: 2rem; }
+.sgn-page        { min-height: 100dvh; display: flex; align-items: center; justify-content: center; background: var(--background); padding: 2rem; }
 .sgn-wrap        { width: 100%; max-width: 480px; }
 .sgn-wrap-center { width: 100%; max-width: 480px; text-align: center; }
 

@@ -27,6 +27,7 @@ import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { downloadCsv } from '../../utils/exportTable'
 import { matchScores, scoreTemplate } from '../../utils/scoreImport'
+import { confirmDialog } from '../../utils/confirm'
 
 const ASSESSMENT_TYPES = [
     { value: 'quiz',         label: 'Quiz'         },
@@ -115,8 +116,8 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
         Object.values(scores).some(v => v !== '') || Object.values(notes).some(v => v.trim() !== '')
     )
 
-    function cancel() {
-        if (!dirty || window.confirm(t('teacher.results.discardConfirm'))) onClose()
+    async function cancel() {
+        if (!dirty || await confirmDialog(t('teacher.results.discardConfirm'))) onClose()
     }
 
     function downloadTemplate() {

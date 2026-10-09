@@ -23,7 +23,7 @@
   --login-from: #1d5fa8;
   --login-to: #0e3560;
 
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -125,7 +125,7 @@
   border-color: rgba(255, 255, 255, 0.2);
   color: #fff;
 }
-.login-card .lang-select:hover:not(:disabled) { background: rgba(255, 255, 255, 0.2); }
+@media (hover: hover) { .login-card .lang-select:hover:not(:disabled) { background: rgba(255, 255, 255, 0.2); } }
 .login-card .lang-select option { background: #14406e; color: #fff; }
 .login-card .lang-select-icon,
 .login-card .lang-select-caret { color: rgba(255, 255, 255, 0.7); }
@@ -307,7 +307,7 @@
   cursor: pointer;
   border-radius: 6px;
 }
-.pw-toggle:hover { color: #fff; }
+@media (hover: hover) { .pw-toggle:hover { color: #fff; } }
 .pw-toggle .material-symbols-rounded { font-size: var(--icon-sm); }
 
 /* ── Remember / forgot ──────────────────────────────────────────── */
@@ -345,7 +345,7 @@
   cursor: pointer;
   text-decoration: none;
 }
-.forgot-link:hover { color: #fff; text-decoration: underline; }
+@media (hover: hover) { .forgot-link:hover { color: #fff; text-decoration: underline; } }
 
 /* ── Submit ─────────────────────────────────────────────────────── */
 
@@ -398,9 +398,9 @@
   }
 }
 
-.login-btn:hover:not(:disabled)::before {
+@media (hover: hover) { .login-btn:hover:not(:disabled)::before {
   left: 100%;
-}
+} }
 
 .login-btn:active:not(:disabled) { 
   transform: translateY(0);
@@ -512,7 +512,7 @@
   text-decoration: none;
   transition: color 0.15s;
 }
-.portal-login-back:hover { color: #fff; }
+@media (hover: hover) { .portal-login-back:hover { color: #fff; } }
 .portal-login-back .material-symbols-rounded { font-size: var(--icon-sm); }
 
 /* The back link sits on its own line above the centred switcher. They were
@@ -531,7 +531,7 @@
   padding: 0.75rem 1rem;
 }
 .portal-forgot-link { color: rgba(255, 255, 255, 0.85); }
-.portal-forgot-link:hover { color: #fff; }
+@media (hover: hover) { .portal-forgot-link:hover { color: #fff; } }
 
 /* ── Forgot-password modal + 2FA helpers ────────────────────────── */
 /* These render inside a Modal on the app's own surface, not on the card, so

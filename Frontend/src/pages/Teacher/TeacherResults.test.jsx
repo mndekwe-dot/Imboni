@@ -121,7 +121,7 @@ describe('TeacherResults', () => {
 
       confirm.mockReturnValue(true)
       fireEvent.click(screen.getByText('Cancel'))
-      expect(screen.queryByText('Amina Uwase')).not.toBeInTheDocument()
+      await waitFor(() => expect(screen.queryByText('Amina Uwase')).not.toBeInTheDocument())
       confirm.mockRestore()
     })
   })

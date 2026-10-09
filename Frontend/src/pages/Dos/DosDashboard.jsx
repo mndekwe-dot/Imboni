@@ -20,6 +20,7 @@ import '../../styles/components.css'
 import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { confirmDialog } from '../../utils/confirm'
 
 
 function TrendTooltip({ active, payload, label }) {
@@ -183,7 +184,7 @@ export function DosDashboard() {
     async function handleClearCompleted() {
         const done = tasks.filter(t => t.is_completed)
         if (!done.length) return
-        if (!window.confirm(t('common.clearCompletedConfirm', { count: done.length }))) return
+        if (!await confirmDialog(t('common.clearCompletedConfirm', { count: done.length }))) return
         const previous = tasks
         setTasks(prev => prev.filter(t => !t.is_completed))
         const results = await Promise.allSettled(done.map(t => deleteDosTask(t.id)))

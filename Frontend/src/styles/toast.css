@@ -83,7 +83,7 @@
     display: inline-flex;
     line-height: 1;
 }
-.toast-close:hover { opacity: 1; }
+@media (hover: hover) { .toast-close:hover { opacity: 1; } }
 .toast-close .material-symbols-rounded { font-size: var(--icon-sm); }
 
 .toast-error   .toast-icon { color: #dc2626; }

@@ -72,9 +72,9 @@
   border-bottom: none;
 }
 
-.notif-item:hover {
+@media (hover: hover) { .notif-item:hover {
   background: var(--muted);
-}
+} }
 
 .notif-unread {
   background: color-mix(in srgb, var(--primary) 6%, var(--card));

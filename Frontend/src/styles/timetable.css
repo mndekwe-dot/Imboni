@@ -153,7 +153,7 @@
     font-variant-numeric: tabular-nums;
     cursor: pointer;
 }
-.tt-cal-day:hover { background: var(--muted); }
+@media (hover: hover) { .tt-cal-day:hover { background: var(--muted); } }
 .tt-cal-day.is-outside  { color: var(--muted-foreground); }
 .tt-cal-day.is-range    { background: var(--portal-accent-light, var(--primary-light)); border-radius: 0; }
 .tt-cal-day.is-today    { font-weight: 800; color: var(--portal-accent, var(--primary)); }
@@ -458,7 +458,7 @@
 }
 .tt-cell:hover .tt-drag-handle,
 .tt-drag-handle:focus-visible { opacity: 1; }
-.tt-drag-handle:hover { color: var(--primary, #2563eb); }
+@media (hover: hover) { .tt-drag-handle:hover { color: var(--primary, #2563eb); } }
 .tt-drag-handle:active { cursor: grabbing; }
 .tt-drag-handle .material-symbols-rounded { font-size: var(--icon-sm); }
 /* Nudge cell text right so it doesn't sit under the handle */

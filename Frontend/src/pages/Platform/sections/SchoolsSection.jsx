@@ -5,6 +5,7 @@ import {
 import { useToast } from '../../../context/ToastContext'
 import { errorMessage } from '../../../utils/errors'
 import { SchoolOverviewModal } from './SchoolOverviewModal'
+import { confirmDialog } from '../../../utils/confirm'
 
 const STATUS_META = {
     active:    { label: 'Active',    cls: 'ok'   },
@@ -52,7 +53,7 @@ export function SchoolsSection() {
     // morning, so it asks first. Restricting and reactivating do not: one is
     // reversible in a click and the other is the recovery.
     async function act(school, kind) {
-        if (kind === 'suspend' && !window.confirm(
+        if (kind === 'suspend' && !await confirmDialog(
             `Suspend ${school.name}? Nobody at the school will be able to sign in. ` +
             'To apply pressure without closing the doors, use Restrict instead.')) return
 

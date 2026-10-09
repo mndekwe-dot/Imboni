@@ -21,6 +21,7 @@ import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/teacher.css'
+import { confirmDialog } from '../../utils/confirm'
 
 /**
  * Create or edit an assignment, on a page of its own.
@@ -125,8 +126,8 @@ export function TeacherAssignmentForm() {
         return () => window.removeEventListener('beforeunload', warn)
     }, [dirty])
 
-    function leave() {
-        if (dirty && !window.confirm(t('teacher.assignments.discardChanges'))) return
+    async function leave() {
+        if (dirty && !await confirmDialog(t('teacher.assignments.discardChanges'))) return
         navigate('/teacher/assignments')
     }
 

@@ -204,7 +204,7 @@ describe('TeacherAssignmentForm', () => {
             fireEvent.change(document.querySelector('#asgn-title'), { target: { value: 'Changed' } })
             fireEvent.click(screen.getByRole('button', { name: /Back to assignments/ }))
 
-            expect(navigate).toHaveBeenCalledWith('/teacher/assignments')
+            await waitFor(() => expect(navigate).toHaveBeenCalledWith('/teacher/assignments'))
             confirm.mockRestore()
         })
     })
