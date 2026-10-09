@@ -41,11 +41,11 @@ const EXAM_TYPES = [
 ]
 
 const TYPE_COLORS = {
-    midterm: '#3b82f6',
-    final:   '#7c3aed',
-    quiz:    '#d97706',
-    mock:    '#0891b2',
-    other:   '#6b7280',
+    midterm: 'var(--info)',
+    final:   'var(--cat-violet)',
+    quiz:    'var(--warning)',
+    mock:    'var(--cat-indigo)',
+    other:   'var(--muted-foreground)',
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -779,7 +779,7 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
                                                                 <div className="es-cal-month-events">
                                                                     {dayExams.slice(0,2).map(exam => {
                                                                         const done  = examStatus(exam.exam_date).done
-                                                                        const color = done ? '#9ca3af' : (TYPE_COLORS[exam.exam_type]||TYPE_COLORS.other)
+                                                                        const color = done ? 'var(--subtle-foreground)' : (TYPE_COLORS[exam.exam_type]||TYPE_COLORS.other)
                                                                         return (
                                                                             <div key={exam.id} className="es-cal-month-event"
                                                                                 style={{borderLeftColor:color}}

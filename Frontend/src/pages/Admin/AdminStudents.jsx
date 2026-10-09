@@ -35,10 +35,10 @@ function gradeLabel(grade, section) {
 function gradeColor(letter) {
     if (!letter) return 'var(--muted-foreground)'
     const l = letter.toUpperCase()
-    if (l === 'A' || l === 'A+') return '#16a34a'
-    if (l === 'B')               return '#2563eb'
-    if (l === 'C')               return '#ca8a04'
-    return '#dc2626'
+    if (l === 'A' || l === 'A+') return 'var(--success)'
+    if (l === 'B')               return 'var(--info)'
+    if (l === 'C')               return 'var(--warning)'
+    return 'var(--destructive)'
 }
 
 function AttBar({ label, value, color }) {
@@ -138,16 +138,16 @@ function StudentDetailModal({ student, onClose }) {
                             <p className="adm-modal-label">
                                 {t('admin.students.attendance')}
                                 {attRate != null && (
-                                    <span style={{ marginLeft: '0.5rem', color: attRate >= 80 ? '#16a34a' : '#dc2626', fontWeight: 700 }}>
+                                    <span style={{ marginLeft: '0.5rem', color: attRate >= 80 ? 'var(--success)' : 'var(--destructive)', fontWeight: 700 }}>
                                         {attRate}%
                                     </span>
                                 )}
                             </p>
                             {attendance && presentPct != null ? (
                                 <>
-                                    <AttBar label={t('common.present')} value={presentPct} color="#16a34a" />
-                                    {latePct   != null && <AttBar label={t('common.late')}    value={latePct}   color="#f59e0b" />}
-                                    {absentPct != null && <AttBar label={t('common.absent')}  value={absentPct} color="#dc2626" />}
+                                    <AttBar label={t('common.present')} value={presentPct} color="var(--success)" />
+                                    {latePct   != null && <AttBar label={t('common.late')}    value={latePct}   color="var(--warning)" />}
+                                    {absentPct != null && <AttBar label={t('common.absent')}  value={absentPct} color="var(--destructive)" />}
                                 </>
                             ) : (
                                 <p className="empty-note">{t('admin.students.noAttendance')}</p>

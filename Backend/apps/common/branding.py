@@ -14,6 +14,7 @@ single global `SCHOOL_NAME` setting, so every school's report card said
 """
 import base64
 import io
+from urllib.parse import urlparse
 
 from django.conf import settings
 from django.db import connection
@@ -79,6 +80,62 @@ def school_branding():
         'phone': ((getattr(setting, 'contact_phone', '') or '').strip()
                   or getattr(settings, 'SCHOOL_PHONE', '')),
     }
+
+
+def logo_icon_png(size):
+    """
+    The logo as a square PNG of `size` pixels, or None when there is no logo.
+
+    A phone or desktop shortcut wants a square icon; schools upload whatever
+    shape their crest is. The logo is fitted inside with a margin on a white
+    square, so it is never stretched or cropped.
+    """
+    setting = _setting()
+    logo = getattr(setting, 'logo', None)
+    if not logo:
+        return None
+    try:
+        from PIL import Image
+        with logo.open('rb') as handle:
+            image = Image.open(handle)
+            image.load()
+        image = image.convert('RGBA')
+        inner = int(size * 0.8)
+        image.thumbnail((inner, inner))
+        canvas = Image.new('RGBA', (size, size), (255, 255, 255, 255))
+        canvas.paste(image, ((size - image.width) // 2, (size - image.height) // 2), image)
+        out = io.BytesIO()
+        canvas.convert('RGB').save(out, 'PNG', optimize=True)
+        return out.getvalue()
+    except Exception:
+        return None
+
+
+def frontend_url():
+    """
+    The address people at this school open: https://<the school's own domain>.
+
+    Every emailed link (a password reset, an invitation, an email change) used
+    to be built from the one deployment-wide FRONTEND_URL. In production that is
+    the bare domain, which is the public site and knows nothing about any
+    school's users, so a teacher's reset link led somewhere it could never
+    work. The school's primary domain is the right host; the scheme and any
+    port come from FRONTEND_URL so a local http setup keeps working.
+    """
+    base = str(getattr(settings, 'FRONTEND_URL', '')).rstrip('/')
+    tenant = getattr(connection, 'tenant', None)
+    try:
+        from django_tenants.utils import get_public_schema_name
+        if tenant is None or getattr(connection, 'schema_name', None) == get_public_schema_name():
+            return base
+        domain = tenant.domains.filter(is_primary=True).first() or tenant.domains.first()
+    except Exception:
+        return base
+    if not domain:
+        return base
+    parsed = urlparse(base)
+    port = f':{parsed.port}' if parsed.port else ''
+    return f'{parsed.scheme or "https"}://{domain.domain}{port}'
 
 
 def branding_context():

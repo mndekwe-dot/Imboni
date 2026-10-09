@@ -128,7 +128,7 @@ function GradeModal({ assignment, onClose }) {
             footer={
                 <div className="modal-footer-row">
                     <span className="modal-footer-hint"
-                        style={{ color: message?.type === 'error' ? '#dc2626' : message?.type === 'success' ? 'var(--success)' : undefined }}>
+                        style={{ color: message?.type === 'error' ? 'var(--destructive)' : message?.type === 'success' ? 'var(--success)' : undefined }}>
                         {message?.text || t('teacher.assignments.gradedSummary', {
                             graded: gradedCount, total: sheet?.students?.length ?? 0, max: maxScore })}
                     </span>
@@ -309,7 +309,7 @@ function AssignmentCard({ a, onEdit, onDelete, onPublish, onDuplicate, onViewSub
                     </span>
                     <span className="asgn-chip" style={{
                         background: a.mode === 'online' ? 'rgba(16,185,129,0.1)' : 'rgba(99,102,241,0.1)',
-                        color:      a.mode === 'online' ? 'var(--success)'        : '#6366f1',
+                        color:      a.mode === 'online' ? 'var(--success)'        : 'var(--cat-indigo)',
                     }}>
                         {a.mode === 'online' ? t('teacher.assignments.online') : t('teacher.assignments.paper')}
                     </span>

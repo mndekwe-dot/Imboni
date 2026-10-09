@@ -358,6 +358,17 @@ table,
   --info-text:           #075985;
   --accent-text:         #9a4a06;
 
+  /* Categorical colours: for telling things apart (announcement kinds, exam
+     types, avatar rings), not for saying good or bad. Kept out of the status
+     families on purpose so a purple tag never reads as a warning. */
+  --cat-violet:          #7c3aed;
+  --cat-violet-surface:  #ede9fe;
+  --cat-violet-text:     #5b21b6;
+  --cat-indigo:          #4f46e5;
+  --cat-rose:            #be185d;
+  --cat-rose-surface:    #fce7f3;
+  --cat-rose-text:       #9d174d;
+
   /* ---------------------------------------------
      DESIGN SCALE
      Neutral, portal-independent. Nothing below is a

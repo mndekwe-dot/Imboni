@@ -26,10 +26,10 @@ import {
 } from '../../api/teacher'
 
 const STATUS_COLORS = {
-    present: 'var(--success, #16a34a)',
-    absent:  'var(--danger,  #dc2626)',
-    late:    'var(--warning, #d97706)',
-    excused: 'var(--primary, #2563eb)',
+    present: 'var(--success)',
+    absent:  'var(--danger)',
+    late:    'var(--warning)',
+    excused: 'var(--primary)',
 }
 
 const STATUS_LABELS = { present: 'Present', absent: 'Absent', late: 'Late', excused: 'Excused' }

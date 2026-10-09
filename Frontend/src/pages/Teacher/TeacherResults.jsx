@@ -570,8 +570,8 @@ export function TeacherResults() {
                                                                 cursor={{ stroke: 'var(--border)', strokeWidth: 1 }}
                                                             />
                                                             <Line type="monotone" dataKey="avg_score" name="Class average"
-                                                                stroke="#003d7a" strokeWidth={2}
-                                                                dot={{ r: 4, fill: '#003d7a', strokeWidth: 2, stroke: 'var(--card, #fff)' }} />
+                                                                stroke="var(--primary)" strokeWidth={2}
+                                                                dot={{ r: 4, fill: 'var(--primary)', strokeWidth: 2, stroke: 'var(--card, #fff)' }} />
                                                         </LineChart>
                                                     </ResponsiveContainer>
                                                 </div>

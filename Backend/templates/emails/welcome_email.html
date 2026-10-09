@@ -18,7 +18,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>Welcome to Imboni!</h1>
+            <h1>Welcome to {{ school_name }}!</h1>
             <p style="margin:8px 0 0; opacity:0.9;">Your account is ready</p>
         </div>
         <div class="body">
@@ -32,7 +32,7 @@
             <a href="{{ login_link }}" class="btn">Go to My Portal</a>
         </div>
         <div class="footer">
-            &copy; Imboni School System. This is an automated message.
+            {{ school_name }}. This is an automated message.
         </div>
     </div>
 </body>

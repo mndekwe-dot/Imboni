@@ -28,7 +28,7 @@ import { Student360Modal } from '../../components/modals/Student360Modal'
 import { SearchBar } from '../../components/ui/SearchBar'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-const AVATAR_COLORS = ['#003d7a','#10b981','#f59e0b','#6366f1','#ef4444','#0891b2','#7c3aed','#be185d']
+const AVATAR_COLORS = ['var(--primary)', 'var(--success-text)', 'var(--warning-text)', 'var(--cat-indigo)', 'var(--destructive)', 'var(--info-text)', 'var(--cat-violet)', 'var(--cat-rose)']
 function avatarColor(name) { return AVATAR_COLORS[name.charCodeAt(0) % AVATAR_COLORS.length] }
 function initials(name) { return name.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase() }
 function daysAgo(dateStr) {

@@ -33,9 +33,9 @@ import { asButton } from '../../utils/a11y'
 import { SkeletonList } from '../../components/ui/Skeleton'
 
 function barColor(v) {
-    if (v >= 80) return '#10b981'
-    if (v >= 70) return '#003d7a'
-    return '#f59e0b'
+    if (v >= 80) return 'var(--success)'
+    if (v >= 70) return 'var(--primary)'
+    return 'var(--warning)'
 }
 
 function relTime(ts, translate) {
@@ -480,9 +480,9 @@ export function TeacherDashboard() {
                                                     </ResponsiveContainer>
                                                     <div className="chart-legend-row">
                                                         {[
-                                                            ['#10b981', t('teacher.dashboard.legendExcellent')],
-                                                            ['#003d7a', t('teacher.dashboard.legendGood')],
-                                                            ['#f59e0b', t('teacher.dashboard.legendAttention')],
+                                                            ['var(--success)', t('teacher.dashboard.legendExcellent')],
+                                                            ['var(--primary)', t('teacher.dashboard.legendGood')],
+                                                            ['var(--warning)', t('teacher.dashboard.legendAttention')],
                                                         ].map(([color, label]) => (
                                                             <div key={color} className="chart-legend-item">
                                                                 <span className="chart-legend-dot-sq" style={{ background: color }} />

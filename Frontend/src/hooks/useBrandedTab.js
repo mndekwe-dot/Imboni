@@ -4,7 +4,7 @@ import { useSchoolBranding } from './useSchoolBranding'
 const DEFAULT_TITLE = 'Imboni'
 
 /**
- * The browser tab says whose school this is.
+ * The browser tab, and the installed app, say whose school this is.
  *
  * A teacher with three tabs open, or a parent whose child is at one school and
  * who works at another, finds the right one by its title and icon. Without
@@ -22,6 +22,18 @@ export function useBrandedTab() {
         const previous = document.title
         document.title = schoolName
         return () => { document.title = previous || DEFAULT_TITLE }
+    }, [schoolName])
+
+    // The installable app too: "Add to home screen" and "Install" read the
+    // manifest, so the shortcut carries the school's name and mark. Only once
+    // the school has a name: the bare domain has no such endpoint.
+    useEffect(() => {
+        if (!schoolName) return
+        const link = document.querySelector('link[rel="manifest"]')
+        if (!link) return
+        const previous = link.getAttribute('href')
+        link.setAttribute('href', '/imboni/dos/manifest.webmanifest')
+        return () => { if (previous) link.setAttribute('href', previous) }
     }, [schoolName])
 
     useEffect(() => {

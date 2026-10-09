@@ -98,6 +98,8 @@ urlpatterns = [
     path('dos/school-settings/', views.SchoolSettingsView.as_view(), name='dos-school-settings'),
     # Unauthenticated on purpose - the sign-in screen needs it. See the view.
     path('dos/branding/', views.SchoolBrandingView.as_view(), name='dos-branding'),
+    path('dos/branding/icon/<int:size>/', views.SchoolBrandingIconView.as_view(), name='dos-branding-icon'),
+    path('dos/manifest.webmanifest', views.SchoolManifestView.as_view(), name='dos-manifest'),
 
     # ── Subject Management ────────────────────────────────────────────────────
     path('dos/subjects/',                        views.SubjectListCreateView.as_view(),    name='dos-subjects'),

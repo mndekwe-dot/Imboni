@@ -22,7 +22,7 @@ import { useToast } from '../../context/ToastContext'
 import { partialLoad } from '../../utils/errors'
 import { SkeletonList } from '../../components/ui/Skeleton'
 
-const CARD_BG = ['#eef6ff', '#edfaf4', '#f3f0ff', '#fff7ed', '#e8f8fb', '#fff0f3']
+const CARD_BG = ['var(--info-surface)', 'var(--success-surface)', 'var(--cat-violet-surface)', 'var(--warning-surface)', 'var(--primary-surface)', 'var(--cat-rose-surface)']
 
 const ASSESSMENT_TYPES = [
     { value: 'quiz',         labelKey: 'teacher.classes.typeQuiz'         },
@@ -34,9 +34,9 @@ const ASSESSMENT_TYPES = [
 
 function getGrade(pct) {
     if (pct >= 80) return { label: 'A', color: 'var(--success)' }
-    if (pct >= 70) return { label: 'B', color: '#3b82f6' }
-    if (pct >= 60) return { label: 'C', color: '#f59e0b' }
-    if (pct >= 50) return { label: 'D', color: '#f97316' }
+    if (pct >= 70) return { label: 'B', color: 'var(--info)' }
+    if (pct >= 60) return { label: 'C', color: 'var(--warning)' }
+    if (pct >= 50) return { label: 'D', color: 'var(--accent)' }
     return { label: 'F', color: 'var(--destructive)' }
 }
 
