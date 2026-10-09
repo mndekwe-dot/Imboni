@@ -1,4 +1,5 @@
 from django.urls import path
+from apps.teacher.materials_api import StudentMaterialsView
 from . import views
 
 urlpatterns = [
@@ -31,6 +32,8 @@ urlpatterns = [
     # Assignments
     path('student/assignments/',                    views.StudentAssignmentsView.as_view(),        name='student-assignments'),
     path('student/assignments/<uuid:pk>/submit/',   views.StudentAssignmentSubmitView.as_view(),   name='student-assignment-submit'),
+    # Notes, slides and video links the class's teachers have shared this term
+    path('student/materials/',                      StudentMaterialsView.as_view(),                name='student-materials'),
 
     # Profile
     path('student/profile/',                        views.StudentProfileView.as_view(),            name='student-profile'),

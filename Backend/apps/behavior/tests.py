@@ -1,6 +1,8 @@
 import pytest
 from rest_framework import status
-from apps.authentication.factories import UserFactory, StudentFactory, AcademicTermFactory
+from apps.authentication.factories import (
+    AcademicTermFactory, ParentStudentRelationshipFactory, StudentFactory, UserFactory,
+)
 from .models import BehaviorReport, ConductGrade
 
 
@@ -76,11 +78,16 @@ class TestConductGradeModel:
 
 @pytest.mark.django_db
 class TestStudentBehaviorStatsView:
-    def test_requires_discipline_or_matron_role(self, make_authenticated_client):
+    def test_a_teacher_who_does_not_teach_the_student_cannot_see_it(self, make_authenticated_client):
         client, _user = make_authenticated_client('teacher')
         student = StudentFactory()
         response = client.get(f'/imboni/behavior/students/{student.id}/stats/')
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_a_parent_sees_their_own_child(self, make_authenticated_client):
+        client, parent = make_authenticated_client('parent')
+        child = ParentStudentRelationshipFactory(parent=parent).student
+        assert client.get(f'/imboni/behavior/students/{child.id}/stats/').status_code == status.HTTP_200_OK
 
     def test_counts_reports_by_type(self, make_authenticated_client):
         client, _user = make_authenticated_client('discipline')
@@ -131,11 +138,18 @@ class TestStudentBehaviorStatsView:
 
 @pytest.mark.django_db
 class TestStudentBehaviorReportsView:
-    def test_requires_discipline_or_matron_role(self, make_authenticated_client):
+    def test_a_parent_cannot_read_another_familys_child(self, make_authenticated_client):
         client, _user = make_authenticated_client('parent')
         student = StudentFactory()
         response = client.get(f'/imboni/behavior/students/{student.id}/reports/')
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+
+    def test_a_student_reads_only_their_own_reports(self, make_authenticated_client):
+        client, user = make_authenticated_client('student')
+        own = StudentFactory(user=user)
+        assert client.get(f'/imboni/behavior/students/{own.id}/reports/').status_code == status.HTTP_200_OK
+        other = StudentFactory()
+        assert client.get(f'/imboni/behavior/students/{other.id}/reports/').status_code == status.HTTP_404_NOT_FOUND
 
     def test_lists_reports_for_student(self, make_authenticated_client):
         client, _user = make_authenticated_client('discipline')

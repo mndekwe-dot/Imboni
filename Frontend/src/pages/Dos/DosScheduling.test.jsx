@@ -27,6 +27,13 @@ vi.mock('../../api/dos', () => ({
   getCurrentTerm: vi.fn(),
   getSchoolConfig: vi.fn(),
   getSchoolSettings: vi.fn(),
+  getTerms: vi.fn().mockResolvedValue([]),
+  generateDosExamSchedule: vi.fn(),
+  commitDosExamSchedule: vi.fn(),
+}))
+
+vi.mock('./DosTimetable', () => ({
+  DosTimetablePanel: () => <div>Timetable panel</div>,
 }))
 
 vi.mock('../../api/notifications', () => ({
@@ -78,19 +85,16 @@ beforeEach(() => {
 })
 
 describe('DosScheduling', () => {
-  it('renders the Timetable tab by default with the timetable stat cards', async () => {
+  it('opens on the connected timetable editor, not a sample timetable', async () => {
     renderWithRouter(<DosScheduling />)
-    await waitFor(() => expect(screen.getByText('Class S3A')).toBeInTheDocument())
-    expect(screen.getByText('Periods per Day')).toBeInTheDocument()
-    expect(screen.getByText('Current Term')).toBeInTheDocument()
-    // The term name comes from the API, not from a constant in the file.
-    await waitFor(() => expect(screen.getByText('Term 2')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('Timetable panel')).toBeInTheDocument())
+    expect(screen.queryByText('Class S3A')).not.toBeInTheDocument()
   })
 
   it('does not fetch exam-schedule data until the Exam Schedule tab is selected', async () => {
     mockAllExamDeps()
     renderWithRouter(<DosScheduling />)
-    await waitFor(() => expect(screen.getByText('Class S3A')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('Timetable panel')).toBeInTheDocument())
 
     expect(getDosExamSchedule).not.toHaveBeenCalled()
 
@@ -107,7 +111,7 @@ describe('DosScheduling', () => {
   it('only fetches exam data once even if the tab is switched back and forth (examsLoaded gate)', async () => {
     mockAllExamDeps()
     renderWithRouter(<DosScheduling />)
-    await waitFor(() => expect(screen.getByText('Class S3A')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('Timetable panel')).toBeInTheDocument())
 
     fireEvent.click(screen.getByRole('button', { name: /Exam Schedule/ }))
     await waitFor(() => expect(getDosExamSchedule).toHaveBeenCalledTimes(1))
@@ -118,10 +122,21 @@ describe('DosScheduling', () => {
     expect(getDosExamSchedule).toHaveBeenCalledTimes(1)
   })
 
+  it('opens the exam generator from the Exam Schedule tab', async () => {
+    mockAllExamDeps()
+    renderWithRouter(<DosScheduling />)
+    await waitFor(() => expect(screen.getByText('Timetable panel')).toBeInTheDocument())
+
+    fireEvent.click(screen.getByRole('button', { name: /Exam Schedule/ }))
+    fireEvent.click(await screen.findByRole('button', { name: /Generate/ }))
+
+    expect(await screen.findByText('Generate Exam Schedule')).toBeInTheDocument()
+  })
+
   it('renders an exam pill on the calendar and opens the detail modal on click', async () => {
     mockAllExamDeps({ exams: [EXAM] })
     renderWithRouter(<DosScheduling />)
-    await waitFor(() => expect(screen.getByText('Class S3A')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('Timetable panel')).toBeInTheDocument())
 
     fireEvent.click(screen.getByRole('button', { name: /Exam Schedule/ }))
     await waitFor(() => expect(screen.getByText('Mathematics')).toBeInTheDocument())
@@ -140,7 +155,7 @@ describe('DosScheduling', () => {
     deleteDosExamSchedule.mockResolvedValue({})
     vi.spyOn(window, 'confirm').mockReturnValue(true)
     renderWithRouter(<DosScheduling />)
-    await waitFor(() => expect(screen.getByText('Class S3A')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('Timetable panel')).toBeInTheDocument())
 
     fireEvent.click(screen.getByRole('button', { name: /Exam Schedule/ }))
     await waitFor(() => expect(screen.getByText('Mathematics')).toBeInTheDocument())
@@ -155,7 +170,7 @@ describe('DosScheduling', () => {
   it('clicking a day cell opens the Add Exam form pre-filled with that date', async () => {
     mockAllExamDeps()
     renderWithRouter(<DosScheduling />)
-    await waitFor(() => expect(screen.getByText('Class S3A')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('Timetable panel')).toBeInTheDocument())
 
     fireEvent.click(screen.getByRole('button', { name: /Exam Schedule/ }))
     await waitFor(() => expect(screen.getByText('Today')).toBeInTheDocument())
@@ -174,7 +189,7 @@ describe('DosScheduling', () => {
   it('requires subject, date, start and end time before saving a new exam', async () => {
     mockAllExamDeps()
     renderWithRouter(<DosScheduling />)
-    await waitFor(() => expect(screen.getByText('Class S3A')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('Timetable panel')).toBeInTheDocument())
 
     fireEvent.click(screen.getByRole('button', { name: /Exam Schedule/ }))
     await waitFor(() => expect(screen.getByRole('button', { name: /Add Exam/ })).toBeInTheDocument())
@@ -190,7 +205,7 @@ describe('DosScheduling', () => {
     mockAllExamDeps()
     createDosExamSchedule.mockResolvedValue({})
     renderWithRouter(<DosScheduling />)
-    await waitFor(() => expect(screen.getByText('Class S3A')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('Timetable panel')).toBeInTheDocument())
 
     fireEvent.click(screen.getByRole('button', { name: /Exam Schedule/ }))
     await waitFor(() => expect(screen.getByRole('button', { name: /Add Exam/ })).toBeInTheDocument())
@@ -206,39 +221,5 @@ describe('DosScheduling', () => {
     await waitFor(() => expect(createDosExamSchedule).toHaveBeenCalledWith(expect.objectContaining({
       subject_id: 'sub1', exam_date: '2026-07-10', start_time: '08:00', end_time: '09:00', term_id: 1,
     })))
-  })
-
-  it('switches the displayed class in the Timetable tab', async () => {
-    getSchoolConfig.mockResolvedValue([
-      { name: 'O-Level', years: [{ name: 'S3', streams: ['A', 'B'] }] },
-    ])
-    renderWithRouter(<DosScheduling />)
-    await waitFor(() => expect(screen.getByText('Class S3A')).toBeInTheDocument())
-
-    fireEvent.click(screen.getByRole('button', { name: 'S3B' }))
-    expect(screen.getByText('Class S3B')).toBeInTheDocument()
-  })
-
-  it('narrows the class chips to the selected level, keeping one class chosen', async () => {
-    getSchoolConfig.mockResolvedValue([
-      { name: 'O-Level', years: [{ name: 'S3', streams: ['A', 'B'] }] },
-      { name: 'A-Level', years: [{ name: 'S5', streams: ['A'] }] },
-    ])
-    renderWithRouter(<DosScheduling />)
-    await waitFor(() => expect(screen.getByRole('button', { name: 'S5A' })).toBeInTheDocument())
-
-    fireEvent.click(screen.getByRole('button', { name: /A-Level/ }))
-    expect(screen.queryByRole('button', { name: 'S3A' })).not.toBeInTheDocument()
-    // S3A is no longer offered, so the grid falls to the first class that is.
-    expect(screen.getByText('Class S5A')).toBeInTheDocument()
-  })
-
-  it('opens the Add Slot form in the Timetable tab', async () => {
-    renderWithRouter(<DosScheduling />)
-    await waitFor(() => expect(screen.getByText('Class S3A')).toBeInTheDocument())
-
-    fireEvent.click(screen.getByRole('button', { name: /Add Slot/ }))
-
-    expect(screen.getByText('Add Slot', { selector: 'h2' })).toBeInTheDocument()
   })
 })

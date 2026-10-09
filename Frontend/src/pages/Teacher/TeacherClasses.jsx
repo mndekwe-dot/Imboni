@@ -18,6 +18,8 @@ import { DashboardContent } from '../../components/layout/DashboardContent'
 import { getTeacherMyClasses, getTeacherStudents, getTeacherResultList, bulkSaveResults } from '../../api/teacher'
 import { useSchoolConfig } from '../../hooks/useSchoolConfig'
 import { sectionsFromClasses } from '../../utils/classes'
+import { useToast } from '../../context/ToastContext'
+import { partialLoad } from '../../utils/errors'
 
 const CARD_BG = ['#eef6ff', '#edfaf4', '#f3f0ff', '#fff7ed', '#e8f8fb', '#fff0f3']
 
@@ -220,6 +222,7 @@ function StudentProfile({ student, subjects, onClose, onEnterResults }) {
 
 // ── Results Modal (assessment picker → score table) ───────────────────────────
 function ResultsModal({ cls, onClose }) {
+    const toast = useToast()
     const { t } = useTranslation()
     const [step,       setStep]       = useState('pick')  // 'pick' | 'view' | 'new'
     const [titles,     setTitles]     = useState([])
@@ -243,12 +246,12 @@ function ResultsModal({ cls, onClose }) {
     useEffect(() => {
         Promise.all([
             getTeacherResultList({ class_id: cls.class_id }).catch(() => ({ assessment_titles: [], results: [] })),
-            getTeacherStudents({ class_id: cls.class_id }).catch(() => []),
+            getTeacherStudents({ class_id: cls.class_id }).catch(partialLoad(toast, [])),
         ]).then(([res, stu]) => {
             setTitles(res.assessment_titles || [])
             setStudents(Array.isArray(stu) ? stu : [])
         }).finally(() => setLoadingInit(false))
-    }, [cls.class_id])
+    }, [cls.class_id, toast])
 
     function openExisting(title) {
         setSelectedTitle(title)

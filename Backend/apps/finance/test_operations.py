@@ -5,59 +5,22 @@ Each section is one thing a school actually does with money, and the tests are
 about the rules rather than the plumbing -- what refuses, what is idempotent,
 and what must never quietly happen.
 """
-from datetime import timedelta
 from decimal import Decimal
 
 import pytest
 from django.utils import timezone
 
-from apps.authentication.factories import StudentFactory, UserFactory
+from apps.authentication.factories import UserFactory
 from apps.finance import services
 from apps.finance.models import (
     Budget, BudgetLine, CashAccount, CashMovement, Expense, ExpenseCategory,
     IncomeCategory, PayrollRun, StaffSalary,
 )
-from apps.results.models import AcademicTerm
 from apps.student.models import Fee
 
 pytestmark = pytest.mark.django_db
 
 ZERO = Decimal('0.00')
-
-
-# ── Fixtures ──────────────────────────────────────────────────────────────────
-
-@pytest.fixture
-def term():
-    return AcademicTerm.objects.create(name='Term 2 2026', term='2', year=2026,
-                                       order=2, is_current=True,
-                                       start_date=timezone.localdate() - timedelta(days=30),
-                                       end_date=timezone.localdate() + timedelta(days=30))
-
-
-@pytest.fixture
-def older_term():
-    return AcademicTerm.objects.create(name='Term 1 2026', term='1', year=2026,
-                                       order=1, is_current=False,
-                                       start_date=timezone.localdate() - timedelta(days=200),
-                                       end_date=timezone.localdate() - timedelta(days=120))
-
-
-@pytest.fixture
-def account():
-    return CashAccount.objects.create(name='Safe', kind='cash', is_default=True,
-                                      opening_balance=Decimal('100000'))
-
-
-@pytest.fixture
-def bank():
-    return CashAccount.objects.create(name='Bank of Kigali', kind='bank')
-
-
-@pytest.fixture
-def student():
-    return StudentFactory(grade='S4', section='A',
-                          user__first_name='Amina', user__last_name='Uwase')
 
 
 def a_fee(student, term, amount='100000', **kwargs):

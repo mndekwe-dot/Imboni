@@ -1,0 +1,14 @@
+{
+  "checking": "Turimo kugenzura…",
+  "codeHint": "Ni igice cya mbere cy'aderesi y'ikigo cyawe, urugero greenhills.imboni.tech.",
+  "codeLabel": "Kode y'ikigo",
+  "codePlaceholder": "urugero: greenhills",
+  "connectFailed": "Ntibyashobotse kugera kuri Imboni. Reba interineti hanyuma wongere ugerageze.",
+  "continue": "Komeza",
+  "forgotCode": "Ntuzi kode y'ikigo cyawe?",
+  "notFound": "Nta kigo twabonye gifite iyo kode. Reba neza hanyuma wongere ugerageze.",
+  "notYourSchool": "Si ikigo cyawe?",
+  "opening": "Turimo gufungura {{school}}…",
+  "subtitle": "Andika kode y'ikigo cyawe kugira ngo ukomeze.",
+  "title": "Fungura ikigo cyawe"
+}

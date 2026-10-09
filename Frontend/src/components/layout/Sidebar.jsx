@@ -5,6 +5,7 @@ import { useAuth } from '../../hooks/useAuth'
 import logo from '../../assets/images/imboni-logo.webp'
 import { useSchoolBranding } from '../../hooks/useSchoolBranding'
 import { useLibraryFeature } from '../../hooks/useLibraryFeature'
+import { useNavBadges } from '../../hooks/useNavBadges'
 
 /* Every page mounts its own <Sidebar> — 64 of them — so component state alone
    meant collapsing it and then clicking any nav item sprang it back open. The
@@ -27,6 +28,7 @@ export function Sidebar({ navItems, secondaryItems }) {
   const visible = items => items.filter(
     item => item.feature !== 'library' || libraryEnabled === true)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const badges = useNavBadges(navItems)
   const { logout } = useAuth()
   const { schoolName, logo: schoolLogo } = useSchoolBranding()
   const { t } = useTranslation()
@@ -57,6 +59,12 @@ export function Sidebar({ navItems, secondaryItems }) {
     <>
       <span className="material-symbols-rounded" aria-hidden="true">{item.icon}</span>
       <span className="sidebar-nav-label">{t(item.labelKey)}</span>
+      {badges[item.badge] > 0 && (
+        <span className="sidebar-badge" title={t('sidebar.waiting', { count: badges[item.badge] })}>
+          <span aria-hidden="true">{badges[item.badge] > 99 ? '99+' : badges[item.badge]}</span>
+          <span className="sr-only">{t('sidebar.waiting', { count: badges[item.badge] })}</span>
+        </span>
+      )}
     </>
   )
 
@@ -116,7 +124,7 @@ export function Sidebar({ navItems, secondaryItems }) {
               main nav, and the eyebrow was just a line of noise at the top. */}
           <ul className="nav-list primary-nav" aria-label={t('sidebar.mainNavigation')}>
             {visible(navItems).map((item) => (
-              <li key={item.to}>
+              <li key={item.to || item.labelKey}>
                 <NavLink
                   to={item.to}
                   end={item.end}
@@ -139,7 +147,7 @@ export function Sidebar({ navItems, secondaryItems }) {
           <p className="sidebar-nav-group" id="sidebar-group-account">{t('sidebar.groupAccount')}</p>
           <ul className="nav-list secondary-nav" aria-labelledby="sidebar-group-account">
             {visible(secondaryItems).map((item) => (
-              <li key={item.to}>
+              <li key={item.to || item.action || item.labelKey}>
                 {item.action === 'logout' ? (
                   <button
                     className="sidebar-nav-item"

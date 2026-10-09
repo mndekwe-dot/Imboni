@@ -1,21 +1,28 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { Timetable } from '../../components/timetable/Timetable'
+import { getThisMonday } from '../../components/timetable/dateUtils'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
-import { getStudentProfile } from '../../api/student'
+import { getStudentTimetable } from '../../api/student'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/student.css'
 
+/**
+ * The student's class week, as the DOS built it. It used to render the static
+ * sample timetable keyed by class name, so every student saw invented lessons.
+ */
 export function StudentTimetable() {
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
-    const [profile, setProfile] = useState(null)
+    const [currentMonday, setCurrentMonday] = useState(() => getThisMonday())
+    const [data,    setData]    = useState(null)
     const [loading, setLoading] = useState(true)
+    const [error,   setError]   = useState(false)
 
     const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
     const firstName  = storedUser.first_name || ''
@@ -24,16 +31,16 @@ export function StudentTimetable() {
     const initials   = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase()
 
     useEffect(() => {
-        getStudentProfile()
-            .then(setProfile)
-            .catch(console.error)
+        getStudentTimetable()
+            .then(setData)
+            .catch(() => setError(true))
             .finally(() => setLoading(false))
     }, [])
 
-    const gradeSection = profile ? `${profile.grade}${profile.section}` : null
-    const userRole     = gradeSection
-        ? `${t('roles.student')} · ${gradeSection}`
-        : t('roles.student')
+    const className = data?.class || ''
+    // The class is in the header; each lesson's second line is its teacher.
+    const slots = useMemo(() => (data?.slots || []).map(s => ({ ...s, class_name: '' })), [data])
+    const userRole  = className ? `${t('roles.student')} · ${className}` : t('roles.student')
 
     return (
         <>
@@ -44,8 +51,8 @@ export function StudentTimetable() {
                 <main className="dashboard-main" id="main-content">
                     <DashboardHeader
                         title={t('student.timetable.title')}
-                        subtitle={gradeSection
-                            ? t('student.timetable.subtitleWithClass', { class: gradeSection })
+                        subtitle={className
+                            ? t('student.timetable.subtitleWithClass', { class: className })
                             : t('student.timetable.subtitle')}
                         userName={fullName}
                         userRole={userRole}
@@ -55,20 +62,23 @@ export function StudentTimetable() {
                         onNotificationRead={markRead}
                     />
                     <DashboardContent>
-                        {loading ? (
-                            <p className="u-pad u-muted">{t('common.loading')}</p>
-                        ) : !gradeSection ? (
-                            <p className="u-pad u-muted">{t('student.timetable.loadError')}</p>
-                        ) : (
-                            <div className="card">
-                                <div className="card-header">
-                                    <h2 className="card-title">Class {gradeSection} Weekly Schedule</h2>
-                                </div>
-                                <div className="card-content">
-                                    <Timetable type="academic" classId={gradeSection} />
-                                </div>
+                        <div className="card">
+                            <div className="card-content">
+                                {loading ? (
+                                    <p className="u-pad u-muted">{t('common.loading')}</p>
+                                ) : error ? (
+                                    <p className="u-pad u-muted">{t('student.timetable.loadError')}</p>
+                                ) : (
+                                    <Timetable
+                                        type="teacher"
+                                        teacherSlots={slots}
+                                        freeLabel=""
+                                        currentMonday={currentMonday}
+                                        onWeekChange={setCurrentMonday}
+                                    />
+                                )}
                             </div>
-                        )}
+                        </div>
                     </DashboardContent>
                 </main>
             </div>

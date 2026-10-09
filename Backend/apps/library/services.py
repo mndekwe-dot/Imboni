@@ -442,7 +442,6 @@ def record_copy_event(copy, kind, *, reason='', borrower=None, charged=None,
     # A borrowed book that is lost is the borrower's to replace. This used to
     # close the loan as though the book had come back and charge nothing, so
     # losing a book was the cheapest way to stop owing it.
-    fine = None
     if kind in ('lost', 'written_off') and open_loan is not None:
         borrower = borrower or open_loan.borrower
         settings_row = LibrarySettings.load()
@@ -451,8 +450,8 @@ def record_copy_event(copy, kind, *, reason='', borrower=None, charged=None,
         rate = Decimal(settings_row.fine_per_day or 0)
         amount = replacement + rate * days
         if amount > 0 and not Fine.objects.filter(loan=open_loan).exists():
-            fine = Fine.objects.create(loan=open_loan, kind='lost', days_late=days,
-                                       rate=rate, amount=amount)
+            Fine.objects.create(loan=open_loan, kind='lost', days_late=days,
+                                rate=rate, amount=amount)
             charged = amount
 
     event = CopyEvent.objects.create(

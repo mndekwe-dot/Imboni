@@ -20,8 +20,8 @@ const STATS = {
 }
 
 const ACTIVITIES = [
-  { type: 'result_approved', text: 'Term 1 results approved for S4A', time: '2h ago' },
-  { type: 'teacher_added', text: 'New teacher onboarded', time: '1d ago' },
+  { activity_type: 'approval', description: 'Term 1 results approved for S4A', time_ago: '2 hours ago' },
+  { activity_type: 'staff', description: 'New teacher onboarded', time_ago: '1 days ago' },
 ]
 
 describe('AdminDashboard', () => {

@@ -23,6 +23,10 @@ import {
 import {
     ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
 } from 'recharts'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
+import { downloadCsv } from '../../utils/exportTable'
+import { matchScores, scoreTemplate } from '../../utils/scoreImport'
 
 const ASSESSMENT_TYPES = [
     { value: 'quiz',         label: 'Quiz'         },
@@ -43,6 +47,7 @@ function getGrade(pct) {
 // ── Enter New Results Modal ───────────────────────────────────────────────────
 
 function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
+    const toast = useToast()
     const { t } = useTranslation()
     // Derive all subjects this teacher teaches in this class
     const subjectsForClass = classes
@@ -70,6 +75,7 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
     const [loadingStud,  setLoadingStud]  = useState(true)
     const [saving,       setSaving]       = useState(false)
     const [saveError,    setSaveError]    = useState(null)
+    const importRef = useRef(null)
 
     useEffect(() => {
         getTeacherStudents({ class_id: classObj.class_id })
@@ -88,9 +94,9 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
                 setSkipped(initSkip)
                 setNotes(initNotes)
             })
-            .catch(() => {})
+            .catch(e => toast.error(errorMessage(e, 'Could not load the class list.')))
             .finally(() => setLoadingStud(false))
-    }, [classObj.class_id])
+    }, [classObj.class_id, toast])
 
     function handle(field, value) {
         setForm(prev => ({ ...prev, [field]: value }))
@@ -101,6 +107,41 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
         const num = parseFloat(value)
         if (value !== '' && !isNaN(max) && max > 0 && num > max) return
         setScores(prev => ({ ...prev, [studentId]: value }))
+    }
+
+    // Anything typed counts as work worth protecting; a saved or untouched form does not.
+    const dirty = !saving && (
+        form.title.trim() !== '' || form.max_score !== '' ||
+        Object.values(scores).some(v => v !== '') || Object.values(notes).some(v => v.trim() !== '')
+    )
+
+    function cancel() {
+        if (!dirty || window.confirm(t('teacher.results.discardConfirm'))) onClose()
+    }
+
+    function downloadTemplate() {
+        downloadCsv(t('teacher.results.templateName', { class: classObj.class_name }), scoreTemplate(students))
+    }
+
+    async function importScores(file) {
+        const max = parseFloat(form.max_score)
+        if (!(max > 0)) return toast.error(t('teacher.results.importNeedsMax'))
+        let text
+        try { text = await file.text() } catch (e) { return toast.error(errorMessage(e, t('teacher.results.importFailed'))) }
+
+        const r = matchScores(text, students, max)
+        if (r.missingColumns) return toast.error(t('teacher.results.importBadFile'))
+        if (r.applied > 0) {
+            setScores(prev => ({ ...prev, ...r.scores }))
+            setNotes(prev => ({ ...prev, ...r.notes }))
+            // A student with a mark is no longer absent.
+            setSkipped(prev => Object.fromEntries(Object.entries(prev).map(([id, v]) => [id, id in r.scores ? false : v])))
+            toast.success(t('teacher.results.importDone', { count: r.applied }))
+        } else if (!r.unknown.length && !r.invalid.length) {
+            toast.info(t('teacher.results.importNone'))
+        }
+        if (r.unknown.length) toast.warning(t('teacher.results.importUnknown', { list: r.unknown.join(', ') }))
+        if (r.invalid.length) toast.warning(t('teacher.results.importInvalid', { list: r.invalid.join(', ') }))
     }
 
     async function handleSave() {
@@ -150,13 +191,14 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
             title={t('teacher.results.enterNew')}
             icon="add_circle"
             onClose={onClose}
+            unsavedMessage={dirty ? t('teacher.results.discardConfirm') : undefined}
             size="wide"
             footer={
                 <div className="modal-footer-row">
                     <span className={`modal-footer-hint${saveError ? ' has-error' : ''}`}>
                         {saveError || (filledCount > 0 ? `${filledCount} student${filledCount !== 1 ? 's' : ''} with scores` : '* Fill in all fields and at least one score')}
                     </span>
-                    <button className="btn btn-outline" onClick={onClose}>Cancel</button>
+                    <button className="btn btn-outline" onClick={cancel}>Cancel</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">save</span>
                         {saving ? 'Saving…' : 'Save Results'}
@@ -209,6 +251,23 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
             {/* Student score entry table */}
             <div className="section-label-sm tr-scores-label">
                 Student Scores for {classObj.class_name}
+            </div>
+            <div className="u-row-sm u-mb">
+                <button type="button" className="btn btn-outline btn-sm" onClick={downloadTemplate} disabled={loadingStud || students.length === 0}>
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">download</span>
+                    {t('teacher.results.downloadTemplate')}
+                </button>
+                <button type="button" className="btn btn-outline btn-sm" onClick={() => importRef.current?.click()} disabled={loadingStud || students.length === 0}>
+                    <span className="material-symbols-rounded icon-sm" aria-hidden="true">upload_file</span>
+                    {t('teacher.results.importScores')}
+                </button>
+                <input ref={importRef} type="file" accept=".csv,text/csv" className="u-hidden"
+                    aria-label={t('teacher.results.importScores')}
+                    onChange={e => {
+                        const file = e.target.files?.[0]
+                        if (file) importScores(file)
+                        e.target.value = ''
+                    }} />
             </div>
             {loadingStud ? (
                 <p className="tr-empty-pad">Loading students…</p>
@@ -303,7 +362,6 @@ export function TeacherResults() {
     const [showEnterModal, setShowEnterModal] = useState(false)
     const [trend, setTrend] = useState([])
 
-    const fileInputRef = useRef(null)
 
     const storedUser = JSON.parse(localStorage.getItem('imboni_user') || '{}')
     const firstName  = storedUser.first_name || ''
@@ -451,12 +509,6 @@ export function TeacherResults() {
                                         </span>
                                     )}
                                     <div className="toolbar-spacer" />
-                                    <input
-                                        ref={fileInputRef}
-                                        type="file"
-                                        accept=".csv"
-                                        className="u-hidden"
-                                    />
                                     <button
                                         className="btn btn-primary select-xs"
                                         onClick={() => setShowEnterModal(true)}

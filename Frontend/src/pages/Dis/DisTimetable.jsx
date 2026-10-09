@@ -20,6 +20,8 @@ import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/discipline.css'
 import { DashboardContent } from '../../components/layout/DashboardContent'
+import { useToast } from '../../context/ToastContext'
+import { errorMessage } from '../../utils/errors'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -33,6 +35,7 @@ function applyEntries(entries, weekKey, setEntries, setSchedules, setIdMap, setS
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function DisTimetable() {
+    const toast = useToast()
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
     const sessionUser = useSessionUser()
@@ -58,13 +61,13 @@ export function DisTimetable() {
         else { setFetching(true); setSchedules(null) }
         getDisExtracurricular(activeWeek)
             .then(data => applyEntries(data, activeWeek, setEntries, setSchedules, setIdMap, setStats))
-            .catch(console.error)
+            .catch(e => toast.error(errorMessage(e, 'Could not load the activities timetable.')))
             .finally(() => {
                 setLoading(false)
                 setFetching(false)
                 firstLoad.current = false
             })
-    }, [activeWeek])
+    }, [activeWeek, toast])
 
     async function handleSave(formData) {
         const { day, slotId, subject, teacher, room, cellType } = formData
@@ -96,7 +99,9 @@ export function DisTimetable() {
             else next.push(saved)
             applyEntries(next, activeWeek, setEntries, setSchedules, setIdMap, setStats)
         } catch (e) {
-            console.error(e)
+            // Keep the form open: closing it made a failed save look saved.
+            toast.error(errorMessage(e, 'Could not save that activity.'))
+            return
         }
 
         setShowForm(false)
@@ -117,7 +122,8 @@ export function DisTimetable() {
             )
             applyEntries(next, activeWeek, setEntries, setSchedules, setIdMap, setStats)
         } catch (e) {
-            console.error(e)
+            toast.error(errorMessage(e, 'Could not remove that activity.'))
+            return
         }
 
         setShowForm(false)

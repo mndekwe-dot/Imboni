@@ -90,19 +90,24 @@ describe('DosSettings', () => {
     const roomsCard = screen.getByText('Rooms & Venues').closest('.card')
     fireEvent.click(within(roomsCard).getByRole('button', { name: /Add/ }))
 
-    await waitFor(() => expect(createDosRoom).toHaveBeenCalledWith('Lab 1'))
+    await waitFor(() => expect(createDosRoom).toHaveBeenCalledWith('Lab 1', null))
     expect(await screen.findByText('Lab 1')).toBeInTheDocument()
   })
 
   it('saves the timezone setting', async () => {
     getSchoolConfig.mockResolvedValue([])
     updateSchoolSettings.mockResolvedValue({})
+    /* The school is saved on Nairobi, NOT the page's own default (Kigali). That
+       is what makes waiting for it mean something: Kigali is on screen from the
+       first render, so waiting for it proved nothing, and a change made before
+       the saved value arrived was overwritten by it. */
+    getSchoolSettings.mockResolvedValue({ timezone: 'Africa/Nairobi', school_name: 'Imboni' })
     renderWithRouter(<DosSettings />)
-    await waitFor(() => expect(screen.getByDisplayValue(/Africa\/Kigali/)).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByDisplayValue(/Africa\/Nairobi/)).toBeInTheDocument())
 
-    fireEvent.change(screen.getByDisplayValue(/Africa\/Kigali/), { target: { value: 'Africa/Nairobi' } })
+    fireEvent.change(screen.getByDisplayValue(/Africa\/Nairobi/), { target: { value: 'Africa/Kigali' } })
     fireEvent.click(screen.getByRole('button', { name: 'Save' }))
 
-    await waitFor(() => expect(updateSchoolSettings).toHaveBeenCalledWith({ timezone: 'Africa/Nairobi' }))
+    await waitFor(() => expect(updateSchoolSettings).toHaveBeenCalledWith({ timezone: 'Africa/Kigali' }))
   })
 })

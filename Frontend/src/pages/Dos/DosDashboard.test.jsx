@@ -4,6 +4,7 @@ import { DosDashboard } from './DosDashboard'
 import {
   getDosDashboardStats, getDosRecentActivity, getDosPerformanceByGrade,
   getDosWeeklyTrend, getDosTasks, createDosTask, updateDosTask, deleteDosTask,
+  getAtRiskStudents, getChronicAbsence,
 } from '../../api/dos'
 
 vi.mock('../../api/dos', () => ({
@@ -15,6 +16,8 @@ vi.mock('../../api/dos', () => ({
   createDosTask: vi.fn(),
   updateDosTask: vi.fn(),
   deleteDosTask: vi.fn(),
+  getAtRiskStudents: vi.fn(),
+  getChronicAbsence: vi.fn(),
   // The welcome banner names the school, so the page reads school settings.
   getSchoolSettings: vi.fn().mockResolvedValue({ school_name: 'Imboni Academy' }),
 }))
@@ -53,6 +56,8 @@ function setupHappyPath() {
 beforeEach(() => {
   vi.clearAllMocks()
   setSessionUser({ first_name: 'Dr', last_name: 'Ndagijimana', role: 'dos' })
+  getAtRiskStudents.mockResolvedValue([])
+  getChronicAbsence.mockResolvedValue([])
 })
 
 describe('DosDashboard', () => {
@@ -235,5 +240,24 @@ describe('DosDashboard', () => {
 
     await waitFor(() => expect(getDosRecentActivity).toHaveBeenCalledWith({ limit: 10, offset: 1 }))
     await waitFor(() => expect(screen.getByText('Pending review')).toBeInTheDocument())
+  })
+
+  it('puts the students needing attention on the dashboard, worst first, with a link to the rest', async () => {
+    getDosDashboardStats.mockResolvedValue({ total_students: 1, new_students: 0, teaching_staff: 1, avg_performance: 70, avg_performance_change: 0, pending_approvals: 0 })
+    getDosPerformanceByGrade.mockResolvedValue([])
+    getDosWeeklyTrend.mockResolvedValue([])
+    getDosRecentActivity.mockResolvedValue({ results: [], total: 0, has_more: false })
+    getDosTasks.mockResolvedValue([])
+    const risk = n => ({ student_name: `Student ${n}`, student_code: `S${n}`, grade: 'S4', average_score: 30 + n, subjects_failing: 3 })
+    getAtRiskStudents.mockResolvedValue([1, 2, 3, 4, 5, 6, 7].map(risk))
+    getChronicAbsence.mockResolvedValue([{ student_name: 'Student 7', student_code: 'S7', grade: 'S4', attendance_rate: 60, days_absent: 9 }])
+
+    renderWithRouter(<DosDashboard />)
+
+    // Student 7 is flagged for both reasons, so it ranks first.
+    const first = await screen.findByText('Student 7')
+    expect(first).toBeInTheDocument()
+    expect(screen.queryByText('Student 6')).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'See all 7' })).toHaveAttribute('href', '/dos/results?tab=analytics')
   })
 })

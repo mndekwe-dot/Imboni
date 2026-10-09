@@ -171,3 +171,59 @@ class TestSchoolIdentityView:
         """
         res = APIClient().get(reverse('school-identity'))
         assert set(res.data.keys()) == {'name', 'subdomain', 'status'}
+
+
+@pytest.mark.django_db
+class TestSchoolByCodeView:
+    """
+    The installed desktop app turns a typed school code into a host. Unlike
+    find-school this confirms a code exists, so the tests pin what it may
+    reveal (name + domain, nothing else) and that every miss looks the same.
+    """
+
+    def _get(self, code=None):
+        url = reverse('school-by-code', urlconf='Imboni.urls_public')
+        params = {} if code is None else {'code': code}
+        with override_settings(ALLOWED_HOSTS=['*']):
+            return APIClient().get(url, params, HTTP_HOST='public')
+
+    def test_a_known_code_returns_the_schools_name_and_domain(self):
+        # conftest provisions the 'test' tenant, served at 'testserver'.
+        res = self._get('test')
+        assert res.status_code == 200
+        assert res.data == {'name': 'Test School', 'domain': 'testserver'}
+
+    def test_the_code_is_case_and_whitespace_insensitive(self):
+        assert self._get('  TEST ').status_code == 200
+
+    def test_exposes_nothing_beyond_name_and_domain(self):
+        assert set(self._get('test').data.keys()) == {'name', 'domain'}
+
+    def test_every_kind_of_miss_gives_the_same_answer(self):
+        """Unknown, malformed, empty and the public schema: one 404, one body."""
+        misses = [self._get(c) for c in ('no-such-school', 'x', '', 'public', 'a b', None)]
+        assert {r.status_code for r in misses} == {404}
+        assert len({r.data['detail'] for r in misses}) == 1
+
+    def test_needs_no_authentication(self):
+        assert self._get('test').status_code == 200
+
+    def test_an_expired_demo_is_not_found(self):
+        import datetime
+        from apps.tenants.models import Client
+        Client.objects.filter(schema_name='test').update(
+            is_demo=True, demo_expires_on=datetime.date(2000, 1, 1))
+        try:
+            assert self._get('test').status_code == 404
+        finally:
+            Client.objects.filter(schema_name='test').update(
+                is_demo=False, demo_expires_on=None)
+
+    def test_a_suspended_school_is_still_found(self):
+        """Its staff need the login page, which explains the suspension."""
+        from apps.tenants.models import Client
+        Client.objects.filter(schema_name='test').update(status='suspended')
+        try:
+            assert self._get('test').status_code == 200
+        finally:
+            Client.objects.filter(schema_name='test').update(status='active')

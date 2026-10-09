@@ -1,7 +1,4 @@
-from datetime import timedelta
-
 import pytest
-from django.utils import timezone
 from rest_framework import status
 
 from apps.audit.models import AuditEntry
@@ -29,35 +26,22 @@ class TestAuditService:
 
 
 @pytest.mark.django_db
-class TestAuditLogListView:
-    def test_only_admin_can_read_the_log(self, make_authenticated_client):
-        client, _user = make_authenticated_client('dos')
-        response = client.get('/imboni/admin/audit/')
-        assert response.status_code == status.HTTP_403_FORBIDDEN
+class TestAuditLogLivesInDjangoAdmin:
+    def test_the_api_route_is_gone(self, make_authenticated_client):
+        client, _admin = make_authenticated_client('admin')
+        assert client.get('/imboni/admin/audit/').status_code == status.HTTP_404_NOT_FOUND
 
-    def test_admin_sees_entries_newest_first_with_filters(self, make_authenticated_client):
-        client, admin = make_authenticated_client('admin')
-        older = audit(admin, 'invitation.sent', target='a@school.rw')
-        newer = audit(admin, 'result.approved', target='John Doe (Maths)')
-        # created_at is auto_now_add and can tie at microsecond resolution, and
-        # the UUID PK gives no monotonic tiebreaker — so pin distinct timestamps
-        # to make "newest first" deterministic instead of order-of-insertion luck.
-        now = timezone.now()
-        AuditEntry.objects.filter(pk=older.pk).update(created_at=now - timedelta(seconds=1))
-        AuditEntry.objects.filter(pk=newer.pk).update(created_at=now)
+    def test_admin_registration_is_read_only(self, rf):
+        from django.contrib import admin as django_admin
+        model_admin = django_admin.site._registry[AuditEntry]
+        request = rf.get('/')
+        assert not model_admin.has_add_permission(request)
+        assert not model_admin.has_change_permission(request)
+        assert not model_admin.has_delete_permission(request)
 
-        response = client.get('/imboni/admin/audit/')
-        assert response.status_code == status.HTTP_200_OK
-        assert response.data['total'] == 2
-        assert response.data['results'][0]['action'] == 'result.approved'
 
-        filtered = client.get('/imboni/admin/audit/', {'action': 'invitation'})
-        assert filtered.data['total'] == 1
-        assert filtered.data['results'][0]['target'] == 'a@school.rw'
-
-        searched = client.get('/imboni/admin/audit/', {'q': 'John'})
-        assert searched.data['total'] == 1
-
+@pytest.mark.django_db
+class TestSensitiveActions:
     def test_sensitive_actions_write_audit_entries(self, make_authenticated_client):
         client, _admin = make_authenticated_client('admin')
 

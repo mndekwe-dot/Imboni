@@ -12,6 +12,7 @@ export const getStudentAttendanceCalendar = (month, year)   => client.get('/imbo
 export const getStudentTimetable          = ()              => client.get('/imboni/student/timetable/')
 export const getStudentAssignments        = (status)        => client.get('/imboni/student/assignments/', { params: status ? { status } : {} })
 export const submitAssignment             = (id, formData)  => client.post(`/imboni/student/assignments/${id}/submit/`, formData)
+export const getStudentMaterials          = ()              => client.get('/imboni/student/materials/')
 export const getStudentActivities         = ()              => client.get('/imboni/student/activities/')
 export const getStudentActivityEvents     = ()              => client.get('/imboni/student/activities/events/')
 export const joinActivity                 = (id)            => client.post(`/imboni/student/activities/${id}/apply/`)
@@ -21,5 +22,3 @@ export const getStudentAnnouncements      = ()              => client.get('/imbo
 export const getAnnouncementStats         = ()              => client.get('/imboni/announcements/stats/')
 
 // Messages — no backend endpoint yet
-export const getStudentMessages = () => client.get('/imboni/student/messages/')
-export const sendStudentMessage = (d) => client.post('/imboni/student/messages/', d)

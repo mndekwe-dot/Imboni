@@ -13,9 +13,6 @@
     "subtitle": "Suzuma kandi wemeze amanota yatanzwe n'abarimu",
     "title": "Kwemeza amanota"
   },
-  "auditLog": {
-    "subtitle": "Uwakoze iki n'igihe: ibikorwa by'ubuyobozi byitonderwa"
-  },
   "billing": {
     "checkoutFailed": "Ntibyashobotse gutangira kwishyura.",
     "loadFailed": "Ntibyashobotse gukura amakuru yo kwishyura.",
@@ -26,24 +23,6 @@
     "subtitle": "Incamake y'ikigo cyose",
     "subtitleWithTerm": "Incamake y'ikigo cyose ({{term}}, {{year}})",
     "title": "Imbonerahamwe y'ubuyobozi"
-  },
-  "finance": {
-    "category": "Icyiciro",
-    "collected": "Yakusanyijwe",
-    "dueDate": "Itariki ntarengwa",
-    "loading": "Turimo gukura amakuru y'amafaranga…",
-    "noOutstanding": "Nta mafaranga asigaye muri iki gihembwe.",
-    "ofTarget": "{{rate}}% by'intego",
-    "outstanding": "Asigaye",
-    "outstandingTitle": "Amafaranga asigaye",
-    "overdueCount": "{{count}} yarengeje igihe",
-    "quickActions": "Ibikorwa byihuse",
-    "student": "Umunyeshuri",
-    "subtitle": "Ikusanya ry'amafaranga, ubwishyu n'ingengo y'imari",
-    "subtitleWithTerm": "Ikusanya ry'amafaranga, ubwishyu n'ingengo y'imari ({{term}}, {{year}})",
-    "title": "Imari",
-    "totalExpected": "Amafaranga yose ateganyijwe",
-    "unavailable": "Amakuru y'amafaranga ntaboneka. Reba niba hari igihembwe cyagenwe."
   },
   "messages": {
     "subtitle": "Vugana n'abakozi, abayobozi b'inzego n'ababyeyi"
