@@ -255,6 +255,12 @@ class SchoolSetting(models.Model):
     # behaving exactly as before.
     terms = models.JSONField(default=default_terms, blank=True)
 
+    # When on, a newly registered student is held as 'awaiting deposit' and is
+    # NOT placed in a class until the bursar confirms their enrolment, so they
+    # never appear on a register before the family has paid or agreed a plan.
+    # Off by default: a school that does not ask for a deposit sees no change.
+    hold_enrolment_until_deposit = models.BooleanField(default=False)
+
     class Meta:
         db_table= 'school_setting'
 

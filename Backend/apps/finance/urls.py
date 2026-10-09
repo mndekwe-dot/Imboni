@@ -11,11 +11,14 @@ a set of reminders are documents in their own right, not a rendering of a list.
 """
 from django.urls import path
 
+from . import admissions_api
 from . import operations_views as ops
 from . import setup_views as setup
 from . import views
 
 urlpatterns = [
+    path('finance/admissions/',                       admissions_api.AdmissionsListView.as_view(),   name='finance-admissions'),
+    path('finance/admissions/<uuid:pk>/confirm/',     admissions_api.AdmissionConfirmView.as_view(), name='finance-admission-confirm'),
     # Is finance part of this school's plan at all?
     path('finance/availability/', views.FinanceAvailabilityView.as_view(),
          name='finance-availability'),
