@@ -53,6 +53,22 @@ class TestPerAccountLimit:
         assert codes[:3] == [401, 401, 401]
         assert codes[3:] == [429, 429]
 
+    def test_correct_sign_ins_never_use_up_the_allowance(self, rates):
+        """Three tries means three WRONG passwords, not three visits."""
+        rates(login='1000/min', login_account='3/hour')
+        UserFactory(email='t@school.test', role='teacher')
+        codes = [attempt('t@school.test', GOOD).status_code for _ in range(8)]
+        assert codes == [200] * 8
+
+    def test_a_correct_password_forgives_earlier_typos(self, rates):
+        rates(login='1000/min', login_account='3/hour')
+        UserFactory(email='t@school.test', role='teacher')
+        attempt('t@school.test'); attempt('t@school.test')
+        assert attempt('t@school.test', GOOD).status_code == 200
+        # The count started again: two more typos still leave a try.
+        assert [attempt('t@school.test').status_code for _ in range(3)] == [401, 401, 401]
+        assert attempt('t@school.test').status_code == 429
+
     def test_the_real_password_is_also_refused_once_limited(self, rates):
         """Otherwise the limit would only slow down the wrong guesses, not the right one."""
         rates(login='1000/min', login_account='2/hour')
@@ -116,4 +132,4 @@ class TestSettings:
         import pathlib, re
         src = (pathlib.Path(__file__).resolve().parents[2] / 'Imboni' / 'settings.py').read_text(encoding='utf-8')
         assert re.search(r"'login':\s+None if TESTING else '60/min'", src)
-        assert re.search(r"'login_account':\s+None if TESTING else '10/hour'", src)
+        assert re.search(r"'login_account':\s+None if TESTING else '3/hour'", src)

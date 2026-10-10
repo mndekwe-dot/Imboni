@@ -323,7 +323,7 @@ REST_FRAMEWORK = {
         # behind one address and sign in together. Guessing at ONE account is
         # limited by login_account below, per (address, account).
         'login':          None if TESTING else '60/min',
-        'login_account':  None if TESTING else '10/hour',
+        'login_account':  None if TESTING else '3/hour',
         'password_reset': None if TESTING else '3/min',
         # per IP — this endpoint queues a lookup across every tenant schema and
         # can send mail, so it is both expensive and abusable as a mailer.
