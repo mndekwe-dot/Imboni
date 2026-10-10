@@ -5,9 +5,10 @@ import { ProtectedRoute } from './ProtectedRoute'
 import { PlatformLayout } from '../pages/Platform/PlatformLayout'
 
 /** Signs someone in the way a real login does: a token *and* an identity. */
+// Signed in, as far as the page can tell, means a stored profile. There is no
+// token in localStorage to check any more (see api/session.js).
 function signIn(role) {
-  localStorage.setItem('imboni_access', 'some-token')
-  if (role) localStorage.setItem('imboni_user', JSON.stringify({ role, first_name: 'A' }))
+  localStorage.setItem('imboni_user', JSON.stringify(role ? { role, first_name: 'A' } : { first_name: 'A' }))
 }
 
 /** Renders /teacher guarded for `role`, with every landing spot reachable. */
@@ -38,8 +39,8 @@ describe('ProtectedRoute', () => {
     expect(screen.queryByText('Teacher Dashboard')).not.toBeInTheDocument()
   })
 
-  it('redirects when the access token is an empty string', () => {
-    localStorage.setItem('imboni_access', '')
+  it('is not fooled by a leftover token from an older version of the page', () => {
+    localStorage.setItem('imboni_access', 'left-behind')
     renderAt('/teacher')
     expect(screen.getByText('Login Page')).toBeInTheDocument()
   })
@@ -81,17 +82,16 @@ describe('ProtectedRoute', () => {
   })
 
   /*
-   * A token with no identity beside it is a half-built session — cleared
+   * A profile with no role in it is a half-built session — cleared
    * storage, an interrupted login. There is no home to bounce them to.
    */
-  it('sends a token with no stored user back to /login', () => {
-    localStorage.setItem('imboni_access', 'some-token')
+  it('sends a profile with no role back to /login', () => {
+    signIn()
     renderAt('/teacher')
     expect(screen.getByText('Login Page')).toBeInTheDocument()
   })
 
   it('survives a corrupt imboni_user rather than crashing', () => {
-    localStorage.setItem('imboni_access', 'some-token')
     localStorage.setItem('imboni_user', '{not json')
     expect(() => renderAt('/teacher')).not.toThrow()
     expect(screen.getByText('Login Page')).toBeInTheDocument()
@@ -138,15 +138,14 @@ describe('PlatformLayout guard', () => {
     expect(screen.queryByText('Console Body')).not.toBeInTheDocument()
   })
 
-  it('a school token does NOT unlock the platform console', () => {
-    localStorage.setItem('imboni_access', 'school-token')
+  it('a school sign-in does NOT unlock the platform console', () => {
+    signIn('teacher')
     renderPlatform()
     expect(screen.getByText('Platform Login Page')).toBeInTheDocument()
   })
 
   it('an admin of a school does NOT unlock the platform console', () => {
-    localStorage.setItem('imboni_access', 'school-token')
-    localStorage.setItem('imboni_user', JSON.stringify({ role: 'admin' }))
+    signIn('admin')
     renderPlatform()
     expect(screen.getByText('Platform Login Page')).toBeInTheDocument()
   })
@@ -158,14 +157,12 @@ describe('PlatformLayout guard', () => {
   })
 
   it('lets in someone whose SECONDARY role owns the route', () => {
-    localStorage.setItem('imboni_access', 'some-token')
     localStorage.setItem('imboni_user', JSON.stringify({ role: 'teacher', extra_roles: ['dos'], first_name: 'A' }))
     renderAt('/teacher', { role: 'dos' })
     expect(screen.getByText('Teacher Dashboard')).toBeInTheDocument()
   })
 
   it('still turns away a secondary role that belongs to a different portal', () => {
-    localStorage.setItem('imboni_access', 'some-token')
     localStorage.setItem('imboni_user', JSON.stringify({ role: 'teacher', extra_roles: ['matron'], first_name: 'A' }))
     renderAt('/teacher', { role: 'dos' })
     expect(screen.queryByText('Teacher Dashboard')).not.toBeInTheDocument()

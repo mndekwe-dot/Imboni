@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { clearSupportSession, decodeJwtPayload, readSupportSession, saveSupportSession } from './supportSession'
+import { getAccessToken, startSupportSession } from '../api/session'
 
 const jwt = claims => `h.${btoa(JSON.stringify(claims)).replace(/=+$/, '').replace(/\+/g, '-').replace(/\//g, '_')}.s`
 
@@ -20,10 +21,10 @@ describe('supportSession', () => {
     })
 
     it('ending a session signs the browser out as well', () => {
-        localStorage.setItem('imboni_access', 'x'); localStorage.setItem('imboni_user', '{}')
+        startSupportSession('x'); localStorage.setItem('imboni_user', '{}')
         saveSupportSession({ exp: Math.floor(Date.now() / 1000) + 600 })
         clearSupportSession()
-        expect(localStorage.getItem('imboni_access')).toBeNull()
+        expect(getAccessToken()).toBeNull()
         expect(localStorage.getItem('imboni_user')).toBeNull()
         expect(readSupportSession()).toBeNull()
     })

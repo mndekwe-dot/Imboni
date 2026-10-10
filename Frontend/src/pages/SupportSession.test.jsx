@@ -3,6 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Routes, Route } from 'react-router'
 import { SupportSession } from './SupportSession'
 import client from '../api/client'
+import { __resetSession, getAccessToken, isSupportSession } from '../api/session'
 
 vi.mock('../api/client', () => ({ default: { get: vi.fn() } }))
 
@@ -21,7 +22,7 @@ function open(hash) {
 }
 
 describe('SupportSession', () => {
-    beforeEach(() => { vi.clearAllMocks(); localStorage.clear() })
+    beforeEach(() => { vi.clearAllMocks(); localStorage.clear(); sessionStorage.clear(); __resetSession() })
 
     it('signs the operator in as the administrator and lands them on the admin portal', async () => {
         client.get.mockResolvedValue({ role: 'admin', first_name: 'Head' })
@@ -30,14 +31,17 @@ describe('SupportSession', () => {
         expect(await screen.findByText('Admin Home')).toBeInTheDocument()
         expect(JSON.parse(localStorage.getItem('imboni_user')).role).toBe('admin')
         expect(JSON.parse(localStorage.getItem('imboni_support')).operator).toBe('ops@imboni.com')
-        expect(localStorage.getItem('imboni_refresh')).toBeNull()      // no way to extend it
+        expect(isSupportSession()).toBe(true)
+        expect(getAccessToken()).toBeTruthy()                          // held for this tab only
+        expect(localStorage.getItem('imboni_access')).toBeNull()       // and never in localStorage
         expect(window.location.hash).toBe('')                          // the token is wiped from the address bar
     })
 
     it('refuses an ordinary token, or an expired one', async () => {
         open(`#token=${jwt({ exp: future() })}`)
         expect(await screen.findByText('This support link is not valid or has expired.')).toBeInTheDocument()
-        expect(localStorage.getItem('imboni_access')).toBeNull()
+        expect(getAccessToken()).toBeNull()
+        expect(isSupportSession()).toBe(false)
     })
 
     it('refuses a link with no token at all', async () => {
@@ -49,6 +53,7 @@ describe('SupportSession', () => {
         client.get.mockRejectedValue({ response: { status: 401 } })
         open(`#token=${jwt({ support_session: true, exp: future() })}`)
         await waitFor(() => expect(screen.getByText('This support link is not valid or has expired.')).toBeInTheDocument())
-        expect(localStorage.getItem('imboni_access')).toBeNull()
+        expect(getAccessToken()).toBeNull()
+        expect(isSupportSession()).toBe(false)
     })
 })

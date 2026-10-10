@@ -1,3 +1,4 @@
+import { hasSession } from '../api/session'
 import { useEffect, useState } from 'react'
 import { Link, Navigate, useSearchParams } from 'react-router'
 import { useTranslation } from 'react-i18next'
@@ -46,7 +47,7 @@ export function Start() {
     const [busy, setBusy] = useState(false)
     const [error, setError] = useState('')
 
-    const signedIn = Boolean(localStorage.getItem('imboni_access'))
+    const signedIn = hasSession()
     const onSchoolHost = Boolean(school)
 
     // Re-verify the remembered school, then go. Runs only on the bare domain.

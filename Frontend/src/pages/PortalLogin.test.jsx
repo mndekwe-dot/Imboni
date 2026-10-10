@@ -34,7 +34,7 @@ describe('PortalLogin', () => {
     fireEvent.click(screen.getByRole('button', { name: /Sign in to Teacher Portal/ }))
 
     await waitFor(() => expect(mockLogin).toHaveBeenCalledWith(
-      'j.habimana@imboni.edu', 'secret123', 'teacher', '/teacher'
+      'j.habimana@imboni.edu', 'secret123', 'teacher', '/teacher', false
     ))
   })
 

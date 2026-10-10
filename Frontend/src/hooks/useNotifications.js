@@ -1,3 +1,4 @@
+import { ensureAccessToken, getAccessToken, hasSession } from '../api/session'
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { getNotifications, markNotificationRead } from '../api/notifications'
 
@@ -29,7 +30,7 @@ const HEARTBEAT_MS = 25_000
 export function notificationSocketUrl() {
     if (typeof window === 'undefined' || typeof window.WebSocket !== 'function') return null
 
-    const token = window.localStorage?.getItem('imboni_access')
+    const token = getAccessToken()
     if (!token) return null
 
     // Mirror api/client.js: undefined => plain `npm run dev` against :8000;
@@ -125,6 +126,8 @@ export function useNotifications() {
             })
         }
 
+        let askedForToken = false
+
         function connect() {
             if (!mountedRef.current) return
             const url = notificationSocketUrl()
@@ -132,6 +135,14 @@ export function useNotifications() {
                 // No socket possible (logged out, or no WebSocket in this env):
                 // polling is the whole story. Don't retry in a loop.
                 startPolling()
+                // One exception: a page that has only just loaded has no access
+                // token in memory yet. Fetch it, then try the socket once more.
+                if (!askedForToken && hasSession() && typeof window.WebSocket === 'function') {
+                    askedForToken = true
+                    ensureAccessToken()
+                        .then(() => { if (mountedRef.current && !socketRef.current) connect() })
+                        .catch(() => { /* offline or signed out: polling carries on */ })
+                }
                 return
             }
 

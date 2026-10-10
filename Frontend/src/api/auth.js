@@ -1,5 +1,6 @@
 import axios from 'axios'
 import client from './client'
+import { SESSION_REQUEST, clearSession } from './session'
 
 // See client.js: undefined -> dev default; empty string -> same-origin (container).
 const BASE = import.meta.env.VITE_API_BASE === undefined
@@ -9,11 +10,15 @@ const BASE = import.meta.env.VITE_API_BASE === undefined
 // Login uses plain axios — no token exists yet so client's 401-refresh interceptor would
 // incorrectly wipe localStorage and force-redirect on every failed login attempt.
 // We still want the backend's real error message though, so unwrap it manually here.
-export async function loginUser(email, password, portal) {
+//
+// `remember` decides how long the session cookie lives: ticked, it outlasts the
+// browser; unticked, it goes when the browser closes. SESSION_REQUEST lets the
+// browser accept that cookie when the API is on another origin (local dev).
+export async function loginUser(email, password, portal, remember = false) {
     try {
         const res = await axios.post(`${BASE}/imboni/auth/login/`, {
-            email, password, portal
-        })
+            email, password, portal, remember,
+        }, SESSION_REQUEST)
         return res.data
     } catch (err) {
         throw new Error(err.response?.data?.error || err.response?.data?.detail || 'Something went wrong')
@@ -22,9 +27,9 @@ export async function loginUser(email, password, portal) {
 
 // Second login step for 2FA accounts — exchanges the challenge + a TOTP/backup
 // code for real tokens. Plain axios: no session token exists yet.
-export async function verifyTwoFactorLogin(challenge, code) {
+export async function verifyTwoFactorLogin(challenge, code, remember = false) {
     try {
-        const res = await axios.post(`${BASE}/imboni/auth/2fa/login/`, { challenge, code })
+        const res = await axios.post(`${BASE}/imboni/auth/2fa/login/`, { challenge, code, remember }, SESSION_REQUEST)
         return res.data
     } catch (err) {
         throw new Error(err.response?.data?.error || err.response?.data?.detail || 'Invalid or expired code')
@@ -37,23 +42,20 @@ export const setupTwoFactor     = () => client.post('/imboni/auth/2fa/setup/')
 export const verifyTwoFactor    = (code) => client.post('/imboni/auth/2fa/verify/', { code })
 export const disableTwoFactor   = (password) => client.post('/imboni/auth/2fa/disable/', { password })
 
-// Logout uses client — user is logged in so the interceptor attaches the token automatically
+// Sign out.
 //
-// The session is cleared in `finally`, whatever the server says. It used to be
-// cleared only after a successful POST, so a network error or an expired
-// refresh token left the browser signed in with the logout button doing
-// nothing. And with no refresh token stored it returned before clearing
-// anything, so a half-built session (access token, no refresh) could never be
-// signed out of at all. Revoking the refresh token server-side is best effort;
-// signing this browser out is not.
+// The server revokes the refresh token and removes its cookie; that is the
+// only place it can be removed from, because the page cannot touch an HttpOnly
+// cookie. Plain axios, not `client`: signing out must not first try to renew
+// the session it is ending.
+//
+// This browser is cleared in `finally`, whatever the server says. A network
+// error still signs the person out here; the token then expires on its own.
 export async function logoutUser() {
-    const refresh = localStorage.getItem('imboni_refresh')
     try {
-        if (refresh) await client.post('/imboni/auth/logout/', { refresh })
+        await axios.post(`${BASE}/imboni/auth/logout/`, {}, SESSION_REQUEST)
     } finally {
-        localStorage.removeItem('imboni_access')
-        localStorage.removeItem('imboni_refresh')
-        localStorage.removeItem('imboni_user')
+        clearSession()
     }
 }
 

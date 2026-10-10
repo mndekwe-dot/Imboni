@@ -44,10 +44,16 @@ test.describe('Login', () => {
         // Client-side redirect to the protected DOS route.
         await expect(page).toHaveURL(/\/dos$/)
 
-        // Token was persisted, which is what keeps the protected route from
-        // bouncing back to /login.
-        const token = await page.evaluate(() => localStorage.getItem('imboni_access'))
-        expect(token).toBe('fake-access')
+        // The signed-in profile is what keeps the protected route from bouncing
+        // back to /login. No token of either kind is left where a script could
+        // read it: the access token is in memory, the refresh token in an
+        // HttpOnly cookie.
+        const stored = await page.evaluate(() => ({
+            user: localStorage.getItem('imboni_user'),
+            everything: JSON.stringify({ ...localStorage }) + JSON.stringify({ ...sessionStorage }),
+        }))
+        expect(stored.user).not.toBeNull()
+        expect(stored.everything).not.toContain('fake-access')
     })
 
     test('invalid credentials show the server error and stay on the login page', async ({ page }) => {
@@ -100,7 +106,8 @@ test.describe('Login', () => {
         await page.getByRole('button', { name: /Verify and sign in/ }).click()
 
         await expect(page).toHaveURL(/\/dos$/)
-        const token = await page.evaluate(() => localStorage.getItem('imboni_access'))
-        expect(token).toBe('fake-access')
+        const everything = await page.evaluate(() => JSON.stringify({ ...localStorage }) + JSON.stringify({ ...sessionStorage }))
+        expect(everything).toContain('imboni_user')
+        expect(everything).not.toContain('fake-access')
     })
 })

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import {useNavigate} from 'react-router'
 import { loginUser,logoutUser, verifyTwoFactorLogin } from "../api/auth";
+import { hasSession, setAccessToken } from "../api/session";
 import { pendingCount, clearOfflineData } from "../offline";
 import { confirmDialog } from "../utils/confirm";
 import i18n from "../i18n";
@@ -19,11 +20,12 @@ export function useAuth(){
         return stored ? JSON.parse(stored): null
     })
 
-    const isAuthenticated = !!localStorage.getItem('imboni_access')
+    const isAuthenticated = hasSession()
 
     function persistSession(data, redirectTo) {
-        localStorage.setItem('imboni_access',data.access)
-        localStorage.setItem('imboni_refresh',data.refresh)
+        // The access token is kept in memory only; the refresh token never
+        // reaches the page (it is in an HttpOnly cookie). See api/session.js.
+        setAccessToken(data.access)
         localStorage.setItem('imboni_user',JSON.stringify(data.user))
         setUser(data.user)
         // Explicit redirect (portal logins) wins; otherwise send the user to
@@ -36,19 +38,19 @@ export function useAuth(){
         navigate(redirectTo || ROLE_HOME[data.user?.role] || '/', { replace: true })
     }
 
-    async function login(email,password,portal,redirectTo) {
-        const data = await loginUser(email,password,portal)
+    async function login(email,password,portal,redirectTo,remember = false) {
+        const data = await loginUser(email,password,portal,remember)
         // 2FA account: password verified, but tokens are withheld until the
         // second step. Hand the challenge back so the page can prompt for a code.
         if (data.requires_2fa) {
-            return { requires2fa: true, challenge: data.challenge, redirectTo }
+            return { requires2fa: true, challenge: data.challenge, redirectTo, remember }
         }
         persistSession(data, redirectTo)
         return { requires2fa: false }
     }
 
-    async function completeTwoFactor(challenge, code, redirectTo) {
-        const data = await verifyTwoFactorLogin(challenge, code)
+    async function completeTwoFactor(challenge, code, redirectTo, remember = false) {
+        const data = await verifyTwoFactorLogin(challenge, code, remember)
         persistSession(data, redirectTo)
     }
 

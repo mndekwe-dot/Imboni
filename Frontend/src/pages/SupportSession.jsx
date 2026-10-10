@@ -3,13 +3,14 @@ import { Navigate } from 'react-router'
 import { useTranslation } from 'react-i18next'
 
 import client from '../api/client'
+import { clearSession, startSupportSession } from '../api/session'
 import { decodeJwtPayload, saveSupportSession } from '../utils/supportSession'
 
 /**
  * Where a platform operator lands from "Open support session".
  *
  * The token is in the URL fragment, which the browser never sends to a server.
- * It is moved into storage and the fragment is wiped from the address bar
+ * It is moved into this tab's own storage and the fragment is wiped from the address bar
  * straight away, so it is not left in history or on screen.
  */
 export function SupportSession() {
@@ -23,15 +24,15 @@ export function SupportSession() {
         if (!claims?.support_session || claims.exp * 1000 <= Date.now()) { setState('invalid'); return }
 
         // A support session replaces whoever was signed in on this browser.
-        localStorage.removeItem('imboni_refresh')
-        localStorage.setItem('imboni_access', token)
+        clearSession()
+        startSupportSession(token)
         client.get('/imboni/account/profile/')
             .then(user => {
                 localStorage.setItem('imboni_user', JSON.stringify(user))
                 saveSupportSession({ exp: claims.exp, operator: claims.operator })
                 setState('done')
             })
-            .catch(() => { localStorage.removeItem('imboni_access'); setState('invalid') })
+            .catch(() => { clearSession(); setState('invalid') })
     }, [])
 
     if (state === 'done') return <Navigate to="/admin" replace />

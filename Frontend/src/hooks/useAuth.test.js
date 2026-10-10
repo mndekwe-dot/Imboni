@@ -3,6 +3,7 @@ import { renderHook, act } from '@testing-library/react'
 import { useAuth } from './useAuth'
 import { loginUser, logoutUser } from '../api/auth'
 import { pendingCount, clearOfflineData } from '../offline'
+import { __resetSession, getAccessToken } from '../api/session'
 
 const mockNavigate = vi.fn()
 
@@ -16,11 +17,11 @@ describe('useAuth', () => {
   beforeEach(() => {
     vi.resetAllMocks()
     localStorage.clear()
+    __resetSession()
   })
 
-  it('initializes user from localStorage and isAuthenticated from access token presence', () => {
+  it('initializes user from localStorage, and is authenticated when a profile is stored', () => {
     localStorage.setItem('imboni_user', JSON.stringify({ first_name: 'A', role: 'teacher' }))
-    localStorage.setItem('imboni_access', 'tok')
 
     const { result } = renderHook(() => useAuth())
 
@@ -35,10 +36,9 @@ describe('useAuth', () => {
     expect(result.current.isAuthenticated).toBe(false)
   })
 
-  it('login stores tokens and user, updates state, and navigates', async () => {
+  it('login keeps the access token in memory, stores the user, updates state, and navigates', async () => {
     const data = {
       access: 'access-tok',
-      refresh: 'refresh-tok',
       user: { first_name: 'Jean', role: 'dos' },
     }
     loginUser.mockResolvedValue(data)
@@ -49,9 +49,11 @@ describe('useAuth', () => {
       await result.current.login('jean@x.com', 'pw', 'dos', '/dashboard')
     })
 
-    expect(loginUser).toHaveBeenCalledWith('jean@x.com', 'pw', 'dos')
-    expect(localStorage.getItem('imboni_access')).toBe('access-tok')
-    expect(localStorage.getItem('imboni_refresh')).toBe('refresh-tok')
+    expect(loginUser).toHaveBeenCalledWith('jean@x.com', 'pw', 'dos', false)
+    expect(getAccessToken()).toBe('access-tok')
+    // No token of either kind is written where a script could read it later.
+    expect(localStorage.getItem('imboni_access')).toBeNull()
+    expect(localStorage.getItem('imboni_refresh')).toBeNull()
     expect(JSON.parse(localStorage.getItem('imboni_user'))).toEqual(data.user)
     expect(result.current.user).toEqual(data.user)
     // replace: the login form must not stay in history under the portal
@@ -59,7 +61,6 @@ describe('useAuth', () => {
   })
 
   it('logout clears user state and navigates to default /login', async () => {
-    localStorage.setItem('imboni_refresh', 'refresh-tok')
     logoutUser.mockResolvedValue()
 
     const { result } = renderHook(() => useAuth())
@@ -126,5 +127,16 @@ describe('useAuth', () => {
     await act(async () => { await result.current.logout() })
     expect(logoutUser).toHaveBeenCalled()
     expect(clearOfflineData).toHaveBeenCalled()
+  })
+
+  it('passes "Remember me" to the sign-in, and on to the second step for a 2FA account', async () => {
+    loginUser.mockResolvedValue({ requires_2fa: true, challenge: 'c1' })
+    const { result } = renderHook(() => useAuth())
+
+    let step
+    await act(async () => { step = await result.current.login('a@x.com', 'pw', 'admin', '/admin', true) })
+
+    expect(loginUser).toHaveBeenCalledWith('a@x.com', 'pw', 'admin', true)
+    expect(step).toMatchObject({ requires2fa: true, challenge: 'c1', remember: true })
   })
 })

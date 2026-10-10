@@ -7,7 +7,9 @@ import i18n, { setLanguage } from '../i18n'
 
 vi.mock('../api/account')
 
-const TOKEN_KEY = 'imboni_access'
+// Signed in, as far as the page can tell: the stored profile (see api/session.js).
+const USER_KEY = 'imboni_user'
+const SIGNED_IN = JSON.stringify({ id: 1, role: 'teacher' })
 const PENDING_KEY = 'imboni_language_pending'
 
 describe('useLanguage', () => {
@@ -19,7 +21,7 @@ describe('useLanguage', () => {
     afterEach(() => { setLanguage('en'); vi.clearAllMocks() })
 
     it('applies the language immediately, before any network call', async () => {
-        localStorage.setItem(TOKEN_KEY, 'tok')
+        localStorage.setItem(USER_KEY, SIGNED_IN)
         // Never resolves: the switch must not wait on it.
         vi.mocked(updateMyPreferences).mockReturnValue(new Promise(() => {}))
 
@@ -51,7 +53,7 @@ describe('useLanguage', () => {
     })
 
     describe('signed in', () => {
-        beforeEach(() => localStorage.setItem(TOKEN_KEY, 'tok'))
+        beforeEach(() => localStorage.setItem(USER_KEY, SIGNED_IN))
 
         it('saves to the account', async () => {
             const { result } = renderHook(() => useLanguage())
@@ -89,7 +91,7 @@ describe('useSyncStoredLanguage', () => {
     })
 
     it('pulls the stored language down', async () => {
-        localStorage.setItem(TOKEN_KEY, 'tok')
+        localStorage.setItem(USER_KEY, SIGNED_IN)
         vi.mocked(getMyPreferences).mockResolvedValue({ language: 'rw' })
 
         renderHook(() => useSyncStoredLanguage())
@@ -99,7 +101,7 @@ describe('useSyncStoredLanguage', () => {
     it('pushes a language chosen before sign-in instead of pulling', async () => {
         // Every account is created with language='en', so pulling here would
         // discard the choice the user just made on the login page.
-        localStorage.setItem(TOKEN_KEY, 'tok')
+        localStorage.setItem(USER_KEY, SIGNED_IN)
         localStorage.setItem(PENDING_KEY, 'rw')
         vi.mocked(getMyPreferences).mockResolvedValue({ language: 'en' })
 
@@ -112,7 +114,7 @@ describe('useSyncStoredLanguage', () => {
     })
 
     it('keeps the pending marker when the push fails', async () => {
-        localStorage.setItem(TOKEN_KEY, 'tok')
+        localStorage.setItem(USER_KEY, SIGNED_IN)
         localStorage.setItem(PENDING_KEY, 'rw')
         vi.mocked(updateMyPreferences).mockRejectedValue(new Error('offline'))
 
@@ -124,7 +126,7 @@ describe('useSyncStoredLanguage', () => {
     })
 
     it('ignores a language code the frontend does not ship', async () => {
-        localStorage.setItem(TOKEN_KEY, 'tok')
+        localStorage.setItem(USER_KEY, SIGNED_IN)
         vi.mocked(getMyPreferences).mockResolvedValue({ language: 'de' })
 
         renderHook(() => useSyncStoredLanguage())

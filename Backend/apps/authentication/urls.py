@@ -1,8 +1,8 @@
 from django.urls import path
 from rest_framework_nested import routers
-from rest_framework_simplejwt.views import TokenRefreshView
 from . import views
 from .views import (
+    CookieTokenRefreshView,
     SendInvitationView,
     BulkInviteView,
     CSVInviteView,
@@ -59,5 +59,5 @@ urlpatterns = router.urls + user_nested_router.urls + [
     path('auth/2fa/verify/',  TwoFactorVerifyView.as_view(),  name='2fa-verify'),
     path('auth/2fa/disable/', TwoFactorDisableView.as_view(), name='2fa-disable'),
     # JWT token refresh
-    path('auth/token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
+    path('auth/token/refresh/', CookieTokenRefreshView.as_view(), name='token-refresh'),
 ]

@@ -1,10 +1,11 @@
 import { Navigate } from "react-router"
 import { ROLE_HOME, readStoredUser } from "../utils/roles"
+import { hasSession } from "../api/session"
 
 /**
  * A route only the right role may open.
  *
- * This used to check one thing: that `imboni_access` was a non-empty string.
+ * This used to check one thing: that a token was stored in the browser.
  * Any signed-in user could therefore load any portal — an admin could open
  * /teacher/classes and get the teacher's sidebar, header and layout. The API
  * refused the data behind it ("Access restricted to teachers"), so nothing
@@ -14,7 +15,7 @@ import { ROLE_HOME, readStoredUser } from "../utils/roles"
  *
  * Two decisions, in order:
  *
- *   1. No token → /login. Not signed in at all.
+ *   1. Nobody signed in → /login.
  *   2. Signed in as the wrong role → that role's *own* home, not /login.
  *      Being in the wrong place is not the same as being logged out, and
  *      bouncing someone to a login form they don't need is how you make a
@@ -24,9 +25,10 @@ import { ROLE_HOME, readStoredUser } from "../utils/roles"
  * by every signed-in user (e.g. /profile) — deliberate, not a default.
  */
 export function ProtectedRoute({ children, role }) {
-    const token = localStorage.getItem('imboni_access')
-
-    if (!token) {
+    // Whether somebody is signed in, as far as this browser knows. Not a
+    // credential and not trusted as one: it decides which screen to draw,
+    // and the server decides what the person may actually see.
+    if (!hasSession()) {
         return <Navigate to="/login" replace />
     }
 
@@ -37,7 +39,7 @@ export function ProtectedRoute({ children, role }) {
 
     const user = readStoredUser()
 
-    // A token with no readable identity means the session is half-built —
+    // A session with no readable identity is half-built —
     // cleared storage, a failed parse, a login that didn't finish. There is no
     // home to send them to, so make them sign in again.
     if (!user?.role) {

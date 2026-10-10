@@ -129,13 +129,16 @@ export function PortalLogin({ portal, icon, placeholder, redirectTo }) {
     // When the account has 2FA, login returns a challenge and we show a code step.
     const [challenge,  setChallenge]  = useState(null)
     const [code,       setCode]       = useState('')
+    // "Remember me": ticked, the session outlasts the browser; unticked, it ends
+    // when the browser closes, which is what a shared school computer needs.
+    const [remember,   setRemember]   = useState(false)
 
     async function handleSubmit(e) {
         e.preventDefault()
         setError('')
         setLoading(true)
         try {
-            const result = await login(email,password,portal,redirectTo)
+            const result = await login(email,password,portal,redirectTo,remember)
             if (result?.requires2fa) {
                 setChallenge(result.challenge)
             }
@@ -151,7 +154,7 @@ export function PortalLogin({ portal, icon, placeholder, redirectTo }) {
         setError('')
         setLoading(true)
         try {
-            await completeTwoFactor(challenge, code.trim(), redirectTo)
+            await completeTwoFactor(challenge, code.trim(), redirectTo, remember)
         } catch (err) {
             setError(err.message)
         } finally {
@@ -293,7 +296,8 @@ export function PortalLogin({ portal, icon, placeholder, redirectTo }) {
 
                     <div className="form-options">
                         <label className="remember-label">
-                            <input type="checkbox" name="remember" />
+                            <input type="checkbox" name="remember" checked={remember}
+                                onChange={e => setRemember(e.target.checked)} />
                             {t('auth.rememberMe')}
                         </label>
                         <button type="button" className="forgot-link portal-forgot-link" onClick={() => setShowForgot(true)}>

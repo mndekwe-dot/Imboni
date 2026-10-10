@@ -3,6 +3,9 @@ import {
     cachePut, cacheGet, isCacheable, isQueueable, enqueue, initOfflineSync, clearOfflineData,
 } from '../offline'
 import { setSubscriptionStatus } from './subscriptionState'
+import {
+    clearSession, getAccessToken, hasSession, isSupportSession, refreshAccessToken,
+} from './session'
 
 // When VITE_API_BASE is defined (even as an empty string) we honour it verbatim.
 // An empty string means "same origin" — used by the containerized multi-tenant
@@ -19,8 +22,16 @@ const client = axios.create({
 })
 
 // REQUEST — attach access token
-client.interceptors.request.use(config => {
-    const token = localStorage.getItem('imboni_access')
+//
+// The token is held in memory only (see session.js), so a page that has just
+// loaded has none. If somebody is signed in, fetch one first rather than send
+// a request that is certain to come back 401. With no connection that fetch
+// fails, and the request goes out bare so the offline layer can answer it.
+client.interceptors.request.use(async config => {
+    let token = getAccessToken()
+    if (!token && hasSession()) {
+        try { token = await refreshAccessToken() } catch { /* offline, or the session ended: the response decides */ }
+    }
     if (token) config.headers.Authorization = `Bearer ${token}`
     // The instance default is JSON, and axios turns a FormData body into JSON
     // when it sees that header - so every upload (a worksheet, a hand-in, a
@@ -33,13 +44,14 @@ client.interceptors.request.use(config => {
     return config
 })
 
-// Track whether a refresh is already in-flight so we don't fire multiple
-let _refreshing = false
-let _queue = []   // { resolve, reject } pairs waiting for the new token
-
-function _processQueue(error, token) {
-    _queue.forEach(({ resolve, reject }) => error ? reject(error) : resolve(token))
-    _queue = []
+// The session is over on this browser: forget it and go to the sign-in page.
+// Cached reads go; unsent changes stay, tagged with their owner, for when the
+// same person signs back in.
+function _forceSignOut() {
+    clearOfflineData({ writes: false })
+    clearSession()
+    localStorage.clear()
+    window.location.href = '/login'
 }
 
 function _markFromCache(data, savedAt) {
@@ -95,44 +107,26 @@ client.interceptors.response.use(
 
         // Only attempt a silent refresh on 401 and only once per request
         if (error.response?.status === 401 && !original._retry) {
-            const refresh = localStorage.getItem('imboni_refresh')
-            if (!refresh) {
-                clearOfflineData({ writes: false })   // keep their unsent changes for their next sign-in
-                localStorage.clear()
-                window.location.href = '/login'
+            // Nobody signed in, or a support session (an access token with no
+            // refresh behind it): there is nothing to renew.
+            if (!hasSession() || isSupportSession()) {
+                _forceSignOut()
                 return Promise.reject(error)
             }
 
-            if (_refreshing) {
-                // Queue this request until the in-flight refresh completes
-                return new Promise((resolve, reject) => {
-                    _queue.push({ resolve, reject })
-                }).then(token => {
-                    original.headers.Authorization = `Bearer ${token}`
-                    return client(original)
-                })
-            }
-
             original._retry = true
-            _refreshing = true
-
             try {
-                const res = await axios.post(`${BASE}/imboni/auth/token/refresh/`, { refresh })
-                const newAccess = res.data.access
-                localStorage.setItem('imboni_access', newAccess)
-                if (res.data.refresh) localStorage.setItem('imboni_refresh', res.data.refresh)
-                client.defaults.headers.common.Authorization = `Bearer ${newAccess}`
-                _processQueue(null, newAccess)
+                // Shared: however many requests come back 401 together, one
+                // refresh is made and they all wait on it.
+                const newAccess = await refreshAccessToken()
                 original.headers.Authorization = `Bearer ${newAccess}`
                 return client(original)
             } catch (refreshError) {
-                _processQueue(refreshError, null)
-                clearOfflineData({ writes: false })   // keep their unsent changes for their next sign-in
-                localStorage.clear()
-                window.location.href = '/login'
+                // Signed out only when the server says so. A refresh that could
+                // not reach the server is a dropped connection, not the end of
+                // the session.
+                if (refreshError.response) _forceSignOut()
                 return Promise.reject(refreshError)
-            } finally {
-                _refreshing = false
             }
         }
 

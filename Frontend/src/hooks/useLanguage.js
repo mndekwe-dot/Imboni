@@ -3,8 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import { setLanguage, SUPPORTED_LANGUAGES, LANGUAGE_STORAGE_KEY } from '../i18n'
 import { getMyPreferences, updateMyPreferences } from '../api/account'
-
-const TOKEN_KEY = 'imboni_access'
+import { hasSession } from '../api/session'
 
 /**
  * A language picked while signed out, waiting to be saved to the account.
@@ -17,9 +16,7 @@ const TOKEN_KEY = 'imboni_access'
  */
 const PENDING_KEY = 'imboni_language_pending'
 
-const signedIn = () => {
-    try { return !!localStorage.getItem(TOKEN_KEY) } catch { return false }
-}
+const signedIn = hasSession
 
 /**
  * Current language plus a setter that also persists the choice.

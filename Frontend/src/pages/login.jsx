@@ -70,6 +70,9 @@ export function LogIn() {
     // 2FA accounts get a challenge back from the first step; we then ask for a code.
     const [challenge,  setChallenge]  = useState(null)
     const [code,       setCode]       = useState('')
+    // "Remember me": ticked, the session outlasts the browser; unticked, it ends
+    // when the browser closes, which is what a shared school computer needs.
+    const [remember,   setRemember]   = useState(false)
 
     // Generic login: no portal restriction. useAuth redirects by the user's role.
     async function handleSubmit(e) {
@@ -77,7 +80,7 @@ export function LogIn() {
         setError('')
         setLoading(true)
         try {
-            const result = await login(email, password)
+            const result = await login(email, password, undefined, undefined, remember)
             if (result?.requires2fa) {
                 setChallenge(result.challenge)
             }
@@ -93,7 +96,7 @@ export function LogIn() {
         setError('')
         setLoading(true)
         try {
-            await completeTwoFactor(challenge, code.trim())
+            await completeTwoFactor(challenge, code.trim(), undefined, remember)
         } catch (err) {
             setError(err.message || t('auth.codeInvalid'))
         } finally {
@@ -243,7 +246,8 @@ export function LogIn() {
 
                     <div className="form-options">
                         <label className="remember-label">
-                            <input type="checkbox" name="remember" />
+                            <input type="checkbox" name="remember" checked={remember}
+                                onChange={e => setRemember(e.target.checked)} />
                             {t('auth.rememberMe')}
                         </label>
                         <button type="button" className="forgot-link" onClick={() => setShowForgot(true)}>{t('auth.forgotPassword')}</button>

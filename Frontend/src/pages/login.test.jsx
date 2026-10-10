@@ -60,7 +60,7 @@ describe('LogIn (/login)', () => {
     fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'secret123' } })
     fireEvent.click(screen.getByRole('button', { name: 'Sign in' }))
 
-    await waitFor(() => expect(mockLogin).toHaveBeenCalledWith('admin@school1.com', 'secret123'))
+    await waitFor(() => expect(mockLogin).toHaveBeenCalledWith('admin@school1.com', 'secret123', undefined, undefined, false))
   })
 
   it('shows the real backend error message when login fails (no silent failure)', async () => {

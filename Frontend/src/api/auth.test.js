@@ -20,6 +20,10 @@ const BASE = import.meta.env.VITE_API_BASE === undefined
     ? 'http://localhost:8000'
     : import.meta.env.VITE_API_BASE
 
+// How the page talks to the sign-in endpoints: the cookie rides along, and the
+// header only our own pages send is attached (see api/session.js).
+const OURS = { withCredentials: true, headers: { 'X-Requested-With': 'XMLHttpRequest' } }
+
 describe('auth api', () => {
   beforeEach(() => {
     vi.resetAllMocks()
@@ -28,14 +32,22 @@ describe('auth api', () => {
 
   describe('loginUser', () => {
     it('posts credentials via plain axios and returns response data', async () => {
-      axios.post.mockResolvedValue({ data: { access: 'a', refresh: 'r', user: {} } })
+      axios.post.mockResolvedValue({ data: { access: 'a', user: {} } })
 
       const result = await loginUser('a@b.com', 'pw', 'teacher')
 
       expect(axios.post).toHaveBeenCalledWith(`${BASE}/imboni/auth/login/`, {
-        email: 'a@b.com', password: 'pw', portal: 'teacher',
-      })
-      expect(result).toEqual({ access: 'a', refresh: 'r', user: {} })
+        email: 'a@b.com', password: 'pw', portal: 'teacher', remember: false,
+      }, OURS)
+      expect(result).toEqual({ access: 'a', user: {} })
+    })
+
+    it('passes "Remember me" through, so the server knows how long the cookie should live', async () => {
+      axios.post.mockResolvedValue({ data: { access: 'a', user: {} } })
+
+      await loginUser('a@b.com', 'pw', 'teacher', true)
+
+      expect(axios.post.mock.calls[0][1].remember).toBe(true)
     })
 
     it('throws the backend error message on failure', async () => {
@@ -54,42 +66,43 @@ describe('auth api', () => {
   })
 
   describe('logoutUser', () => {
-    it('skips the server call but still clears a half-built session with no refresh token', async () => {
-      localStorage.setItem('imboni_access', 'a-tok')
+    it('asks the server to end the session and clears this browser', async () => {
       localStorage.setItem('imboni_user', '{}')
+      axios.post.mockResolvedValue({})
 
       await logoutUser()
 
-      expect(client.post).not.toHaveBeenCalled()
-      expect(localStorage.getItem('imboni_access')).toBeNull()
+      // Nothing in the body: the server reads the token from its own cookie,
+      // and is the only one that can remove it.
+      expect(axios.post).toHaveBeenCalledWith(`${BASE}/imboni/auth/logout/`, {}, OURS)
       expect(localStorage.getItem('imboni_user')).toBeNull()
     })
 
-    it('clears session storage even when the server call fails, and still rejects', async () => {
-      localStorage.setItem('imboni_refresh', 'r-tok')
-      localStorage.setItem('imboni_access', 'a-tok')
+    it('clears this browser even when the server call fails, and still rejects', async () => {
       localStorage.setItem('imboni_user', '{}')
-      client.post.mockRejectedValue(new Error('Network Error'))
+      axios.post.mockRejectedValue(new Error('Network Error'))
 
       await expect(logoutUser()).rejects.toThrow('Network Error')
 
-      expect(localStorage.getItem('imboni_access')).toBeNull()
-      expect(localStorage.getItem('imboni_refresh')).toBeNull()
       expect(localStorage.getItem('imboni_user')).toBeNull()
     })
 
-    it('posts the refresh token and clears session storage on success', async () => {
+    it('removes tokens an older version of the page left in localStorage', async () => {
       localStorage.setItem('imboni_refresh', 'r-tok')
       localStorage.setItem('imboni_access', 'a-tok')
       localStorage.setItem('imboni_user', '{}')
-      client.post.mockResolvedValue({})
+      axios.post.mockResolvedValue({})
 
       await logoutUser()
 
-      expect(client.post).toHaveBeenCalledWith('/imboni/auth/logout/', { refresh: 'r-tok' })
       expect(localStorage.getItem('imboni_access')).toBeNull()
       expect(localStorage.getItem('imboni_refresh')).toBeNull()
-      expect(localStorage.getItem('imboni_user')).toBeNull()
+    })
+
+    it('does not go through the API client, which would try to renew the session first', async () => {
+      axios.post.mockResolvedValue({})
+      await logoutUser()
+      expect(client.post).not.toHaveBeenCalled()
     })
   })
 

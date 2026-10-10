@@ -34,7 +34,11 @@ from django.db import transaction
 from datetime import timedelta
 import logging
 from . import invites
-from .tokens import tokens_for_user
+from .tokens import SCHEMA_CLAIM, tokens_for_user
+from .session import (
+    REFRESH_COOKIE, REMEMBER_CLAIM, RefreshRateThrottle,
+    clear_refresh_cookie, sent_by_our_page, set_refresh_cookie,
+)
 from .service import dispatch_invitation
 from .permissions import CanInvite
 from apps.tenants.limits import enforce_capacity, remaining_seats
@@ -179,6 +183,23 @@ class AuthViewSet(viewsets.ViewSet):
             return [TwoFactorRateThrottle()]
         return super().get_throttles()
 
+    def _signed_in(self, request, user):
+        """
+        The answer to a successful sign-in.
+
+        The page receives the access token and who it is. The refresh token is
+        not in the answer at all: it goes in a cookie the page cannot read (see
+        session.py for why).
+        """
+        refresh = tokens_for_user(user)
+        if request.data.get('remember'):
+            refresh[REMEMBER_CLAIM] = True
+        response = Response({
+            'access': str(refresh.access_token),
+            'user':   UserSerializer(user).data,
+        })
+        return set_refresh_cookie(response, request, refresh)
+
     @action(detail=False, methods=['post'])
     def login(self, request):
         """
@@ -236,12 +257,7 @@ class AuthViewSet(viewsets.ViewSet):
                 'challenge':    twofactor.make_challenge(user, portal),
             })
 
-        refresh = tokens_for_user(user)
-        return Response({
-            'access':  str(refresh.access_token),
-            'refresh': str(refresh),
-            'user':    UserSerializer(user).data,
-        })
+        return self._signed_in(request, user)
 
     @action(detail=False, methods=['post'], url_path='2fa/login')
     def verify_2fa_login(self, request):
@@ -275,25 +291,83 @@ class AuthViewSet(viewsets.ViewSet):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
-        refresh = tokens_for_user(user)
-        return Response({
-            'access':  str(refresh.access_token),
-            'refresh': str(refresh),
-            'user':    UserSerializer(user).data,
-        })
+        return self._signed_in(request, user)
 
-    @action(detail=False, methods=['post'], permission_classes=[permissions.IsAuthenticated])
+    @action(detail=False, methods=['post'])
     def logout(self, request):
-        """Logout user"""
+        """
+        End this browser's session.
+
+        Open to anyone, on purpose: it used to need a valid access token, so a
+        session whose access token had expired could not be signed out of. It
+        acts only on the refresh token the caller presents, revokes it, and
+        always removes the cookie. Signing out never fails.
+        """
+        raw = request.COOKIES.get(REFRESH_COOKIE)
+        if raw and not sent_by_our_page(request):
+            # Another site trying to sign somebody out of ours.
+            return Response({'error': 'Forbidden.'}, status=status.HTTP_403_FORBIDDEN)
+        raw = raw or request.data.get('refresh')
+        if raw:
+            try:
+                RefreshToken(raw).blacklist()
+            except Exception:
+                pass   # already expired or revoked: nothing left to revoke
+        return clear_refresh_cookie(Response({'message': 'Logout successful'}))
+
+
+class CookieTokenRefreshView(APIView):
+    """
+    POST /imboni/auth/token/refresh/ : a new access token for this browser.
+
+    Reads the refresh token from the HttpOnly cookie, rotates it, and puts the
+    replacement straight back in the cookie. The page never sees either one.
+
+    A refresh token in the request body is still accepted, for two cases: a
+    browser that signed in before the cookie existed (its stored token is
+    traded for a cookie once, then deleted by the page), and clients that are
+    not browsers. Either way the answer carries only the access token.
+    """
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+    throttle_classes = [RefreshRateThrottle]
+
+    def post(self, request):
+        from django.core.exceptions import ObjectDoesNotExist
+        from django.db import connection
+        from rest_framework.exceptions import AuthenticationFailed, ValidationError
+        from rest_framework_simplejwt.exceptions import TokenError
+        from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+
+        raw = request.COOKIES.get(REFRESH_COOKIE)
+        if raw and not sent_by_our_page(request):
+            return Response({'detail': 'Forbidden.'}, status=status.HTTP_403_FORBIDDEN)
+        raw = raw or request.data.get('refresh')
+        if not raw:
+            return Response({'detail': 'Not signed in.'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        def refused(detail):
+            # The cookie is no use any more; leaving it would have the browser
+            # present it, and be refused, on every page load.
+            return clear_refresh_cookie(Response({'detail': detail}, status=status.HTTP_401_UNAUTHORIZED))
+
         try:
-            refresh_token = request.data.get('refresh')
-            token = RefreshToken(refresh_token)
-            token.blacklist()
-            return Response({'message': 'Logout successful'})
-        except Exception:
-            return Response({
-                'error': 'Invalid token'
-            }, status=status.HTTP_400_BAD_REQUEST)
+            presented = RefreshToken(raw)
+            # A token is only good in the school it was issued in. Cookies are
+            # per-host so a browser cannot cross schools, but a token pasted
+            # into a request body could.
+            if presented.get(SCHEMA_CLAIM) != connection.schema_name:
+                return refused('Token was not issued for this school.')
+            serializer = TokenRefreshSerializer(data={'refresh': raw})
+            serializer.is_valid(raise_exception=True)
+        except (TokenError, ValidationError, AuthenticationFailed, ObjectDoesNotExist):
+            return refused('Your session has ended. Please sign in again.')
+
+        data = serializer.validated_data
+        response = Response({'access': data['access']})
+        if data.get('refresh'):
+            set_refresh_cookie(response, request, RefreshToken(data['refresh']))
+        return response
 
 
 class TwoFactorStatusView(APIView):

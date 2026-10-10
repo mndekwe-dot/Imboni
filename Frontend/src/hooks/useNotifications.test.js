@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { renderHook, waitFor, act } from '@testing-library/react'
 import { useNotifications, notificationSocketUrl } from './useNotifications'
 import { getNotifications, markNotificationRead } from '../api/notifications'
+import { __resetSession, setAccessToken } from '../api/session'
 
 vi.mock('../api/notifications')
 
@@ -36,13 +37,15 @@ describe('useNotifications', () => {
         vi.resetAllMocks()
         FakeWebSocket.reset()
         vi.stubGlobal('WebSocket', FakeWebSocket)
-        window.localStorage.setItem('imboni_access', 'test-token')
+        // The access token is held in memory, not in localStorage.
+        setAccessToken('test-token')
     })
 
     afterEach(() => {
         vi.unstubAllGlobals()
         vi.useRealTimers()
         window.localStorage.clear()
+        __resetSession()
     })
 
     // ── existing behaviour that ~49 DashboardHeader call sites depend on ────────
@@ -115,7 +118,7 @@ describe('useNotifications', () => {
     })
 
     it('returns no url when there is no access token, so we stay on polling', () => {
-        window.localStorage.removeItem('imboni_access')
+        setAccessToken(null)
         expect(notificationSocketUrl()).toBeNull()
     })
 
@@ -223,7 +226,7 @@ describe('useNotifications', () => {
     })
 
     it('polls without ever opening a socket when there is no token', async () => {
-        window.localStorage.removeItem('imboni_access')
+        setAccessToken(null)
         vi.useFakeTimers()
         getNotifications.mockResolvedValue([])
         renderHook(() => useNotifications())

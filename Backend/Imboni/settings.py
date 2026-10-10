@@ -318,6 +318,9 @@ REST_FRAMEWORK = {
         # Generous enough for a person mistyping a few times.
         'school_code':    None if TESTING else '20/min',
         'two_factor':     None if TESTING else '10/min',  # per IP — stops OTP brute force
+        # per SESSION, not per IP: a school shares one address and the page
+        # refreshes on every load. See authentication/session.py.
+        'token_refresh':  None if TESTING else '30/min',
         # per IP — each accepted signup creates a schema and migrates every
         # TENANT_APP into it, so this endpoint spends real resources per call
         # and leaves an artifact every future deploy has to walk past.
@@ -330,7 +333,10 @@ REST_FRAMEWORK = {
 
 # Simple JWT configuration
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+    # Short on purpose. This is the only credential the page itself holds (in
+    # memory); the refresh token lives in an HttpOnly cookie it cannot read.
+    # The page renews it silently, so nobody notices the length.
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
@@ -360,6 +366,10 @@ else:
 # In development, allow everything. In production, allow only the deployed
 # frontend origin(s) — set CORS_ALLOWED_ORIGINS in .env (comma-separated).
 CORS_ALLOW_ALL_ORIGINS = DEBUG
+# The session cookie has to cross from the page to the API when the two are
+# on different origins (local development on two ports). Only ever honoured
+# for the origins allowed here; in production the page and the API share one.
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     o.strip() for o in config(
         'CORS_ALLOWED_ORIGINS',

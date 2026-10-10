@@ -41,7 +41,9 @@ class TestLoginView:
 
         assert response.status_code == status.HTTP_200_OK
         assert 'access' in response.data
-        assert 'refresh' in response.data
+        # The refresh token is not handed to the page: it goes in a cookie no
+        # script can read (see test_session_cookie.py).
+        assert 'refresh' not in response.data
         assert response.data['user']['role'] == 'dos'
         assert response.data['user']['id'] == str(user.id)
 
