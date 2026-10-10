@@ -172,9 +172,9 @@ export function LiveMessages({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [openWith])
 
-    /* Arriving from a "new message" notification: `?conversation=<id>` opens
+    /* Arriving from a "new message" notification: `?thread=<id>` opens
      * that thread once the list has loaded, then drops the parameter. */
-    const openConversation = searchParams.get('conversation')
+    const openConversation = searchParams.get('thread')
     useEffect(() => {
         if (!openConversation || selectedId || loadingConvs) return
         if (conversations.some(c => c.id === openConversation)) selectConversation(openConversation)

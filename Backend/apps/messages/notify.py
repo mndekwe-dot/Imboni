@@ -37,7 +37,7 @@ PREVIEW_CHARS = 120
 
 def _path_for(user, conversation):
     base = MESSAGES_PATH.get(user.role, '/')
-    return f'{base}?conversation={conversation.id}'
+    return f'{base}?thread={conversation.id}'
 
 
 def notify_new_message(message):
