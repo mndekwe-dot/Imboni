@@ -11,6 +11,7 @@ import { ROLE_HOME, readStoredUser } from '../../utils/roles'
 import { useLocation } from 'react-router'
 import { useNavBadges } from '../../hooks/useNavBadges'
 import { useTransitionNavigate } from '../../hooks/useTransitionNavigate'
+import { CommandPalette } from './CommandPalette'
 
 /* Every page mounts its own <Sidebar> — 64 of them — so component state alone
    meant collapsing it and then clicking any nav item sprang it back open. The
@@ -19,6 +20,25 @@ const COLLAPSED_KEY = 'imboni:sidebar-collapsed'
 
 function readCollapsed() {
     try { return localStorage.getItem(COLLAPSED_KEY) === '1' } catch { return false }
+}
+
+/* True on a phone-width screen. The bottom tabs render only then (rather than
+   always, hidden by CSS) so the same links are never in the page twice for a
+   screen reader, or in every test that looks a nav link up by name. */
+function usePhone() {
+  const query = '(max-width: 768px)'
+  const [phone, setPhone] = useState(() => (
+    typeof window !== 'undefined' && typeof window.matchMedia === 'function'
+      && window.matchMedia(query).matches
+  ))
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return undefined
+    const mq = window.matchMedia(query)
+    const on = () => setPhone(mq.matches)
+    mq.addEventListener?.('change', on)
+    return () => mq.removeEventListener?.('change', on)
+  }, [])
+  return phone
 }
 
 export function Sidebar({ navItems, secondaryItems }) {
@@ -42,6 +62,7 @@ export function Sidebar({ navItems, secondaryItems }) {
     return true
   })
   const [mobileOpen, setMobileOpen] = useState(false)
+  const isPhone = usePhone()
   const badges = useNavBadges(navItems)
   const { logout } = useAuth()
   const { schoolName, logo: schoolLogo } = useSchoolBranding()
@@ -102,6 +123,9 @@ export function Sidebar({ navItems, secondaryItems }) {
           onClick={() => setMobileOpen(false)}
         />
       )}
+
+      {/* Ctrl+K: the same links as below, searchable. */}
+      <CommandPalette items={[...visible(navItems), ...switchItems, ...visible(secondaryItems)]} />
 
       <aside className={sidebarClass}>
         <header className="sidebar-logo">
@@ -198,6 +222,31 @@ export function Sidebar({ navItems, secondaryItems }) {
           </div>
         </nav>
       </aside>
+
+      {/* On a phone the drawer is two taps away from every page. The four most
+          used pages stay one thumb-reach below, the rest behind "More", which
+          opens the same drawer. */}
+      {isPhone && (
+        <nav className="bottom-tabs" aria-label={t('sidebar.quickNavigation')}>
+          {visible(navItems).filter(i => i.to).slice(0, 4).map(item => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              className={({ isActive }) => 'bottom-tab' + (isActive ? ' active' : '')}
+              onClick={transitionClick(item.to, () => setMobileOpen(false))}
+            >
+              <span className="material-symbols-rounded" aria-hidden="true">{item.icon}</span>
+              <span className="bottom-tab-label">{item.label ?? t(item.labelKey)}</span>
+              {badges[item.badge] > 0 && <span className="bottom-tab-dot" aria-hidden="true" />}
+            </NavLink>
+          ))}
+          <button type="button" className="bottom-tab" onClick={() => setMobileOpen(true)}>
+            <span className="material-symbols-rounded" aria-hidden="true">menu</span>
+            <span className="bottom-tab-label">{t('sidebar.more')}</span>
+          </button>
+        </nav>
+      )}
     </>
   )
 }

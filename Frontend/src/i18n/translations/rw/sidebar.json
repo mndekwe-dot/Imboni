@@ -8,5 +8,7 @@
   "openMenu": "Fungura urutonde",
   "tagline": "Uburezi Buhuza",
   "waiting": "{{count}} bitegereje",
-  "switchTo": "Hindukira kuri: {{role}}"
+  "switchTo": "Hindukira kuri: {{role}}",
+  "quickNavigation": "Kugenda vuba",
+  "more": "Ibindi"
 }
