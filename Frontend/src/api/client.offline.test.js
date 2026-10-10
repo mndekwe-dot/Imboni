@@ -1,6 +1,8 @@
 import 'fake-indexeddb/auto'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { db } from '../offline/db'
+import { cachePut, cacheGet, flushOutbox } from '../offline'
+import { __resetKeyCache } from '../offline/crypto'
 
 // Same mock-axios technique as client.test.js: capture the interceptors and
 // invoke them by hand — but with fake-indexeddb loaded so the real Dexie
@@ -33,6 +35,8 @@ describe('client.js offline behaviour', () => {
     localStorage.clear()
     await db.apiCache.clear()
     await db.outbox.clear()
+    await db.keys.clear()
+    __resetKeyCache()
 
     const axios = (await import('axios')).default
     axios.create.mockReturnValue(mockInstance)
@@ -42,16 +46,31 @@ describe('client.js offline behaviour', () => {
     responseRejected = mockInstance.interceptors.response.use.mock.calls[0][1]
   })
 
-  it('caches successful GET responses', async () => {
+  it('keeps the reads an offline workflow needs', async () => {
     responseFulfilled({
       data: [{ id: 1, name: 'S1A' }],
-      config: { method: 'get', url: '/imboni/dos/classes/' },
+      config: { method: 'get', url: '/imboni/teacher/my-classes/' },
     })
-    // cachePut is fire-and-forget — give it a tick
-    await new Promise(r => setTimeout(r, 20))
+    // cachePut is fire-and-forget — give it a moment
+    await new Promise(r => setTimeout(r, 50))
 
-    const cached = await db.apiCache.get('/imboni/dos/classes/')
-    expect(cached.data).toEqual([{ id: 1, name: 'S1A' }])
+    expect((await cacheGet('/imboni/teacher/my-classes/')).data).toEqual([{ id: 1, name: 'S1A' }])
+  })
+
+  it('writes nothing to the device for a read that is not on the allowlist', async () => {
+    responseFulfilled({
+      data: [{ student: 'A', mark: 91 }],
+      config: { method: 'get', url: '/imboni/student/results/' },
+    })
+    await new Promise(r => setTimeout(r, 50))
+
+    expect(await db.apiCache.count()).toBe(0)
+  })
+
+  it('does not serve a stale copy of a page that was never meant to be kept', async () => {
+    await expect(responseRejected({
+      config: { method: 'get', url: '/imboni/student/results/' },
+    })).rejects.toThrow('Something went wrong')
   })
 
   it('never caches auth responses', async () => {
@@ -59,17 +78,14 @@ describe('client.js offline behaviour', () => {
       data: { access: 'tok' },
       config: { method: 'get', url: '/imboni/auth/me/' },
     })
-    await new Promise(r => setTimeout(r, 20))
+    await new Promise(r => setTimeout(r, 50))
 
-    expect(await db.apiCache.get('/imboni/auth/me/')).toBeUndefined()
+    expect(await db.apiCache.count()).toBe(0)
   })
 
   it('serves a cached copy when a GET fails with no response (offline)', async () => {
-    await db.apiCache.put({
-      key: '/imboni/teacher/my-classes/',
-      data: [{ class_id: 'c1' }],
-      savedAt: 1234,
-    })
+    await cachePut('/imboni/teacher/my-classes/', undefined, [{ class_id: 'c1' }])
+    const [saved] = await db.apiCache.toArray()
 
     const result = await responseRejected({
       config: { method: 'get', url: '/imboni/teacher/my-classes/' },
@@ -78,7 +94,7 @@ describe('client.js offline behaviour', () => {
 
     expect(result).toEqual([{ class_id: 'c1' }])
     expect(result.__fromCache).toBe(true)
-    expect(result.__cachedAt).toBe(1234)
+    expect(result.__cachedAt).toBe(saved.savedAt)
   })
 
   it('queues an offline attendance save and resolves {queued: true}', async () => {
@@ -93,7 +109,15 @@ describe('client.js offline behaviour', () => {
     expect(result).toEqual({ queued: true, offline: true })
     const items = await db.outbox.toArray()
     expect(items).toHaveLength(1)
-    expect(items[0].dedupeKey).toBe('attendance|c1|2026-07-05')
+    // On disk it is sealed: neither the URL nor the date of the register.
+    expect(JSON.stringify(items[0])).not.toContain('attendance')
+    expect(JSON.stringify(items[0])).not.toContain('2026-07-05')
+    // ...and it is sent as it was queued.
+    const sender = { request: vi.fn().mockResolvedValue({}) }
+    await flushOutbox(sender)
+    expect(sender.request.mock.calls[0][0]).toMatchObject({
+      url: '/imboni/teacher/attendance/mark/', data: { class_id: 'c1', date: '2026-07-05' },
+    })
   })
 
   it('does not queue non-offline endpoints: they fail normally', async () => {

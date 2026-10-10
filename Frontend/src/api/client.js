@@ -1,6 +1,6 @@
 import axios from 'axios'
 import {
-    cachePut, cacheGet, isQueueable, enqueue, initOfflineSync, clearOfflineData,
+    cachePut, cacheGet, isCacheable, isQueueable, enqueue, initOfflineSync, clearOfflineData,
 } from '../offline'
 import { setSubscriptionStatus } from './subscriptionState'
 
@@ -42,9 +42,6 @@ function _processQueue(error, token) {
     _queue = []
 }
 
-// Auth endpoints must never be served from cache
-const NEVER_CACHE = /\/auth\//
-
 function _markFromCache(data, savedAt) {
     // Non-enumerable so spreads/JSON of cached data stay clean
     if (data && typeof data === 'object') {
@@ -65,9 +62,11 @@ client.interceptors.response.use(
         // reload. Read by the banner in DashboardContent.
         setSubscriptionStatus(response.headers?.['x-subscription-status'])
 
-        // Keep the last good copy of every GET so reads work offline
+        // Keep the last good copy of the few reads an offline workflow needs.
+        // Which ones is an allowlist in offline/index.js; everything else is
+        // never written to the device.
         const cfg = response.config
-        if (cfg?.method === 'get' && cfg.url && !NEVER_CACHE.test(cfg.url)) {
+        if (cfg?.method === 'get' && cfg.url && isCacheable(cfg.url)) {
             cachePut(cfg.url, cfg.params, response.data)
         }
         return response.data
@@ -77,7 +76,7 @@ client.interceptors.response.use(
 
         // ── No response at all → we're offline (or the server is down) ──
         if (!error.response && original) {
-            if (original.method === 'get' && !NEVER_CACHE.test(original.url || '')) {
+            if (original.method === 'get' && isCacheable(original.url || '')) {
                 const cached = await cacheGet(original.url, original.params)
                 if (cached) return _markFromCache(cached.data, cached.savedAt)
             }
