@@ -18,10 +18,33 @@ Neither limit trusts X-Forwarded-For beyond the proxy we run: the address comes
 from apps.common.network.client_ip.
 """
 import hashlib
+import time
 
+from django.core.cache import cache
 from rest_framework.throttling import SimpleRateThrottle
 
 from apps.common.network import client_ip
+
+
+def _account_digest(identifier):
+    who = str(identifier or '').strip().lower()
+    return hashlib.sha256(who.encode('utf-8')).hexdigest()[:32]
+
+
+def _unlock_key(digest):
+    return f'login_unlock:{digest}'
+
+
+def unlock_account(identifier, window=3600):
+    """
+    Forgive every wrong password counted against ``identifier``, from every address.
+
+    The count is kept per (address, account), and a cache cannot be searched by
+    account alone, so rather than deleting entries this stamps the account with
+    "forgiven as of now". Any failure recorded at or before that moment is
+    ignored when the limit is checked. ``window`` need only outlast the limit.
+    """
+    cache.set(_unlock_key(_account_digest(identifier)), time.time(), window)
 
 
 class LoginAccountThrottle(SimpleRateThrottle):
@@ -54,8 +77,10 @@ class LoginAccountThrottle(SimpleRateThrottle):
             return key, None
         now = self.timer()
         history = self.cache.get(key, [])
-        while history and history[-1] <= now - self.duration:
-            history.pop()
+        # An administrator may have forgiven this account since these were made.
+        digest = key.rsplit(':', 1)[-1]
+        forgiven = cache.get(_unlock_key(digest)) or 0
+        history = [t for t in history if t > forgiven and t > now - self.duration]
         return key, (history, now)
 
     def allow_request(self, request, view):

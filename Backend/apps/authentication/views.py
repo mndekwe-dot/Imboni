@@ -4,7 +4,7 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.throttling import AnonRateThrottle
-from .throttles import LoginAccountThrottle
+from .throttles import LoginAccountThrottle, unlock_account
 
 
 class LoginRateThrottle(AnonRateThrottle):
@@ -299,6 +299,36 @@ class AuthViewSet(viewsets.ViewSet):
             return Response({
                 'error': 'Invalid token'
             }, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UnlockSignInView(APIView):
+    """
+    POST /imboni/auth/unlock/   { "email": "teacher@school.rw" }
+
+    Let somebody sign in again after three wrong passwords. School
+    administrators only; the action is written to the audit log. It forgives
+    the count from every address, because the person locked out is rarely the
+    one who knows which address was counted.
+    """
+    from apps.authentication.permissions import IsAdminRole
+    permission_classes = [IsAdminRole]
+
+    def post(self, request):
+        email = str(request.data.get('email') or '').strip().lower()
+        if not email:
+            return Response({'error': 'An email address is required.'},
+                            status=status.HTTP_400_BAD_REQUEST)
+        user = (User.objects.filter(email__iexact=email).first()
+                or User.objects.filter(username__iexact=email).first())
+        if user is None:
+            return Response({'error': 'No account has that email address.'},
+                            status=status.HTTP_404_NOT_FOUND)
+        # Both ways in are counted under what the person typed, so forgive both.
+        for identifier in {email, user.email, user.username}:
+            unlock_account(identifier)
+        from apps.audit.services import audit
+        audit(request.user, 'auth.signin_unlocked', user.email or user.username, {})
+        return Response({'unlocked': True, 'email': user.email})
 
 
 class TwoFactorStatusView(APIView):

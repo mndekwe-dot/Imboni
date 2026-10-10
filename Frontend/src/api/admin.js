@@ -31,6 +31,7 @@ export const getInvitations   = (params) => client.get('/imboni/auth/invite/list
 export const sendInvitation   = (data)   => client.post('/imboni/auth/invite/', data)
 export const resendInvitation = (id)     => client.post(`/imboni/auth/invite/resend/${id}/`)
 export const cancelInvitation = (id)     => client.delete(`/imboni/auth/invite/${id}/cancel/`)
+export const unlockSignIn     = (email)  => client.post('/imboni/auth/unlock/', { email })
 
 // ── Results Approvals ─────────────────────────────────────────────────────────
 export const getPendingResults  = (params)    => client.get('/imboni/dos/results/', { params })

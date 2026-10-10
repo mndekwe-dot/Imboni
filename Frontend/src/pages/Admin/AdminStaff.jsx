@@ -15,13 +15,14 @@ import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import { formatDate } from '../../utils/date'
 import {
     getAdminTeacherStats,
-    getInvitations, sendInvitation, resendInvitation, cancelInvitation,
+    getInvitations, sendInvitation, resendInvitation, cancelInvitation, unlockSignIn,
 } from '../../api/admin'
 import '../../styles/layout.css'
 import '../../styles/components.css'
 import '../../styles/admin.css'
 import '../../styles/tables.css'
 import { ModalOverlay } from '../../components/ui/ModalOverlay'
+import { Modal } from '../../components/ui/Modal'
 
 // Every role that signs in. The librarian and the bursar were missing, so a
 // school could not invite the two people who run the library and the money.
@@ -143,6 +144,52 @@ function InviteModal({ onClose, onSent }) {
  * words. It is now the staff register, the same one payroll pays from, so the
  * cook and the night guard are on it and a department is something recorded.
  */
+/**
+ * Let somebody back in after three wrong passwords. Type their email, confirm,
+ * done: no hunting for them in a list first, because the person asking is
+ * usually on the phone and the email is what they have.
+ */
+function UnlockSignInModal({ onClose }) {
+    const { t } = useTranslation()
+    const toast = useToast()
+    const [email, setEmail] = useState('')
+    const [busy, setBusy] = useState(false)
+
+    async function submit(e) {
+        e.preventDefault()
+        if (!email.trim() || busy) return
+        setBusy(true)
+        try {
+            await unlockSignIn(email.trim())
+            toast.success(t('admin.staff.unlocked', { email: email.trim() }))
+            onClose()
+        } catch (err) {
+            toast.error(errorMessage(err, t('admin.staff.unlockFailed')))
+        } finally { setBusy(false) }
+    }
+
+    return (
+        <Modal title={t('admin.staff.unlockTitle')} icon="lock_open" onClose={onClose}
+            footer={
+                <>
+                    <button type="button" className="btn btn-outline" onClick={onClose}>{t('common.cancel')}</button>
+                    <button type="submit" form="unlock-form" className="btn btn-primary" disabled={busy || !email.trim()}>
+                        {busy ? t('common.saving') : t('admin.staff.unlockSubmit')}
+                    </button>
+                </>
+            }>
+            <form id="unlock-form" onSubmit={submit}>
+                <p className="u-muted u-sm">{t('admin.staff.unlockHelp')}</p>
+                <label className="form-group">
+                    <span className="form-label">{t('common.emailAddressRequired')}</span>
+                    <input className="form-input" type="email" value={email} autoFocus
+                        onChange={e => setEmail(e.target.value)} />
+                </label>
+            </form>
+        </Modal>
+    )
+}
+
 export function AdminStaff() {
     const { t } = useTranslation()
     const { notifications: liveNotifications, markRead } = useNotifications()
@@ -152,6 +199,7 @@ export function AdminStaff() {
     const [stats,       setStats]       = useState(null)
     const [statsLoading, setStatsLoading] = useState(true)
     const [showInvite,  setShowInvite]  = useState(false)
+    const [showUnlock, setShowUnlock] = useState(false)
     const [invitations, setInvitations] = useState([])
 
     function loadInvitations() {
@@ -205,6 +253,7 @@ export function AdminStaff() {
             {showInvite && (
                 <InviteModal onClose={() => setShowInvite(false)} onSent={loadInvitations} />
             )}
+            {showUnlock && <UnlockSignInModal onClose={() => setShowUnlock(false)} />}
 
             <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
@@ -226,10 +275,16 @@ export function AdminStaff() {
                                     { key: 'departments', icon: 'corporate_fare', label: t('staff.departmentsTitle') },
                                     { key: 'invitations', icon: 'mail', label: t('admin.staff.invitations'), count: pendingCount },
                                 ]} />
-                            <button className="btn btn-primary btn-sm" onClick={() => setShowInvite(true)}>
-                                <span className="material-symbols-rounded" aria-hidden="true">person_add</span>
-                                {t('admin.staff.invite')}
-                            </button>
+                            <div className="u-row-sm">
+                                <button className="btn btn-outline btn-sm" onClick={() => setShowUnlock(true)}>
+                                    <span className="material-symbols-rounded" aria-hidden="true">lock_open</span>
+                                    {t('admin.staff.unlockTitle')}
+                                </button>
+                                <button className="btn btn-primary btn-sm" onClick={() => setShowInvite(true)}>
+                                    <span className="material-symbols-rounded" aria-hidden="true">person_add</span>
+                                    {t('admin.staff.invite')}
+                                </button>
+                            </div>
                         </div>
 
                         <div role="tabpanel" id={`staff-panel-${activeTab}`} aria-labelledby={`staff-tab-${activeTab}`}
