@@ -118,5 +118,15 @@
       "failed": "Ntibyishyuwe",
       "needs_review": "Byakiriwe: ibiro birabyemeza"
     }
+  },
+  "copy": {
+    "actionTaken": "Igikorwa cyakozwe",
+    "awards": "Ibihembo",
+    "markAsRead": "Shyira nk'ibisomwe",
+    "noReportsFound": "Nta raporo zabonetse.",
+    "recentReports": "Raporo za vuba",
+    "recentResults": "Amanota ya vuba",
+    "termResult": "Amanota y'igihembwe",
+    "warnings": "Imiburo"
   }
 }

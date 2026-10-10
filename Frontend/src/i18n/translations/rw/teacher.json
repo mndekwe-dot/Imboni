@@ -453,5 +453,15 @@
     "readOnlyNote": "Gahunda yawe y'amasomo itegurwa n'Umuyobozi w'Amasomo. Vugana n'Umuyobozi w'Amasomo niba ushaka guhindura.",
     "subtitle": "Gahunda y'amasomo wigisha muri iki cyumweru",
     "title": "Gahunda yanjye y'amasomo"
+  },
+  "copy": {
+    "attendanceSavedOfflineItWillSyncAutomatica": "Ukwitabira kwabitswe nta murongo. Kuzohererezwa mu buryo bwikora nusubira kuri interineti.",
+    "attendanceSavedSuccessfully": "Ukwitabira kwabitswe neza.",
+    "clickToPreFillTheForm": "Kanda kugira ngo urupapuro rwuzuzwe",
+    "comment": "Igitekerezo",
+    "enterTheFirstResultsNow": "Andika amanota ya mbere ubu.",
+    "markAllPresent": "Shyira bose ko bahari",
+    "noSubjectsAssigned": "Nta somo wahawe",
+    "reset": "Subiza uko byari bimeze"
   }
 }

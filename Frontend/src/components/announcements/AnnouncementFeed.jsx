@@ -107,7 +107,7 @@ function ComposeModal({ onClose, onPublish, authorName }) {
             {form.type === 'urgent' && (
                 <div className="ann-compose-urgent-notice">
                     <span className="material-symbols-rounded" aria-hidden="true">warning</span>
-                    Urgent announcements are highlighted and sent immediately to all recipients.
+                    {t('announcements.copy.urgentAnnouncementsAreHighlightedAndSentIm')}
                 </div>
             )}
         </Modal>
@@ -260,7 +260,7 @@ export function AnnouncementFeed({
                                         {canCompose && (
                                             <button className="btn btn-primary btn-sm" onClick={() => setComposing(true)}>
                                                 <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span>
-                                                New Announcement
+                                                {t('announcements.newAnnouncement')}
                                             </button>
                                         )}
                                     </div>

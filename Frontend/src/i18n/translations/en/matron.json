@@ -192,5 +192,17 @@
       "expiring": "Expiring or expired"
     },
     "correctionHint": "For a correction use a negative number to take stock away."
+  },
+  "copy": {
+    "fullList": "Full List",
+    "messageDisciplineMaster": "Message Discipline Master",
+    "noBoardersFound": "No boarders found.",
+    "noReportsFiledYet": "No reports filed yet.",
+    "report": "Report",
+    "reportIncidentToDiscipline": "Report Incident to Discipline",
+    "reportsToDiscipline": "Reports to Discipline",
+    "takeRollCall": "Take Roll Call",
+    "tonightSRollCall": "Tonight's Roll Call",
+    "viewDailySchedule": "View Daily Schedule"
   }
 }

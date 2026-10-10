@@ -86,5 +86,8 @@
   "titleRequiredError": "Umutwe urakenewe.",
   "trySearch": "Gerageza ijambo rindi ushakisha.",
   "updateAndPublish": "Vugurura utangaze",
-  "updated": "Itangazo ryavuguruwe."
+  "updated": "Itangazo ryavuguruwe.",
+  "copy": {
+    "urgentAnnouncementsAreHighlightedAndSentIm": "Amatangazo y'ingenzi arashimangirwa kandi yoherezwa ako kanya ku bayagenewe bose."
+  }
 }

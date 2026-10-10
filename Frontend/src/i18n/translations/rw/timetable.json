@@ -13,5 +13,22 @@
   "nothingScheduled": "Nta gikorwa giteganyijwe",
   "break": "Ikiruhuko",
   "now": "Ubu",
-  "month": "Ukwezi"
+  "month": "Ukwezi",
+  "copy": {
+    "academicClub": "Ikipe y'amasomo",
+    "academicClubs": "Amakipe y'amasomo",
+    "activityType": "Ubwoko bw'igikorwa",
+    "boardingDormitory": "Icumbi / Ibyumba byo kuraramo",
+    "closeDialog": "Funga idirishya",
+    "dragToMoveThisLesson": "Kurura kugira ngo wimure iri somo",
+    "emptyFree": "Ubusa / Nta gikorwa",
+    "label": "Izina",
+    "manageTimeSlots": "Gucunga ibihe by'amasomo",
+    "noLessonsScheduledForThisTermYet": "Nta somo riteganyijwe muri iki gihembwe.",
+    "period": "Igihe cy'isomo",
+    "removeRow": "Kuraho umurongo",
+    "selectDay": "Hitamo umunsi",
+    "socialCommunity": "Imibereho / Umuryango",
+    "timeSlot": "Igihe"
+  }
 }

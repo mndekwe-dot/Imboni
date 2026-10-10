@@ -328,5 +328,22 @@
   "yearGroups": "Year Groups",
   "yes": "Yes",
   "yesDelete": "Yes, delete",
-  "yesterday": "Yesterday"
+  "yesterday": "Yesterday",
+  "copy": {
+    "clearSearch": "Clear search",
+    "dismissNotification": "Dismiss notification",
+    "goHome": "Go home",
+    "loading": "Loading",
+    "skipToMainContent": "Skip to main content",
+    "tryAgain": "Try again",
+    "unexpectedError": "An unexpected error occurred and the page couldn't be displayed. Our team has been notified. You can try again, or reload the page.",
+    "yourProfile": "Your profile"
+  },
+  "palette": {
+    "open": "Search pages (Ctrl+K)",
+    "title": "Go to a page",
+    "placeholder": "Search pages…",
+    "noResults": "No page matches that.",
+    "hint": "↑ ↓ to move · Enter to open · Esc to close"
+  }
 }

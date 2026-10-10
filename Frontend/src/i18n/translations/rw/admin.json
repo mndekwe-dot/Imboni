@@ -229,5 +229,21 @@
     "loadFailed": "Ntibishobotse gukura amateka y’ibikorwa.",
     "showing": "Bigaragara {{shown}} muri {{count}}",
     "more": "Zana ibindi"
+  },
+  "copy": {
+    "addAReply": "Ongeraho igisubizo…",
+    "briefSummaryOfTheIssue": "Incamake y'ikibazo",
+    "contactSupport": "Vugana n'ubufasha",
+    "currentPlan": "Gahunda iriho",
+    "describeWhatSHappening": "Sobanura ibiri kuba…",
+    "enrollmentByClass": "Abanyeshuri ku ishuri",
+    "noDataAvailable": "Nta makuru ahari.",
+    "noPlansAvailable": "Nta gahunda zihari.",
+    "normal": "Isanzwe",
+    "performanceDistribution": "Ikwirakwira ry'amanota",
+    "teachersBySubject": "Abarimu ku isomo",
+    "usageThisPlan": "Imikoreshereze y'iyi gahunda",
+    "weeklyTrend": "Uko icyumweru gihagaze",
+    "yourTickets": "Ibibazo wohereje"
   }
 }

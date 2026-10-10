@@ -192,5 +192,17 @@
       "expiring": "Expirant ou expirés"
     },
     "correctionHint": "Pour une correction, utilisez un nombre négatif pour retirer du stock."
+  },
+  "copy": {
+    "fullList": "Liste complète",
+    "messageDisciplineMaster": "Écrire au responsable de la discipline",
+    "noBoardersFound": "Aucun interne trouvé.",
+    "noReportsFiledYet": "Aucun rapport déposé.",
+    "report": "Rapport",
+    "reportIncidentToDiscipline": "Signaler un incident à la discipline",
+    "reportsToDiscipline": "Rapports à la discipline",
+    "takeRollCall": "Faire l'appel",
+    "tonightSRollCall": "Appel de ce soir",
+    "viewDailySchedule": "Voir l'emploi du temps du jour"
   }
 }

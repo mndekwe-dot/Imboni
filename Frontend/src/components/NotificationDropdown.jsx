@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next'
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router'
 import '../styles/notifications.css'
 
 export function NotificationDropdown({ notifications, onRead }) {
+  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const [items, setItems] = useState(notifications)
   const wrapperRef = useRef(null)
@@ -58,7 +60,7 @@ export function NotificationDropdown({ notifications, onRead }) {
       {isOpen && (
         <div className="notif-dropdown">
           <div className="notif-header">
-            <span>Notifications</span>
+            <span>{t('account.navNotifications')}</span>
             {unreadCount > 0 && (
               <span className="notif-unread-count">{unreadCount} new</span>
             )}

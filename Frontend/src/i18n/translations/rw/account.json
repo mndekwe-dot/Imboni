@@ -48,5 +48,10 @@
   "updateProfile": "Vugurura umwirondoro",
   "uploadClick": "Kanda wohereze",
   "uploadHint": "JPG cyangwa PNG (ntarengwa 2 MB)",
-  "uploadOrDrag": "cyangwa ukurure udohore"
+  "uploadOrDrag": "cyangwa ukurure udohore",
+  "copy": {
+    "saveTheseBackupCodesSomewhereSafeEachWorks": "Bika aya makode y'inyongera ahantu hizewe. Buri kimwe gikora rimwe niba wabuze igikoresho cyawe.",
+    "twoFactorAuthentication": "Kwemeza ibice bibiri",
+    "yourPassword": "Ijambo ryawe ry'ibanga"
+  }
 }

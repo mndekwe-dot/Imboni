@@ -51,7 +51,7 @@ export function Apply() {
                             <span className="material-symbols-rounded" aria-hidden="true">check_circle</span>
                             {t('apply.received')}
                         </div>
-                        <Link to="/" className="btn btn-outline pf-mt">Back to home</Link>
+                        <Link to="/" className="btn btn-outline pf-mt">{t('auth.backToHome')}</Link>
                     </div>
                 ) : (
                     <form onSubmit={submit}>
@@ -61,33 +61,33 @@ export function Apply() {
                             </div>
                         )}
                         <div className="platform-form-grid">
-                            <label>School name<input className="form-input" required value={form.school_name} onChange={e => set('school_name', e.target.value)} /></label>
+                            <label>{t('apply.copy.schoolName')}<input className="form-input" required value={form.school_name} onChange={e => set('school_name', e.target.value)} /></label>
                             <label>Desired address (subdomain)
                                 <input className="form-input" required placeholder="greenvalley" value={form.desired_subdomain}
                                        onChange={e => set('desired_subdomain', e.target.value.toLowerCase())} />
                             </label>
-                            <label>Your name<input className="form-input" required value={form.contact_name} onChange={e => set('contact_name', e.target.value)} /></label>
-                            <label>Email<input className="form-input" type="email" required value={form.contact_email} onChange={e => set('contact_email', e.target.value)} /></label>
-                            <label>Phone<input className="form-input" value={form.contact_phone} onChange={e => set('contact_phone', e.target.value)} /></label>
-                            <label>Country<input className="form-input" value={form.country} onChange={e => set('country', e.target.value)} /></label>
+                            <label>{t('apply.copy.yourName')}<input className="form-input" required value={form.contact_name} onChange={e => set('contact_name', e.target.value)} /></label>
+                            <label>{t('common.email')}<input className="form-input" type="email" required value={form.contact_email} onChange={e => set('contact_email', e.target.value)} /></label>
+                            <label>{t('common.phone')}<input className="form-input" value={form.contact_phone} onChange={e => set('contact_phone', e.target.value)} /></label>
+                            <label>{t('apply.copy.country')}<input className="form-input" value={form.country} onChange={e => set('country', e.target.value)} /></label>
                             <label>City<input className="form-input" value={form.city} onChange={e => set('city', e.target.value)} /></label>
-                            <label>Approx. students<input className="form-input" type="number" min="0" value={form.student_estimate} onChange={e => set('student_estimate', e.target.value)} /></label>
+                            <label>{t('apply.copy.approxStudents')}<input className="form-input" type="number" min="0" value={form.student_estimate} onChange={e => set('student_estimate', e.target.value)} /></label>
                             <label>Plan interest
                                 <select className="form-input" value={form.plan_interest} onChange={e => set('plan_interest', e.target.value)}>
-                                    <option value="">Not sure</option>
-                                    <option value="basic">Basic</option><option value="premium">Premium</option>
+                                    <option value="">{t('apply.copy.notSure')}</option>
+                                    <option value="basic">{t('platform.common.plan.basic')}</option><option value="premium">{t('platform.common.plan.premium')}</option>
                                 </select>
                             </label>
                         </div>
                         <label className="pf-field pf-mt">
-                            <span className="pf-field-label">Anything else?</span>
-                            <textarea className="form-input" rows={3} value={form.message} onChange={e => set('message', e.target.value)} placeholder="Tell us about your school…" />
+                            <span className="pf-field-label">{t('apply.copy.anythingElse')}</span>
+                            <textarea className="form-input" rows={3} value={form.message} onChange={e => set('message', e.target.value)} placeholder={t('apply.copy.tellUsAboutYourSchool')} />
                         </label>
                         <button className="btn btn-primary pf-full pf-mt" disabled={saving}>
                             {saving ? 'Submitting…' : 'Submit application'}
                         </button>
                         <p className="platform-login-note">
-                            Already have an account? <Link to="/login">Sign in</Link>.
+                            Already have an account? <Link to="/login">{t('auth.signIn')}</Link>.
                         </p>
                     </form>
                 )}

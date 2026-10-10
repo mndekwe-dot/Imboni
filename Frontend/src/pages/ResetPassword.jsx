@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router'
 import { confirmPasswordReset } from '../api/auth'
@@ -6,6 +7,7 @@ import '../styles/reset-password.css'
 const SPECIAL_CHAR_RE = /[!@#$%^&*(),.?":{}|<>_\-+=[\]\\/~`;']/
 
 export function ResetPassword() {
+    const { t } = useTranslation()
     const { uid, token } = useParams()
     const navigate = useNavigate()
 
@@ -43,16 +45,16 @@ export function ResetPassword() {
                     <span className="material-symbols-rounded" aria-hidden="true">lock</span>
                 </div>
 
-                <h1 className="reset-password-title">Set new password</h1>
+                <h1 className="reset-password-title">{t('auth.copy.setNewPassword')}</h1>
                 <p className="reset-password-subtitle">
-                    Your new password must be different to previously used passwords.
+                    {t('auth.copy.yourNewPasswordMustBeDifferentToPreviously')}
                 </p>
 
                 {error && <p className="reset-password-error">{error}</p>}
 
                 <form onSubmit={handleSubmit}>
                     <div className="reset-password-field">
-                        <label className="reset-password-label" htmlFor="password">Password</label>
+                        <label className="reset-password-label" htmlFor="password">{t('auth.password')}</label>
                         <div className="reset-password-input-wrap">
                             <input
                                 id="password"
@@ -67,7 +69,7 @@ export function ResetPassword() {
                                 type="button"
                                 className="reset-password-toggle"
                                 onClick={() => setShowPassword(s => !s)}
-                                aria-label="Toggle password visibility"
+                                aria-label={t('auth.togglePassword')}
                             >
                                 <span className="material-symbols-rounded" aria-hidden="true">
                                     {showPassword ? 'visibility_off' : 'visibility'}
@@ -77,7 +79,7 @@ export function ResetPassword() {
                     </div>
 
                     <div className="reset-password-field">
-                        <label className="reset-password-label" htmlFor="confirm">Confirm password</label>
+                        <label className="reset-password-label" htmlFor="confirm">{t('acceptInvite.confirm')}</label>
                         <div className="reset-password-input-wrap">
                             <input
                                 id="confirm"
@@ -92,7 +94,7 @@ export function ResetPassword() {
                                 type="button"
                                 className="reset-password-toggle"
                                 onClick={() => setShowConfirm(s => !s)}
-                                aria-label="Toggle password visibility"
+                                aria-label={t('auth.togglePassword')}
                             >
                                 <span className="material-symbols-rounded" aria-hidden="true">
                                     {showConfirm ? 'visibility_off' : 'visibility'}
@@ -112,7 +114,7 @@ export function ResetPassword() {
                             <span className="material-symbols-rounded" aria-hidden="true">
                                 {hasSpecialChar ? 'check_circle' : 'radio_button_unchecked'}
                             </span>
-                            Must contain one special character
+                            {t('auth.copy.mustContainOneSpecialCharacter')}
                         </li>
                     </ul>
 
@@ -123,7 +125,7 @@ export function ResetPassword() {
 
                 <Link to="/login" className="reset-password-back">
                     <span className="material-symbols-rounded" aria-hidden="true">arrow_back</span>
-                    Back to login
+                    {t('auth.copy.backToLogin')}
                 </Link>
             </div>
         </div>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useDraggable, useDroppable } from '@dnd-kit/core'
 import { shortTeacher } from './timetableDisplay'
 
@@ -15,6 +16,7 @@ import { shortTeacher } from './timetableDisplay'
  * switches between them depending on whether drag is enabled.
  */
 export function DraggableCell({ cell, day, periodIndex, colIndex, editable, onEdit, tone, homeRoom, today, isNow }) {
+    const { t } = useTranslation()
     const filled = !!(cell && cell._id)
 
     // Both hooks run every render (stable order); `disabled` picks the role.
@@ -59,8 +61,8 @@ export function DraggableCell({ cell, day, periodIndex, colIndex, editable, onEd
                 type="button"
                 ref={drag.setActivatorNodeRef}
                 className="tt-drag-handle"
-                title="Drag to move this lesson"
-                aria-label="Drag to move this lesson"
+                title={t('timetable.copy.dragToMoveThisLesson')}
+                aria-label={t('timetable.copy.dragToMoveThisLesson')}
                 {...drag.attributes}
                 {...drag.listeners}
             >

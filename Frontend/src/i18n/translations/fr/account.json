@@ -48,5 +48,10 @@
   "updateProfile": "Mettre à jour le profil",
   "uploadClick": "Cliquez pour téléverser",
   "uploadHint": "JPG ou PNG (max. 2 Mo)",
-  "uploadOrDrag": "ou glissez-déposez"
+  "uploadOrDrag": "ou glissez-déposez",
+  "copy": {
+    "saveTheseBackupCodesSomewhereSafeEachWorks": "Conservez ces codes de secours en lieu sûr. Chacun ne fonctionne qu'une fois si vous perdez votre appareil.",
+    "twoFactorAuthentication": "Authentification à deux facteurs",
+    "yourPassword": "Votre mot de passe"
+  }
 }

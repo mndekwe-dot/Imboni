@@ -302,7 +302,7 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
                 !result.questionPaper ? (
                     <div className="qp-empty">
                         <span className="material-symbols-rounded qp-empty-icon" aria-hidden="true">description</span>
-                        No question paper was attached for this submission.
+                        {t('dos.results.noQuestionPaper')}
                     </div>
                 ) : (
                     <div className="settings-form">
@@ -337,7 +337,7 @@ function ReviewModal({ result, onClose, onApprove, onReject }) {
                 result.studentMarks.length === 0 ? (
                     <div className="qp-empty">
                         <span className="material-symbols-rounded qp-empty-icon dos-av-dim" aria-hidden="true">people</span>
-                        No student marks available for this submission.
+                        {t('dos.results.noMarks')}
                     </div>
                 ) : (
                     <div className="marks-wrap">
@@ -571,7 +571,7 @@ export function DosResults() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />
@@ -632,7 +632,7 @@ export function DosResults() {
                                 {visible.length === 0 ? (
                                     <div className="qp-empty">
                                         <span className="material-symbols-rounded qp-empty-icon dos-av-dim" aria-hidden="true">search_off</span>
-                                        No results match the selected filters.
+                                        {t('dos.results.noneMatch')}
                                     </div>
                                 ) : (
                                     <>
@@ -766,7 +766,7 @@ export function DosResults() {
                                         <div className="card">
                                             <div className="card-header">
                                                 <h3 className="card-title">{t('dos.results.submissions')}</h3>
-                                                <span className="settings-info-text">By subject</span>
+                                                <span className="settings-info-text">{t('dos.results.bySubject')}</span>
                                             </div>
                                             <div className="card-content">
                                                 <ResponsiveContainer width="100%" height={240}>

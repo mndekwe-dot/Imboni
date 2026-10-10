@@ -118,5 +118,15 @@
       "failed": "Not paid",
       "needs_review": "Received: office confirming"
     }
+  },
+  "copy": {
+    "actionTaken": "Action Taken",
+    "awards": "Awards",
+    "markAsRead": "Mark as read",
+    "noReportsFound": "No reports found.",
+    "recentReports": "Recent Reports",
+    "recentResults": "Recent Results",
+    "termResult": "Term Result",
+    "warnings": "Warnings"
   }
 }

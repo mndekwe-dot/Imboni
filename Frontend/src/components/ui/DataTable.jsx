@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState, useEffect } from 'react'
 import { SkeletonRows } from './Skeleton'
 import '../../styles/tables.css'
@@ -58,6 +59,7 @@ export function DataTable({
     page = 1,
     onPageChange,
 }) {
+    const { t } = useTranslation()
     const serverPaged = typeof total === 'number'
     const [localPage, setLocalPage] = useState(1)
     // `page` is the caller's in server mode, ours otherwise.
@@ -125,7 +127,7 @@ export function DataTable({
                         {onClearFilters && (
                             <button className="btn btn-outline btn-sm" onClick={onClearFilters}>
                                 <span className="material-symbols-rounded icon-sm" aria-hidden="true">close</span>
-                                Clear Filters
+                                {t('common.clearFilters')}
                             </button>
                         )}
                     </div>
@@ -157,10 +159,10 @@ export function DataTable({
                     {loading ? '\u00a0' : count === 0 ? 'No results' : `Page ${safePage} of ${pageCount}`}
                 </span>
                 <div className="dt-pagination">
-                    <button className="dt-page-btn" disabled={safePage <= 1} onClick={() => setPage(1)} title="First page" aria-label="First page">
+                    <button className="dt-page-btn" disabled={safePage <= 1} onClick={() => setPage(1)} title={t('common.firstPage')} aria-label={t('common.firstPage')}>
                         <span className="material-symbols-rounded" aria-hidden="true">first_page</span>
                     </button>
-                    <button className="dt-page-btn" disabled={safePage <= 1} onClick={() => setPage(p => p - 1)} title="Previous" aria-label="Previous">
+                    <button className="dt-page-btn" disabled={safePage <= 1} onClick={() => setPage(p => p - 1)} title={t('common.previous')} aria-label={t('common.previous')}>
                         <span className="material-symbols-rounded" aria-hidden="true">chevron_left</span>
                     </button>
                     {pages().map((p, i) =>
@@ -171,7 +173,7 @@ export function DataTable({
                     <button className="dt-page-btn" disabled={safePage >= pageCount} onClick={() => setPage(p => p + 1)} title="Next" aria-label="Next">
                         <span className="material-symbols-rounded" aria-hidden="true">chevron_right</span>
                     </button>
-                    <button className="dt-page-btn" disabled={safePage >= pageCount} onClick={() => setPage(pageCount)} title="Last page" aria-label="Last page">
+                    <button className="dt-page-btn" disabled={safePage >= pageCount} onClick={() => setPage(pageCount)} title={t('common.lastPage')} aria-label={t('common.lastPage')}>
                         <span className="material-symbols-rounded" aria-hidden="true">last_page</span>
                     </button>
                 </div>

@@ -245,7 +245,7 @@ export function TeacherAttendance() {
                                 <div className="toolbar-card">
                                     <button className="btn btn-outline select-xs" onClick={markAllPresent} disabled={!classKey || loadingStudents}>
                                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">done_all</span>
-                                        Mark All Present
+                                        {t('teacher.copy.markAllPresent')}
                                     </button>
                                     <OfflineIndicator />
                                     <div className="toolbar-spacer" />
@@ -256,11 +256,11 @@ export function TeacherAttendance() {
                                     <div className="alert alert-danger">{error}</div>
                                 )}
                                 {saved === true && (
-                                    <div className="alert alert-success">Attendance saved successfully.</div>
+                                    <div className="alert alert-success">{t('teacher.copy.attendanceSavedSuccessfully')}</div>
                                 )}
                                 {saved === 'offline' && (
                                     <div className="alert alert-success">
-                                        Attendance saved offline. It will sync automatically when you're back online.
+                                        {t('teacher.copy.attendanceSavedOfflineItWillSyncAutomatica')}
                                     </div>
                                 )}
 
@@ -335,7 +335,7 @@ export function TeacherAttendance() {
                                                 const reset = {}
                                                 students.forEach(s => { reset[s.student_id] = { status: s.status ?? 'present', notes: s.notes ?? '' } })
                                                 setAttendance(reset)
-                                            }}>Reset</button>
+                                            }}>{t('teacher.copy.reset')}</button>
                                             <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
                                                 <span className="material-symbols-rounded icon-sm" aria-hidden="true">save</span>
                                                 {saving ? 'Saving…' : 'Save Attendance'}

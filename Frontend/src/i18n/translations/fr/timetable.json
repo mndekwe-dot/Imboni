@@ -13,5 +13,22 @@
   "nothingScheduled": "Rien de prévu",
   "break": "Pause",
   "now": "En cours",
-  "month": "Mois"
+  "month": "Mois",
+  "copy": {
+    "academicClub": "Club scolaire",
+    "academicClubs": "Clubs scolaires",
+    "activityType": "Type d'activité",
+    "boardingDormitory": "Internat / Dortoir",
+    "closeDialog": "Fermer la fenêtre",
+    "dragToMoveThisLesson": "Faites glisser pour déplacer ce cours",
+    "emptyFree": "Vide / Libre",
+    "label": "Libellé",
+    "manageTimeSlots": "Gérer les créneaux",
+    "noLessonsScheduledForThisTermYet": "Aucun cours prévu pour ce trimestre.",
+    "period": "Période",
+    "removeRow": "Supprimer la ligne",
+    "selectDay": "Choisir le jour",
+    "socialCommunity": "Social / Communautaire",
+    "timeSlot": "Créneau"
+  }
 }

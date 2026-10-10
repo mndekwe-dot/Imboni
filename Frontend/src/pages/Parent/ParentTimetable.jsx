@@ -76,7 +76,7 @@ export function ParentTimetable() {
                         {loading ? (
                             <SkeletonList items={3} />
                         ) : children.length === 0 ? (
-                            <p className="u-pad u-muted">No children linked to your account yet.</p>
+                            <p className="u-pad u-muted">{t('parent.noChildren')}</p>
                         ) : (
                             <div className="card">
                                 <div className="card-header">

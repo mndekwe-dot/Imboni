@@ -86,5 +86,8 @@
   "titleRequiredError": "Le titre est obligatoire.",
   "trySearch": "Essayez un autre terme de recherche.",
   "updateAndPublish": "Mettre à jour et publier",
-  "updated": "Annonce mise à jour."
+  "updated": "Annonce mise à jour.",
+  "copy": {
+    "urgentAnnouncementsAreHighlightedAndSentIm": "Les annonces urgentes sont mises en évidence et envoyées immédiatement à tous les destinataires."
+  }
 }

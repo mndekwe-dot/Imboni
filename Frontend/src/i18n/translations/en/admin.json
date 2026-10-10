@@ -229,5 +229,21 @@
     "loadFailed": "Could not load the audit log.",
     "showing": "Showing {{shown}} of {{count}}",
     "more": "Load more"
+  },
+  "copy": {
+    "addAReply": "Add a reply…",
+    "briefSummaryOfTheIssue": "Brief summary of the issue",
+    "contactSupport": "Contact support",
+    "currentPlan": "Current plan",
+    "describeWhatSHappening": "Describe what's happening…",
+    "enrollmentByClass": "Enrollment by Class",
+    "noDataAvailable": "No data available.",
+    "noPlansAvailable": "No plans available.",
+    "normal": "Normal",
+    "performanceDistribution": "Performance Distribution",
+    "teachersBySubject": "Teachers by Subject",
+    "usageThisPlan": "Usage this plan",
+    "weeklyTrend": "Weekly Trend",
+    "yourTickets": "Your tickets"
   }
 }

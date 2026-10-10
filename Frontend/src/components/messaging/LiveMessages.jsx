@@ -336,7 +336,7 @@ export function LiveMessages({
                                                 {loadingThread && messages.length === 0 ? (
                                                     <SkeletonList items={3} flush label={t('common.loading')} />
                                                 ) : messages.length === 0 ? (
-                                                    <p className="lm-thread-note">No messages yet. Say hello.</p>
+                                                    <p className="lm-thread-note">{t('messaging.noMessages')}</p>
                                                 ) : messages.map(m => (
                                                     <ChatBubble
                                                         key={m.id}
@@ -395,7 +395,7 @@ export function LiveMessages({
                              aria-label={t('messaging.searchPeople')}/>
                             <div className="lm-contact-list">
                                 {contacts.length === 0 ? (
-                                    <p className="lm-contact-empty">No contacts found.</p>
+                                    <p className="lm-contact-empty">{t('messaging.copy.noContactsFound')}</p>
                                 ) : contacts.map(c => (
                                     <button key={c.id} type="button" className="lm-contact" onClick={() => startWith(c)}>
                                         <span className={`conv-avatar ${roleClass(c.role)}`}>

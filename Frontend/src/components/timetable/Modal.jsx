@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useEffect, useRef } from 'react'
 
 /* ─── Modal ──────────────────────────────────────────────────────────────────
@@ -15,6 +16,7 @@ import { useEffect, useRef } from 'react'
      wide     — set true to use a wider max-width (for PeriodManager)
 ──────────────────────────────────────────────────────────────────────────── */
 export function Modal({ title, icon, onClose, children, wide = false }) {
+    const { t } = useTranslation()
     const dialogRef = useRef(null)
 
     useEffect(() => {
@@ -43,7 +45,7 @@ export function Modal({ title, icon, onClose, children, wide = false }) {
                 <div className="tt-modal-header">
                     {icon && <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>}
                     <h2 className="tt-modal-title">{title}</h2>
-                    <button className="tt-modal-close" onClick={onClose} aria-label="Close dialog">
+                    <button className="tt-modal-close" onClick={onClose} aria-label={t('timetable.copy.closeDialog')}>
                         <span className="material-symbols-rounded" aria-hidden="true">close</span>
                     </button>
                 </div>

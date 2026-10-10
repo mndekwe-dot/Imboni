@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 /**
  * ChatBubble — one message in the thread body.
  *
@@ -25,6 +26,7 @@ export function ChatBubble({
     senderAvatarClass = '',
     attachment = null,
 }) {
+    const { t } = useTranslation()
     return (
         <>
             {dateSep && (
@@ -47,7 +49,7 @@ export function ChatBubble({
                                 </div>
                                 <div className="msg-attach-size">{attachment.fileSize}</div>
                             </div>
-                            <button type="button" className="msg-attach-btn" title="Download" aria-label="Download">
+                            <button type="button" className="msg-attach-btn" title={t('common.download')} aria-label={t('common.download')}>
                                 <span className="material-symbols-rounded" aria-hidden="true">download</span>
                             </button>
                         </div>

@@ -508,5 +508,10 @@
     "legendTaken": "Cyafashwe",
     "legendFree": "Gihari",
     "legendClosed": "Gifunze / gisanwa"
+  },
+  "copy": {
+    "editTimeSlots": "Hindura ibihe",
+    "noApprovedBehaviorReportsOnRecord": "Nta raporo y'imyitwarire yemejwe.",
+    "weeklyExtracurricularSchedule": "Gahunda y'icyumweru y'ibikorwa by'inyongera"
   }
 }

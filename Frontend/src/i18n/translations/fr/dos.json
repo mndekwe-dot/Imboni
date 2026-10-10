@@ -460,5 +460,11 @@
     "weekly": "Emploi du temps hebdomadaire",
     "weeklyFor": "Classe {{name}} : emploi du temps hebdomadaire",
     "weightAbbr": "Coef."
+  },
+  "copy": {
+    "anEmailWillBeSentWithASecureRegistrationLi": "Un e-mail sera envoyé avec un lien d'inscription sécurisé. L'enseignant définit son propre mot de passe. Vous n'avez jamais à partager d'identifiants.",
+    "dragAnExamOntoAnotherDayOrTimeSlotToResche": "Faites glisser un examen vers un autre jour ou créneau pour le reprogrammer.",
+    "noDatedExamsToLayOutYet": "Aucun examen daté à afficher.",
+    "twoInvitationEmailsWillBeSentOneForTheStud": "Deux e-mails d'invitation seront envoyés : un pour que l'élève crée son compte, et un pour le parent/tuteur."
   }
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { Link } from 'react-router'
 import '../styles/components.css'
@@ -26,6 +27,7 @@ function sanitizeSubdomain(value) {
 }
 
 export function Signup() {
+    const { t } = useTranslation()
     const [form, setForm] = useState(EMPTY_FORM)
     const [fieldErrors, setFieldErrors] = useState({})
     const [generalError, setGeneralError] = useState('')
@@ -149,13 +151,13 @@ export function Signup() {
 
                     <div className="card sgn-detail-card">
                         <div className="u-mb">
-                            <div className="form-label sgn-detail-label">Your school address</div>
+                            <div className="form-label sgn-detail-label">{t('auth.copy.yourSchoolAddress')}</div>
                             <a href={result.url} className="sgn-detail-link">
                                 {result.url}
                             </a>
                         </div>
                         <div>
-                            <div className="form-label sgn-detail-label">Administrator email</div>
+                            <div className="form-label sgn-detail-label">{t('auth.copy.administratorEmail')}</div>
                             <div className="sgn-break">{result.admin_email}</div>
                         </div>
                     </div>
@@ -164,7 +166,7 @@ export function Signup() {
                         Go to {result.subdomain} and sign in
                     </a>
                     <p className="sgn-note">
-                        Sign in there with the administrator email and password you just set.
+                        {t('auth.copy.signInThereWithTheAdministratorEmailAndPas')}
                     </p>
                 </div>
             </div>
@@ -180,16 +182,16 @@ export function Signup() {
 
                 <div className="sgn-header">
                     <span className="material-symbols-rounded sgn-header-icon" aria-hidden="true">add_business</span>
-                    <h1 className="sgn-header-title">Sign up your school</h1>
+                    <h1 className="sgn-header-title">{t('publicNav.signUpSchool')}</h1>
                     <p className="sgn-header-sub">
-                        Create your school's own Imboni space in a couple of minutes.
+                        {t('auth.copy.createYourSchoolSOwnImboniSpaceInACoupleOf')}
                     </p>
                 </div>
 
                 <div className="card sgn-card">
                     <form onSubmit={handleSubmit} noValidate>
 
-                        <Field label="School name *" error={fieldErrors.school_name}>
+                        <Field label={t('auth.copy.schoolName')} error={fieldErrors.school_name}>
                             <input className="form-control" placeholder="e.g. Green Hills Academy"
                                 value={form.school_name}
                                 onChange={e => update('school_name', e.target.value)}
@@ -197,7 +199,7 @@ export function Signup() {
                         </Field>
 
                         <Field
-                            label="Subdomain *"
+                            label={t('auth.copy.subdomain')}
                             error={fieldErrors.subdomain}
                             help="Letters, numbers, hyphens.">
                             <input className="form-control" placeholder="greenhills"
@@ -211,30 +213,30 @@ export function Signup() {
                         </Field>
 
                         <div className="form-row-2 u-mb">
-                            <Field label="Admin first name *" error={fieldErrors.admin_first_name} noMargin>
+                            <Field label={t('auth.copy.adminFirstName')} error={fieldErrors.admin_first_name} noMargin>
                                 <input className="form-control" placeholder="Jane"
                                     value={form.admin_first_name}
                                     onChange={e => update('admin_first_name', e.target.value)}  aria-label="Jane"/>
                             </Field>
-                            <Field label="Admin last name *" error={fieldErrors.admin_last_name} noMargin>
+                            <Field label={t('auth.copy.adminLastName')} error={fieldErrors.admin_last_name} noMargin>
                                 <input className="form-control" placeholder="Doe"
                                     value={form.admin_last_name}
                                     onChange={e => update('admin_last_name', e.target.value)}  aria-label="Doe"/>
                             </Field>
                         </div>
 
-                        <Field label="Admin email *" error={fieldErrors.admin_email}>
+                        <Field label={t('auth.copy.adminEmail')} error={fieldErrors.admin_email}>
                             <input className="form-control" type="email" placeholder="jane@greenhills.edu"
                                 value={form.admin_email}
                                 onChange={e => update('admin_email', e.target.value)}
                                 autoComplete="email"  aria-label="jane@greenhills.edu"/>
                         </Field>
 
-                        <Field label="Admin password *" error={fieldErrors.admin_password} help="At least 8 characters.">
-                            <input className="form-control" type="password" placeholder="Choose a strong password"
+                        <Field label={t('auth.copy.adminPassword')} error={fieldErrors.admin_password} help="At least 8 characters.">
+                            <input className="form-control" type="password" placeholder={t('auth.copy.chooseAStrongPassword')}
                                 value={form.admin_password}
                                 onChange={e => update('admin_password', e.target.value)}
-                                autoComplete="new-password"  aria-label="Choose a strong password"/>
+                                autoComplete="new-password"  aria-label={t('auth.copy.chooseAStrongPassword')}/>
                         </Field>
 
                         {generalError && (
@@ -249,14 +251,14 @@ export function Signup() {
 
                         {submitting && (
                             <p className="sgn-submitting">
-                                This can take a moment while we set everything up.
+                                {t('auth.copy.thisCanTakeAMomentWhileWeSetEverythingUp')}
                             </p>
                         )}
                     </form>
                 </div>
 
                 <p className="sgn-signin">
-                    Already have a school on Imboni? <Link to="/login" className="sgn-link">Sign in</Link>
+                    Already have a school on Imboni? <Link to="/login" className="sgn-link">{t('auth.signIn')}</Link>
                 </p>
             </div>
         </div>

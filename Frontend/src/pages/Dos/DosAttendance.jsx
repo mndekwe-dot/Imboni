@@ -146,7 +146,7 @@ function StudentAttendanceTab({ sections }) {
                     {!error && loading && <SkeletonList items={3} />}
                     {!error && !loading && students.length === 0 && (
                         <p className="att-state">
-                            No students enrolled for the selected class and term.
+                            {t('dos.attendance.noStudents')}
                         </p>
                     )}
                     {!error && !loading && students.length > 0 && (
@@ -158,7 +158,7 @@ function StudentAttendanceTab({ sections }) {
                                             <th>{t('common.student')}</th>
                                             {showClassCol && <th>{t('common.class')}</th>}
                                             <th>{t('common.mon')}</th><th>{t('common.tue')}</th><th>{t('common.wed')}</th><th>{t('common.thu')}</th><th>{t('common.fri')}</th>
-                                            <th>Present</th><th>{t('common.rate')}</th>
+                                            <th>{t('common.present')}</th><th>{t('common.rate')}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -293,7 +293,7 @@ function TeacherAttendanceTab() {
                 </button>
             </div>
 
-            {saved  && <div className="alert alert-success u-mt-sm">Attendance saved.</div>}
+            {saved  && <div className="alert alert-success u-mt-sm">{t('dos.attendance.saved')}</div>}
             {error  && <div className="alert alert-danger u-mt-sm">{error}</div>}
 
             <div className="card mt-1-5">
@@ -323,7 +323,7 @@ function TeacherAttendanceTab() {
                                         <tr>
                                             <th>{t('common.teacher')}</th>
                                             <th>{t('common.mon')}</th><th>{t('common.tue')}</th><th>{t('common.wed')}</th><th>{t('common.thu')}</th><th>{t('common.fri')}</th>
-                                            <th>Present</th><th>{t('common.rate')}</th>
+                                            <th>{t('common.present')}</th><th>{t('common.rate')}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -398,7 +398,7 @@ export function DosAttendance() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay" />
 
             <div className="dashboard-layout">

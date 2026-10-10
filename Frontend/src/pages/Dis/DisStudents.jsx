@@ -138,7 +138,7 @@ function PendingCard({ report, onReview }) {
                 <div className="dis-review-panel">
                     <div className="form-group u-m-0">
                         <label className="form-label">Notes (optional)</label>
-                        <textarea className="form-input form-textarea" rows="2" placeholder="Add a note…" value={notes} onChange={e => setNotes(e.target.value)}  aria-label="Add a note…"/>
+                        <textarea className="form-input form-textarea" rows="2" placeholder={t('dis.students.addNote')} value={notes} onChange={e => setNotes(e.target.value)}  aria-label={t('dis.students.addNote')}/>
                     </div>
                     <div className="u-row-sm u-justify-end">
                         <button className="btn btn-sm dis-btn-reject" onClick={() => handle('reject')} disabled={saving}>
@@ -467,7 +467,7 @@ export function DisStudents() {
                                     <p className="u-pad u-muted">Loading reports…</p>
                                 ) : reportSubTab === 'pending' ? (
                                     pending.length === 0 ? (
-                                        <p className="dis-empty-center">No pending reports. All matron reports have been reviewed.</p>
+                                        <p className="dis-empty-center">{t('dis.students.noPending')}</p>
                                     ) : (
                                         <div className="u-stack-sm">
                                             <p className="dis-hint">
@@ -484,7 +484,7 @@ export function DisStudents() {
                                         renderRow={(r, i) => <ReportRow key={r.id || i} report={r} onMarkComplete={handleMarkComplete} />}
                                         emptyIcon="report"
                                         emptyTitle={t('dis.students.noApproved')}
-                                        emptyDesc="No approved behavior reports on record."
+                                        emptyDesc={t('dis.copy.noApprovedBehaviorReportsOnRecord')}
                                         headerRight={
                                             <div className="filter-tabs-bar mt-0 u-mb-sm">
                                                 {TYPE_FILTER_OPTIONS.map(o => (
@@ -498,7 +498,7 @@ export function DisStudents() {
                                     />
                                 ) : (
                                     rejected.length === 0 ? (
-                                        <p className="dis-empty-center">No rejected reports.</p>
+                                        <p className="dis-empty-center">{t('dis.students.noRejected')}</p>
                                     ) : (
                                         <div className="dis-stack-mid">
                                             {rejected.map(r => {

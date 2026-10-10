@@ -10,7 +10,10 @@
  * load, which is one of the ways we end up here in the first place. Do not
  * migrate it onto classes in an inline-style sweep.
  */
+import i18n from 'i18next'
+
 export function ErrorFallback({ error, resetError }) {
+    const t = (key) => i18n.t(key)
     return (
         <div
             role="alert"
@@ -31,10 +34,9 @@ export function ErrorFallback({ error, resetError }) {
             <span className="material-symbols-rounded" style={{ fontSize: '3rem', color: '#ef4444' }} aria-hidden="true">
                 error
             </span>
-            <h1 style={{ fontSize: '1.4rem', margin: 0 }}>Something went wrong</h1>
+            <h1 style={{ fontSize: '1.4rem', margin: 0 }}>{t('common.somethingWentWrong')}</h1>
             <p style={{ maxWidth: '28rem', color: 'var(--muted-foreground, #64748b)', margin: 0 }}>
-                An unexpected error occurred and the page couldn't be displayed. Our team has been
-                notified. You can try again, or reload the page.
+                {t('common.copy.unexpectedError')}
             </p>
             {import.meta.env.DEV && error?.message && (
                 <pre
@@ -65,7 +67,7 @@ export function ErrorFallback({ error, resetError }) {
                         cursor: 'pointer',
                     }}
                 >
-                    Try again
+                    {t('common.copy.tryAgain')}
                 </button>
                 <button
                     onClick={() => window.location.assign('/')}
@@ -79,7 +81,7 @@ export function ErrorFallback({ error, resetError }) {
                         cursor: 'pointer',
                     }}
                 >
-                    Go home
+                    {t('common.copy.goHome')}
                 </button>
             </div>
         </div>

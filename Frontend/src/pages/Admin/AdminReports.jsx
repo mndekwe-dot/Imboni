@@ -43,7 +43,8 @@ function ChartCard({ title, desc, children, loading }) {
 }
 
 function GradePerformanceChart({ data }) {
-    if (!data?.length) return <p className="adm-chart-nodata">No data available.</p>
+    const { t } = useTranslation()
+    if (!data?.length) return <p className="adm-chart-nodata">{t('admin.copy.noDataAvailable')}</p>
     return (
         <ResponsiveContainer width="100%" height={220}>
             <BarChart data={data} margin={{ top: 16, right: 8, left: -20, bottom: 0 }}>
@@ -61,7 +62,8 @@ function GradePerformanceChart({ data }) {
 }
 
 function WeeklyTrendChart({ data }) {
-    if (!data?.length) return <p className="adm-chart-nodata">No data available.</p>
+    const { t } = useTranslation()
+    if (!data?.length) return <p className="adm-chart-nodata">{t('admin.copy.noDataAvailable')}</p>
     return (
         <ResponsiveContainer width="100%" height={220}>
             <AreaChart data={data} margin={{ top: 16, right: 8, left: -20, bottom: 0 }}>
@@ -88,7 +90,8 @@ function WeeklyTrendChart({ data }) {
 }
 
 function EnrollmentChart({ data }) {
-    if (!data?.length) return <p className="adm-chart-nodata">No data available.</p>
+    const { t } = useTranslation()
+    if (!data?.length) return <p className="adm-chart-nodata">{t('admin.copy.noDataAvailable')}</p>
     return (
         <ResponsiveContainer width="100%" height={220}>
             <BarChart data={data} layout="vertical" margin={{ top: 4, right: 40, left: 8, bottom: 4 }}>
@@ -106,7 +109,8 @@ function EnrollmentChart({ data }) {
 }
 
 function DistributionChart({ data }) {
-    if (!data?.length) return <p className="adm-chart-nodata">No data available.</p>
+    const { t } = useTranslation()
+    if (!data?.length) return <p className="adm-chart-nodata">{t('admin.copy.noDataAvailable')}</p>
     return (
         <div className="adm-dist-row">
             <ResponsiveContainer width={180} height={180}>
@@ -134,7 +138,8 @@ function DistributionChart({ data }) {
 }
 
 function SubjectChart({ data }) {
-    if (!data?.length) return <p className="adm-chart-nodata">No data available.</p>
+    const { t } = useTranslation()
+    if (!data?.length) return <p className="adm-chart-nodata">{t('admin.copy.noDataAvailable')}</p>
     const top = data.slice(0, 8)
     return (
         <ResponsiveContainer width="100%" height={Math.max(180, top.length * 36)}>
@@ -195,7 +200,7 @@ export function AdminReports() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
@@ -215,26 +220,26 @@ export function AdminReports() {
 
                         {/* Row 1: Performance by grade + Weekly trend */}
                         <div className="cards-grid">
-                            <ChartCard title="Performance by Grade" desc="Average score per year group" loading={loading}>
+                            <ChartCard title={t('dos.results.performanceByGrade')} desc="Average score per year group" loading={loading}>
                                 <GradePerformanceChart data={byGrade} />
                             </ChartCard>
-                            <ChartCard title="Weekly Trend" desc="Attendance vs performance over 8 weeks" loading={loading}>
+                            <ChartCard title={t('admin.copy.weeklyTrend')} desc="Attendance vs performance over 8 weeks" loading={loading}>
                                 <WeeklyTrendChart data={weeklyTrend} />
                             </ChartCard>
                         </div>
 
                         {/* Row 2: Enrollment + Performance distribution */}
                         <div className="cards-grid">
-                            <ChartCard title="Enrollment by Class" desc="Number of students per year group" loading={loading}>
+                            <ChartCard title={t('admin.copy.enrollmentByClass')} desc="Number of students per year group" loading={loading}>
                                 <EnrollmentChart data={enrollment} />
                             </ChartCard>
-                            <ChartCard title="Performance Distribution" desc="Students by performance band" loading={loading}>
+                            <ChartCard title={t('admin.copy.performanceDistribution')} desc="Students by performance band" loading={loading}>
                                 <DistributionChart data={distribution} />
                             </ChartCard>
                         </div>
 
                         {/* Row 3: Teachers by subject (full width) */}
-                        <ChartCard title="Teachers by Subject" desc="Number of teachers assigned per subject" loading={loading}>
+                        <ChartCard title={t('admin.copy.teachersBySubject')} desc="Number of teachers assigned per subject" loading={loading}>
                             <SubjectChart data={bySubject} />
                         </ChartCard>
 

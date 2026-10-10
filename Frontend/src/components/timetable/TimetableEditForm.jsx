@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from "react";
 import { Modal } from './Modal'
 import { DAYS, EXTRA_SLOTS } from '../../data/extraTimetable'
@@ -8,6 +9,7 @@ export function TimetableEditForm({
     periods = PERIODS, slots = EXTRA_SLOTS,
     subjects = [], teachers = [], rooms = [], onSubjectChange,
 }) {
+    const { t } = useTranslation()
     const [form, setForm] = useState({
         day:       editingSlot?.day                  || '',
         slotId:    editingSlot?.slot?.id || editingSlot?.period?.id || '',
@@ -33,7 +35,7 @@ export function TimetableEditForm({
                     <div className="form-group">
                         <label className="form-label" htmlFor="tt-form-day">Day</label>
                         <select id="tt-form-day" className="form-input" name="day" value={form.day} onChange={handleChange}>
-                            <option value="">Select day</option>
+                            <option value="">{t('timetable.copy.selectDay')}</option>
                             {DAYS.map(d => <option key={d} value={d}>{d}</option>)}
                         </select>
                     </div>
@@ -51,15 +53,15 @@ export function TimetableEditForm({
 
                     {type === 'extracurricular' && (
                         <div className="form-group">
-                            <label className="form-label" htmlFor="tt-form-cell-type">Activity Type</label>
+                            <label className="form-label" htmlFor="tt-form-cell-type">{t('timetable.copy.activityType')}</label>
                             <select id="tt-form-cell-type" className="form-input" name="cellType" value={form.cellType} onChange={handleChange}>
-                                <option value="sports">Sports</option>
-                                <option value="academic">Academic Club</option>
+                                <option value="sports">{t('dos.leaders.catSport')}</option>
+                                <option value="academic">{t('timetable.copy.academicClub')}</option>
                                 <option value="arts">Arts</option>
-                                <option value="social">Social / Community</option>
-                                <option value="boarding">Boarding / Dormitory</option>
-                                <option value="dining">Dining</option>
-                                <option value="empty">Empty / Free</option>
+                                <option value="social">{t('timetable.copy.socialCommunity')}</option>
+                                <option value="boarding">{t('timetable.copy.boardingDormitory')}</option>
+                                <option value="dining">{t('nav.dining')}</option>
+                                <option value="empty">{t('timetable.copy.emptyFree')}</option>
                             </select>
                         </div>
                     )}
@@ -80,7 +82,7 @@ export function TimetableEditForm({
                                 if (onSubjectChange) onSubjectChange(id)
                             }}
                         >
-                            <option value="">Select subject</option>
+                            <option value="">{t('dos.teachers.selectSubject')}</option>
                             {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                         </select>
                     </div>
@@ -104,7 +106,7 @@ export function TimetableEditForm({
                     </div>
 
                     <div className="form-group">
-                        <label className="form-label" htmlFor="tt-form-room">Venue / Room</label>
+                        <label className="form-label" htmlFor="tt-form-room">{t('dos.scheduling.venueRoom')}</label>
                         <select
                             id="tt-form-room"
                             className="form-input"
@@ -112,14 +114,14 @@ export function TimetableEditForm({
                             value={form.room}
                             onChange={e => setForm(prev => ({ ...prev, room: e.target.value }))}
                         >
-                            <option value="">Select room</option>
+                            <option value="">{t('dos.scheduling.selectRoom')}</option>
                             {rooms.map(r => <option key={r.id} value={r.name}>{r.name}</option>)}
                         </select>
                     </div>
                 </div>
 
                 <div className="tt-form-actions">
-                    <button className="btn btn-outline" onClick={onCancel}>Cancel</button>
+                    <button className="btn btn-outline" onClick={onCancel}>{t('common.cancel')}</button>
                     {editingSlot?.cell && (
                         <button
                             className="btn btn-outline tt-btn-danger"

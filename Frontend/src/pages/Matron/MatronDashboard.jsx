@@ -101,7 +101,7 @@ export function MatronDashboard() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
 
             <div className="dashboard-layout">
@@ -127,13 +127,13 @@ export function MatronDashboard() {
 
                             <div className="card">
                                 <div className="card-header">
-                                    <h3 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">fact_check</span> Tonight's Roll Call</h3>
-                                    <button className="btn btn-outline btn-sm">Full List</button>
+                                    <h3 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">fact_check</span> {t('matron.copy.tonightSRollCall')}</h3>
+                                    <button className="btn btn-outline btn-sm">{t('matron.copy.fullList')}</button>
                                 </div>
                                 <div className="card-content">
                                     <div className="roll-call-list">
                                         {rollCall.length === 0
-                                            ? <p className="u-muted u-sm">No boarders found.</p>
+                                            ? <p className="u-muted u-sm">{t('matron.copy.noBoardersFound')}</p>
                                             : rollCall.map((r, i) => <RollCallRow key={i} {...r} />)}
                                     </div>
                                 </div>
@@ -142,13 +142,13 @@ export function MatronDashboard() {
                             <div>
                                 <div className="card mb-5">
                                     <div className="card-header">
-                                        <h3 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">assignment_late</span> Reports to Discipline</h3>
-                                        <button className="btn btn-outline btn-sm">Report</button>
+                                        <h3 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">assignment_late</span> {t('matron.copy.reportsToDiscipline')}</h3>
+                                        <button className="btn btn-outline btn-sm">{t('matron.copy.report')}</button>
                                     </div>
                                     <div className="card-content">
                                         <div className="matron-report-list">
                                             {recentReports.length === 0
-                                                ? <p className="u-muted u-sm">No reports filed yet.</p>
+                                                ? <p className="u-muted u-sm">{t('matron.copy.noReportsFiledYet')}</p>
                                                 : recentReports.map((r, i) => <ReportRow key={i} {...r} />)}
                                         </div>
                                     </div>
@@ -156,14 +156,14 @@ export function MatronDashboard() {
 
                                 <div className="card">
                                     <div className="card-header">
-                                        <h3 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">bolt</span> Quick Actions</h3>
+                                        <h3 className="card-title"><span className="material-symbols-rounded" aria-hidden="true">bolt</span> {t('common.quickActions')}</h3>
                                     </div>
                                     <div className="card-content">
                                         <div className="btn-stack">
-                                            <button className="btn btn-primary"><span className="material-symbols-rounded" aria-hidden="true">fact_check</span> Take Roll Call</button>
-                                            <button className="btn btn-outline"><span className="material-symbols-rounded" aria-hidden="true">report</span> Report Incident to Discipline</button>
-                                            <button className="btn btn-outline"><span className="material-symbols-rounded" aria-hidden="true">chat</span> Message Discipline Master</button>
-                                            <button className="btn btn-outline"><span className="material-symbols-rounded" aria-hidden="true">schedule</span> View Daily Schedule</button>
+                                            <button className="btn btn-primary"><span className="material-symbols-rounded" aria-hidden="true">fact_check</span> {t('matron.copy.takeRollCall')}</button>
+                                            <button className="btn btn-outline"><span className="material-symbols-rounded" aria-hidden="true">report</span> {t('matron.copy.reportIncidentToDiscipline')}</button>
+                                            <button className="btn btn-outline"><span className="material-symbols-rounded" aria-hidden="true">chat</span> {t('matron.copy.messageDisciplineMaster')}</button>
+                                            <button className="btn btn-outline"><span className="material-symbols-rounded" aria-hidden="true">schedule</span> {t('matron.copy.viewDailySchedule')}</button>
                                         </div>
                                     </div>
                                 </div>

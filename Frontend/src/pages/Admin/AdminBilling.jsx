@@ -86,13 +86,14 @@ function UsageMeter({ resourceKey, data }) {
 }
 
 function UsageCard({ usage }) {
+    const { t } = useTranslation()
     const resources = usage?.resources || {}
     const keys = Object.keys(resources)
     if (keys.length === 0) return null
     return (
         <div className="card u-mb-lg">
             <div className="card-content">
-                <p className="u-label u-mb-sm">Usage this plan</p>
+                <p className="u-label u-mb-sm">{t('admin.copy.usageThisPlan')}</p>
                 {keys.map(k => <UsageMeter key={k} resourceKey={k} data={resources[k]} />)}
             </div>
         </div>
@@ -146,7 +147,7 @@ export function AdminBilling() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
@@ -175,7 +176,7 @@ export function AdminBilling() {
                                 <div className="card u-mb-lg">
                                     <div className="card-content u-row-between">
                                         <div>
-                                            <p className="u-label">Current plan</p>
+                                            <p className="u-label">{t('admin.copy.currentPlan')}</p>
                                             <p className="u-xl u-bold u-capitalize">{currentPlan || '-'}</p>
                                         </div>
                                         {chip && <span className={`u-chip u-chip--${chip.tone} u-ml-auto`}>{chip.label}</span>}
@@ -213,7 +214,7 @@ export function AdminBilling() {
                                             </div>
                                         )
                                     })}
-                                    {plans.length === 0 && <p className="u-muted u-sm">No plans available.</p>}
+                                    {plans.length === 0 && <p className="u-muted u-sm">{t('admin.copy.noPlansAvailable')}</p>}
                                 </div>
                             </>
                         )}

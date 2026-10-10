@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState, useMemo } from "react"
 import { DndContext, DragOverlay, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { addDays, isSameDay, startOfDay } from 'date-fns'
@@ -60,6 +61,7 @@ function PeriodHead({ label, time, isNow }) {
    todayDayIndex — DAYS index of today (0=Mon…6=Sun), or -1 if not current week
 ─────────────────────────────────────────────────────────────────────────── */
 function ExtraTimetable({ weekKey, editable, onEditCell, selectedDay, slots, schedules, todayDayIndex, days, view, monday }) {
+    const { t } = useTranslation()
     const data     = schedules || extraSchedules
     const schedule = data[weekKey] ?? data['default'] ?? {}
 
@@ -81,7 +83,7 @@ function ExtraTimetable({ weekKey, editable, onEditCell, selectedDay, slots, sch
             <table className="tt-table" data-day={selectedDay} data-view={view}>
                 <thead>
                     <tr>
-                        <th className="tt-time-head" scope="col">Time Slot</th>
+                        <th className="tt-time-head" scope="col">{t('timetable.copy.timeSlot')}</th>
                         {days.map(i => (
                             <DayHead key={DAYS[i]} label={DAY_SHORT[i]} colIndex={i + 1} isToday={i === todayDayIndex} />
                         ))}
@@ -116,6 +118,7 @@ function ExtraTimetable({ weekKey, editable, onEditCell, selectedDay, slots, sch
    todayDayIndex — DAYS index of today, or -1 if not current week
 ─────────────────────────────────────────────────────────────────────────── */
 function AcademicTimetable({ classId, editable, onEditCell, selectedDay, periods, schedules, todayDayIndex, onMoveSlot, days, view, monday }) {
+    const { t } = useTranslation()
     // A small drag threshold so a click on a cell/edit button never starts a drag.
     const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
     const [activeCell, setActiveCell] = useState(null)   // lesson being dragged (for the overlay)
@@ -196,7 +199,7 @@ function AcademicTimetable({ classId, editable, onEditCell, selectedDay, periods
         <table className="tt-table" data-day={selectedDay} data-view={view}>
             <thead>
                 <tr>
-                    <th className="tt-time-head" scope="col">Period</th>
+                    <th className="tt-time-head" scope="col">{t('timetable.copy.period')}</th>
                     {days.map(i => (
                         <DayHead key={DAYS[i]} label={DAY_SHORT[i]} colIndex={i + 1} isToday={i === todayDayIndex} />
                     ))}
@@ -297,17 +300,18 @@ function AcademicTimetable({ classId, editable, onEditCell, selectedDay, periods
 
 /* ─── Legend (extracurricular only) ─────────────────────────────────────── */
 function TimetableLegend({ type }) {
+    const { t } = useTranslation()
     /* The legend explains the activity-type colours, which only the
        extracurricular grid uses. The academic grid — and the teacher's, which
        is the same grid — colours by subject and names it in the cell. */
     if (type !== 'extracurricular') return null
     return (
         <div className="tt-legend">
-            <span className="tt-legend-item tt-sport">Sports</span>
+            <span className="tt-legend-item tt-sport">{t('dos.leaders.catSport')}</span>
             <span className="tt-legend-item tt-arts">Arts</span>
-            <span className="tt-legend-item tt-academic">Academic Clubs</span>
-            <span className="tt-legend-item tt-social">Boarding</span>
-            <span className="tt-legend-item tt-dining">Dining</span>
+            <span className="tt-legend-item tt-academic">{t('timetable.copy.academicClubs')}</span>
+            <span className="tt-legend-item tt-social">{t('nav.boarding')}</span>
+            <span className="tt-legend-item tt-dining">{t('nav.dining')}</span>
         </div>
     )
 }
@@ -353,6 +357,7 @@ export function Timetable({
     onMoveSlot   = null,
     shortcuts    = true,
 }) {
+    const { t } = useTranslation()
     /* A teacher's rows are pivoted into the academic grid's shape once per
        change, not per render — the tone map and home room downstream are
        memoised on schedule identity, so a fresh object every render would
@@ -445,7 +450,7 @@ export function Timetable({
             )}
 
             {type === 'teacher' && teacherPeriods.length === 0 ? (
-                <p className="tt-note">No lessons scheduled for this term yet.</p>
+                <p className="tt-note">{t('timetable.copy.noLessonsScheduledForThisTermYet')}</p>
             ) : type === 'teacher' ? (
                 <AcademicTimetable
                     {...shared}

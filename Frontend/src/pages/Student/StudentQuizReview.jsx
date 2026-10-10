@@ -88,7 +88,7 @@ export function StudentQuizReview() {
             <div className="sqz-error-wrap">
                 <p className="sqz-review-err">{error}</p>
                 <button className="btn btn-primary" onClick={() => navigate('/student/assignments')}>
-                    Back to Assignments
+                    {t('student.copy.backToAssignments')}
                 </button>
             </div>
         )
@@ -102,7 +102,7 @@ export function StudentQuizReview() {
             <button className="btn btn-outline btn-sm u-mb"
                 onClick={() => navigate('/student/assignments')}>
                 <span className="material-symbols-rounded icon-sm" aria-hidden="true">arrow_back</span>
-                Back to Assignments
+                {t('student.copy.backToAssignments')}
             </button>
 
             <div className="sqz-review-card">

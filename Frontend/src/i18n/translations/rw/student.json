@@ -155,5 +155,14 @@
     "subtitle": "Gahunda y'icyumweru",
     "subtitleWithClass": "Gahunda y'icyumweru y'ishuri {{class}}",
     "title": "Gahunda yanjye"
+  },
+  "copy": {
+    "backToAssignments": "Subira ku mikoro",
+    "exit": "Sohoka",
+    "issuedBy": "Byatanzwe na",
+    "oneQuestionAtATimeOnceYouMoveOnYouCannotGo": "Ikibazo kimwe icyarimwe. Numara gukomeza ntushobora gusubira inyuma ngo uhindure igisubizo.",
+    "questionReview": "Isubiramo ry'ibibazo",
+    "submittedLate": "Byoherejwe bitinze",
+    "timeIsUpYourAnswersHaveBeenSubmittedAutoma": "Igihe cyarangiye! Ibisubizo byawe byoherejwe mu buryo bwikora."
   }
 }

@@ -328,5 +328,22 @@
   "yearGroups": "Inzego z'imyaka",
   "yes": "Yego",
   "yesDelete": "Yego, siba",
-  "yesterday": "Ejo hashize"
+  "yesterday": "Ejo hashize",
+  "copy": {
+    "clearSearch": "Siba ibyashakishijwe",
+    "dismissNotification": "Siba integuza",
+    "goHome": "Subira ku ntangiriro",
+    "loading": "Birimo gukorwa",
+    "skipToMainContent": "Simbukira ku bikubiyemo",
+    "tryAgain": "Ongera ugerageze",
+    "unexpectedError": "Habaye ikosa tutari twiteze kandi urupapuro ntirwashoboye kugaragara. Itsinda ryacu ryamenyeshejwe. Ushobora kongera kugerageza cyangwa gusubiramo urupapuro.",
+    "yourProfile": "Umwirondoro wawe"
+  },
+  "palette": {
+    "open": "Shakisha urupapuro (Ctrl+K)",
+    "title": "Jya ku rupapuro",
+    "placeholder": "Shakisha urupapuro…",
+    "noResults": "Nta rupapuro ruhuye.",
+    "hint": "↑ ↓ kugenda · Enter gufungura · Esc gufunga"
+  }
 }
