@@ -166,7 +166,7 @@ export function AdminDashboard() {
                                     {loading ? (
                                         <SkeletonActivity />
                                     ) : activities.length === 0 ? (
-                                        <EmptyState icon="history" title={t('admin.dashboard.noRecentActivity')} />
+                                        <EmptyState compact icon="history" title={t('admin.dashboard.noRecentActivity')} />
                                     ) : (
                                         activities.map((item, i) => {
                                             const meta = ACTIVITY_ICON[item.activity_type] || { icon: 'info', cls: 'info' }

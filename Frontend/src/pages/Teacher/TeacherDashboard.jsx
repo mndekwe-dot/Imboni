@@ -7,6 +7,7 @@ import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { WelcomeBanner } from '../../components/layout/WelcomeBanner'
 import { StatCard } from '../../components/layout/StatCard'
+import { EmptyState } from '../../components/ui/EmptyState'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { teacherNavItems, teacherSecondaryItems } from './teacherNav'
 import { classLabel } from '../../utils/classes'
@@ -396,7 +397,7 @@ export function TeacherDashboard() {
                                         </div>
                                         <div className="card-content">
                                             {schedule.length === 0 ? (
-                                                <p className="u-muted">{t('teacher.dashboard.noClassesToday')}</p>
+                                                <EmptyState compact icon="event_available" title={t('teacher.dashboard.noClassesToday')} />
                                             ) : schedule.map((slot, i) => {
                                                 const meta  = slotMeta(slot.status)
                                                 const start = slot.start_time?.slice(0, 5) || ''
@@ -439,7 +440,7 @@ export function TeacherDashboard() {
                                         </div>
                                         <div className="card-content">
                                             {pendingTasks.length === 0 ? (
-                                                <p className="u-muted">{t('teacher.dashboard.noPendingTasks')}</p>
+                                                <EmptyState compact icon="task_alt" title={t('teacher.dashboard.noPendingTasks')} />
                                             ) : pendingTasks.map((task, i) => (
                                                 <TaskCard
                                                     key={task.id ?? i}
@@ -462,7 +463,7 @@ export function TeacherDashboard() {
                                         </div>
                                         <div className="card-content">
                                             {performance.length === 0 ? (
-                                                <p className="u-muted">{t('teacher.dashboard.noPerformance')}</p>
+                                                <EmptyState compact icon="bar_chart" title={t('teacher.dashboard.noPerformance')} />
                                             ) : (
                                                 <>
                                                     <ResponsiveContainer width="100%" height={220}>
@@ -507,7 +508,7 @@ export function TeacherDashboard() {
                                                 </p>
                                             )}
                                             {activities.length === 0 && !loadError ? (
-                                                <p className="u-muted">{t('teacher.dashboard.noRecentActivity')}</p>
+                                                <EmptyState compact icon="history" title={t('teacher.dashboard.noRecentActivity')} />
                                             ) : activities.map((a, i) => {
                                                 const { iconClass, icon } = ACTIVITY_ICONS[a.activity_type] || { iconClass: '', icon: 'notifications' }
                                                 return (

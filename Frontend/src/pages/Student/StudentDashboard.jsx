@@ -5,6 +5,7 @@ import { Sidebar } from '../../components/layout/Sidebar'
 import { DashboardHeader } from '../../components/layout/DashboardHeader'
 import { useNotifications } from '../../hooks/useNotifications'
 import { StatCard } from '../../components/layout/StatCard'
+import { EmptyState } from '../../components/ui/EmptyState'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { studentNavItems, studentSecondaryItems } from './studentNav'
 import { getStudentProfile, getStudentDashboard } from '../../api/student'
@@ -204,7 +205,7 @@ export function StudentDashboard() {
                                     {loading ? (
                                         <SkeletonList items={3} />
                                     ) : todaySchedule.length === 0 ? (
-                                        <p className="att-empty">{t('student.dashboard.noClassesToday')}</p>
+                                        <EmptyState compact icon="event_available" title={t('student.dashboard.noClassesToday')} />
                                     ) : (
                                         todaySchedule.map((slot, i) => <ScheduleSlot key={i} {...slot} />)
                                     )}
@@ -220,7 +221,7 @@ export function StudentDashboard() {
                                 {loading ? (
                                     <SkeletonList items={3} />
                                 ) : upcomingAssignments.length === 0 ? (
-                                    <p className="att-empty">{t('student.dashboard.noUpcomingAssignments')}</p>
+                                    <EmptyState compact icon="task_alt" title={t('student.dashboard.noUpcomingAssignments')} />
                                 ) : (
                                     upcomingAssignments.map((item, i) => <AssignItem key={i} {...item} />)
                                 )}
