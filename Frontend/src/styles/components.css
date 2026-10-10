@@ -3513,3 +3513,14 @@ h1, h2, h3,
 
 /* A vertical stack of form fields. Was in admin.css while three DOS pages used it. */
 .settings-form { display: flex; flex-direction: column; gap: 1rem; }
+
+/* ── Stat tiles on a phone ───────────────────────────────────────
+   Two tiles across at 390px left the figure about 90px: "95.5%" broke onto
+   two lines ("95.5" / "%") and the label wrapped under it. The icon now sits
+   above the figure instead of beside it, so the number gets the full width
+   of the tile and never splits. */
+@media (max-width: 640px) {
+  .portal-stat-card { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+  .portal-stat-value { white-space: nowrap; }
+  .portal-stat-value.is-word { white-space: normal; }
+}

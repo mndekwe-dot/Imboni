@@ -263,39 +263,28 @@ export function DosDashboard() {
                             role={bannerRole(t, t('roles.dos'), setting.school_name)}
                         />
 
+                        <div className="quick-actions" role="group" aria-label={t('dos.dashboard.quickActions')}>
+                            <button className="btn btn-primary" onClick={() => navigate('/dos/results')}>
+                                <span className="material-symbols-rounded" aria-hidden="true">fact_check</span>
+                                {t('dos.dashboard.approveResults')}
+                            </button>
+                            <button className="btn btn-outline" onClick={() => navigate('/dos/teachers')}>
+                                <span className="material-symbols-rounded" aria-hidden="true">school</span>
+                                {t('dos.dashboard.viewTeachers')}
+                            </button>
+                            <button className="btn btn-outline" onClick={() => navigate('/dos/students')}>
+                                <span className="material-symbols-rounded" aria-hidden="true">people</span>
+                                {t('dos.dashboard.manageStudents')}
+                            </button>
+                        </div>
+
                         <div className="portal-stat-grid">
                             {dosStats.map((s, i) => <StatCard key={i} {...s} />)}
                         </div>
 
-                        {/* One container for all three cards */}
-                        <div className="overview-panel">
-                            <div className="overview-panel-header">
-                                <span className="overview-panel-title">{t('dos.dashboard.overview')}</span>
-                            </div>
-
-                            <div className="cards-grid overview-panel-body">
-                                <div className="card">
-                                    <div className="card-header">
-                                        <h2 className="card-title">{t('dos.dashboard.quickActions')}</h2>
-                                    </div>
-                                    <div className="card-content">
-                                        <div className="action-buttons">
-                                            <button className="btn btn-primary" onClick={() => navigate('/dos/results')}>
-                                                <span className="material-symbols-rounded" aria-hidden="true">fact_check</span>
-                                                {t('dos.dashboard.approveResults')}
-                                            </button>
-                                            <button className="btn btn-secondary" onClick={() => navigate('/dos/teachers')}>
-                                                <span className="material-symbols-rounded" aria-hidden="true">school</span>
-                                                {t('dos.dashboard.viewTeachers')}
-                                            </button>
-                                            <button className="btn btn-secondary" onClick={() => navigate('/dos/students')}>
-                                                <span className="material-symbols-rounded" aria-hidden="true">people</span>
-                                                {t('dos.dashboard.manageStudents')}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-
+                        {/* Cards straight on the page: a card inside a card inside the
+                            page read as three layers of chrome for two pieces of content. */}
+                        <div className="cards-grid">
                                 <div className="card">
                                     <div className="card-header">
                                         <h2 className="card-title">{t('dos.dashboard.recentActivity')}</h2>
@@ -400,7 +389,6 @@ export function DosDashboard() {
                                     </div>
                                 </div>
                             </div>
-                        </div>{/* end outer container */}
 
                         {/* Failing or frequently absent students, worst first */}
                         <StudentsNeedingAttention limit={5} seeAllTo="/dos/results?tab=analytics" />

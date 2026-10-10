@@ -20,9 +20,30 @@
     "subtitle": "Cunga ifatabuguzi na gahunda y'ikigo cyawe"
   },
   "dashboard": {
+    "activeTeachers": "Abarimu bakora",
+    "attendance": "Kwitabira",
+    "avgPerformance": "Impuzandengo y'amanota",
+    "keyIndicators": "Ibipimo by'ingenzi ({{term}})",
+    "legendExcellent": "≥ 90% Byiza cyane",
+    "legendGood": "75-89% Byiza",
+    "legendNeeds": "< 75% Bikeneye kwitabwaho",
+    "manageStaff": "Gucunga abakozi",
+    "newThisTerm": "+{{count}} muri iki gihembwe",
+    "noRecentActivity": "Nta byakozwe vuba.",
+    "pendingApprovals": "Ibitegereje kwemezwa",
+    "postAnnouncement": "Gutangaza itangazo",
+    "recentActivity": "Ibyakozwe vuba",
+    "requiresAction": "Bisaba igikorwa",
+    "schoolAvg": "Impuzandengo y'ikigo",
+    "schoolOverview": "Incamake y'ikigo",
     "subtitle": "Incamake y'ikigo cyose",
     "subtitleWithTerm": "Incamake y'ikigo cyose ({{term}}, {{year}})",
-    "title": "Imbonerahamwe y'ubuyobozi"
+    "teachingStaff": "Abarimu",
+    "title": "Imbonerahamwe y'ubuyobozi",
+    "totalStudents": "Abanyeshuri bose",
+    "viewReports": "Reba raporo",
+    "viewStudents": "Reba abanyeshuri",
+    "vsPrevTerm": "{{value}}% ugereranyije n'igihembwe gishize"
   },
   "messages": {
     "subtitle": "Vugana n'abakozi, abayobozi b'inzego n'ababyeyi"

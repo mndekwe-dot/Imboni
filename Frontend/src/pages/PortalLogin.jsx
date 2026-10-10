@@ -191,12 +191,16 @@ export function PortalLogin({ portal, icon, placeholder, redirectTo }) {
                             ? <img src={schoolLogo} alt={schoolName || ''} />
                             : <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>}
                     </div>
-                    <div className="portal-login-badge">
-                        <div className="portal-login-badge-icon">
-                            <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>
+                    {/* Which portal this is. With no school name the heading below
+                        already says it, so the pill would repeat it a third time. */}
+                    {schoolName && (
+                        <div className="portal-login-badge">
+                            <div className="portal-login-badge-icon">
+                                <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>
+                            </div>
+                            <span>{label}</span>
                         </div>
-                        <span>{label}</span>
-                    </div>
+                    )}
                     <h1 className="login-heading">{schoolName || label}</h1>
                 </div>
 

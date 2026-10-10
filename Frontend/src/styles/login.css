@@ -554,3 +554,28 @@
   .login-card { padding: 2rem 1.25rem; border-radius: 16px; }
   .login-heading { font-size: 1.4rem; }
 }
+
+/* ── 2026 polish ─────────────────────────────────────────────────
+   Three things a review of the sign-in screen found:
+   - the purple end of the button gradient was the only purple in a blue
+     product, and white-on-blue-glass beneath it was the weakest contrast
+     on the page; a white button with the brand blue reads as THE action;
+   - placeholders at 0.4 alpha were close to invisible on the glass;
+   - the field groups sat almost touching: the Password label hugged the
+     Email box above it. */
+.login-card .form-group { margin-bottom: 1.1rem; }
+.login-card .form-input::placeholder { color: rgba(255, 255, 255, 0.72); }
+.login-btn {
+  background: #ffffff;
+  color: #0f3d73;
+  box-shadow: 0 6px 20px rgba(8, 28, 56, 0.28), 0 2px 6px rgba(8, 28, 56, 0.18);
+}
+.login-btn::before { display: none; }
+@media (hover: hover) and (pointer: fine) {
+  .login-btn:hover:not(:disabled) {
+    background: #f1f6fc;
+    filter: none;
+    box-shadow: 0 10px 26px rgba(8, 28, 56, 0.34), 0 3px 8px rgba(8, 28, 56, 0.2);
+  }
+}
+.login-btn:focus-visible { outline: 3px solid rgba(255, 255, 255, 0.75); outline-offset: 3px; }

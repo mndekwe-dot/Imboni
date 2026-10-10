@@ -199,12 +199,16 @@
 /* Full-bleed accent block at the top of every page competes with
    the page title for first read. Tinted, it introduces the page
    without shouting over it. */
+/* The tinted box with a waving hand read as a 2015 "welcome back" strip, and
+   it repeated the name already shown top-right. Now the greeting is just the
+   first line of the page: no box, no icon, the role underneath and the role
+   badge kept as a quiet pill on the right. */
 [data-portal] .welcome-banner {
-  background: var(--primary-surface);
+  background: transparent;
   color: var(--foreground);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: var(--space-5) var(--space-6);
+  border: 0;
+  border-radius: 0;
+  padding: var(--space-1) 0;
   margin-bottom: 0;
 }
 [data-portal] .welcome-banner::before { display: none; }
@@ -236,10 +240,7 @@
   border-radius: var(--radius-full);
   font-size: var(--text-caption);
 }
-[data-portal] .welcome-banner-icon {
-  color: var(--primary);
-  opacity: 0.45;
-}
+[data-portal] .welcome-banner-icon { display: none; }
 
 /* ── 5. Cards ────────────────────────────────────────────── */
 

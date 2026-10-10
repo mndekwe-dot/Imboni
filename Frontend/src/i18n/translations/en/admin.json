@@ -20,9 +20,30 @@
     "subtitle": "Manage your school's subscription and plan"
   },
   "dashboard": {
+    "activeTeachers": "Active teachers",
+    "attendance": "Attendance",
+    "avgPerformance": "Avg Performance",
+    "keyIndicators": "Key indicators ({{term}})",
+    "legendExcellent": "≥ 90% Excellent",
+    "legendGood": "75-89% Good",
+    "legendNeeds": "< 75% Needs attention",
+    "manageStaff": "Manage Staff",
+    "newThisTerm": "+{{count}} this term",
+    "noRecentActivity": "No recent activity.",
+    "pendingApprovals": "Pending Approvals",
+    "postAnnouncement": "Post Announcement",
+    "recentActivity": "Recent Activity",
+    "requiresAction": "Requires action",
+    "schoolAvg": "School Avg",
+    "schoolOverview": "School Overview",
     "subtitle": "School-wide overview",
     "subtitleWithTerm": "School-wide overview ({{term}}, {{year}})",
-    "title": "Admin Dashboard"
+    "teachingStaff": "Teaching Staff",
+    "title": "Admin Dashboard",
+    "totalStudents": "Total Students",
+    "viewReports": "View Reports",
+    "viewStudents": "View Students",
+    "vsPrevTerm": "{{value}}% vs prev term"
   },
   "messages": {
     "subtitle": "Communicate with staff, department heads and parents"

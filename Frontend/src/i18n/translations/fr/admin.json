@@ -20,9 +20,30 @@
     "subtitle": "Gérez l'abonnement et la formule de votre école"
   },
   "dashboard": {
+    "activeTeachers": "Enseignants actifs",
+    "attendance": "Présence",
+    "avgPerformance": "Performance moyenne",
+    "keyIndicators": "Indicateurs clés ({{term}})",
+    "legendExcellent": "≥ 90 % Excellent",
+    "legendGood": "75-89 % Bon",
+    "legendNeeds": "< 75 % À surveiller",
+    "manageStaff": "Gérer le personnel",
+    "newThisTerm": "+{{count}} ce trimestre",
+    "noRecentActivity": "Aucune activité récente.",
+    "pendingApprovals": "Approbations en attente",
+    "postAnnouncement": "Publier une annonce",
+    "recentActivity": "Activité récente",
+    "requiresAction": "Action requise",
+    "schoolAvg": "Moyenne de l'école",
+    "schoolOverview": "Vue d'ensemble de l'école",
     "subtitle": "Vue d'ensemble de l'école",
     "subtitleWithTerm": "Vue d'ensemble de l'école ({{term}}, {{year}})",
-    "title": "Tableau de bord administrateur"
+    "teachingStaff": "Personnel enseignant",
+    "title": "Tableau de bord administrateur",
+    "totalStudents": "Total des élèves",
+    "viewReports": "Voir les rapports",
+    "viewStudents": "Voir les élèves",
+    "vsPrevTerm": "{{value}} % vs trimestre précédent"
   },
   "messages": {
     "subtitle": "Échangez avec le personnel, les chefs de département et les parents"
