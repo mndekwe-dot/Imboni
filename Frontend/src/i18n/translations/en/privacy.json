@@ -34,5 +34,24 @@
   "rightsTitle": "Your rights",
   "subtitle": "How Imboni handles the information schools trust us with.",
   "title": "Privacy and data protection",
-  "translationNotice": "This is a translation. Where the two versions differ, the English version prevails."
+  "translationNotice": "This is a translation. Where the two versions differ, the English version prevails.",
+  "glanceTitle": "At a glance",
+  "glance": {
+    "separate": {
+      "title": "Each school is separate",
+      "body": "Every school has its own database schema, so one school's records are never in the same tables as another's."
+    },
+    "roles": {
+      "title": "Access follows the role",
+      "body": "Teachers, parents, pupils and staff see only what their role needs, enforced on the server."
+    },
+    "nothing": {
+      "title": "Nothing sold, nothing leaked",
+      "body": "We don't sell personal data, and error reports never include grades, health notes or sign-in tokens."
+    },
+    "protected": {
+      "title": "Encrypted and backed up",
+      "body": "Traffic is encrypted with TLS, passwords are one-way hashes, and the database is backed up every night."
+    }
+  }
 }

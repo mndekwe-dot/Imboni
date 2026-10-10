@@ -20,10 +20,37 @@ import { PublicLayout } from '../components/PublicLayout'
  *   erasure               manage.py erase_user_data
  * Do not add a claim here that is not true of the running system.
  *
+ * Laid out like the other public pages: a short summary of the four things a
+ * parent most wants to know, as cards, then the detail underneath.
+ *
  * The Kinyarwanda text is a translation of the English, which is the version
  * that governs. Readers are told so at the foot of the page whenever they are
  * not reading the English.
  */
+const GLANCE = [
+    { key: 'separate', icon: 'lock' },
+    { key: 'roles', icon: 'admin_panel_settings' },
+    { key: 'nothing', icon: 'visibility_off' },
+    { key: 'protected', icon: 'backup' },
+]
+
+const ACCESS = ['accessTeachers', 'accessDos', 'accessMatron', 'accessDis', 'accessParents', 'accessPupils']
+const PROTECTED = ['protectTls', 'protectHash', 'protectTwoFactor', 'protectThrottle', 'protectBackup']
+
+function Checks({ keys }) {
+    const { t } = useTranslation()
+    return (
+        <ul className="pub-checks">
+            {keys.map(key => (
+                <li key={key}>
+                    <span className="material-symbols-rounded" aria-hidden="true">task_alt</span>
+                    <span>{t(`privacy.${key}`)}</span>
+                </li>
+            ))}
+        </ul>
+    )
+}
+
 export function Privacy() {
     const { t, i18n } = useTranslation()
 
@@ -33,8 +60,23 @@ export function Privacy() {
             subtitle={t('privacy.subtitle')}
         >
             <div className="pub-prose">
-                <p className="pub-updated">{t('privacy.intro')}</p>
+                <p className="pub-lead">{t('privacy.intro')}</p>
+            </div>
 
+            <div className="pub-prose">
+                <h2>{t('privacy.glanceTitle')}</h2>
+            </div>
+            <div className="pub-values pub-values-2">
+                {GLANCE.map(item => (
+                    <div className="pub-value" key={item.key}>
+                        <span className="material-symbols-rounded" aria-hidden="true">{item.icon}</span>
+                        <h3>{t(`privacy.glance.${item.key}.title`)}</h3>
+                        <p>{t(`privacy.glance.${item.key}.body`)}</p>
+                    </div>
+                ))}
+            </div>
+
+            <div className="pub-prose">
                 <h2>{t('privacy.holdsTitle')}</h2>
                 <p>{t('privacy.holdsBody')}</p>
 
@@ -42,14 +84,7 @@ export function Privacy() {
                 <p>{t('privacy.isolationBody')}</p>
 
                 <h2>{t('privacy.accessTitle')}</h2>
-                <ul>
-                    <li>{t('privacy.accessTeachers')}</li>
-                    <li>{t('privacy.accessDos')}</li>
-                    <li>{t('privacy.accessMatron')}</li>
-                    <li>{t('privacy.accessDis')}</li>
-                    <li>{t('privacy.accessParents')}</li>
-                    <li>{t('privacy.accessPupils')}</li>
-                </ul>
+                <Checks keys={ACCESS} />
                 <p>{t('privacy.accessNote')}</p>
 
                 <h2>{t('privacy.notCollectTitle')}</h2>
@@ -57,13 +92,7 @@ export function Privacy() {
                 <p>{t('privacy.notSell')}</p>
 
                 <h2>{t('privacy.protectedTitle')}</h2>
-                <ul>
-                    <li>{t('privacy.protectTls')}</li>
-                    <li>{t('privacy.protectHash')}</li>
-                    <li>{t('privacy.protectTwoFactor')}</li>
-                    <li>{t('privacy.protectThrottle')}</li>
-                    <li>{t('privacy.protectBackup')}</li>
-                </ul>
+                <Checks keys={PROTECTED} />
 
                 <h2>{t('privacy.childrenTitle')}</h2>
                 <p>{t('privacy.childrenBody')}</p>
@@ -81,10 +110,10 @@ export function Privacy() {
                 <h2>{t('privacy.changesTitle')}</h2>
                 <p>{t('privacy.changesBody')}</p>
 
-                <p className="pub-updated">{t('privacy.closing')}</p>
+                <p className="pub-note">{t('privacy.closing')}</p>
 
                 {i18n.language !== 'en' && (
-                    <p className="pub-updated">{t('privacy.translationNotice')}</p>
+                    <p className="pub-note">{t('privacy.translationNotice')}</p>
                 )}
             </div>
         </PublicLayout>

@@ -34,5 +34,24 @@
   "rightsTitle": "Vos droits",
   "subtitle": "Comment Imboni traite les informations que les écoles nous confient.",
   "title": "Confidentialité et protection des données",
-  "translationNotice": "Ceci est une traduction. En cas de divergence entre les deux versions, la version anglaise prévaut."
+  "translationNotice": "Ceci est une traduction. En cas de divergence entre les deux versions, la version anglaise prévaut.",
+  "glanceTitle": "En un coup d’œil",
+  "glance": {
+    "separate": {
+      "title": "Chaque école est séparée",
+      "body": "Chaque école dispose de son propre schéma de base de données : ses dossiers ne se trouvent jamais dans les mêmes tables que ceux d’une autre."
+    },
+    "roles": {
+      "title": "L’accès suit le rôle",
+      "body": "Enseignants, parents, élèves et personnel ne voient que ce que leur rôle exige, et cela est appliqué côté serveur."
+    },
+    "nothing": {
+      "title": "Rien n’est vendu, rien ne fuit",
+      "body": "Nous ne vendons pas les données personnelles, et les rapports d’erreur n’incluent jamais notes, informations de santé ni jetons de connexion."
+    },
+    "protected": {
+      "title": "Chiffré et sauvegardé",
+      "body": "Le trafic est chiffré par TLS, les mots de passe sont des empreintes irréversibles et la base de données est sauvegardée chaque nuit."
+    }
+  }
 }

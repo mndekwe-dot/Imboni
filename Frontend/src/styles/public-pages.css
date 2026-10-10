@@ -151,8 +151,61 @@
 .pub-updated {
     font-size: var(--text-body);
     color: var(--text-muted, #6b7280);
-    padding-left: .75rem;
 }
+
+/* A page's opening summary, set apart from the body text under it. */
+.pub-lead {
+    font-size: var(--text-body);
+    line-height: 1.7;
+    color: var(--foreground);
+    background: var(--surface-2, #f4f7fb);
+    border: 1px solid var(--border, #e5e7eb);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin: 0;
+}
+
+/* Separate paragraphs and lists breathe: the prose block sets no margins. */
+.pub-prose p + p,
+.pub-prose ul + p,
+.pub-prose p + ul { margin-top: .75rem; }
+
+/* A statement that is a list of facts, with a mark per line. */
+.pub-prose .pub-checks {
+    list-style: none;
+    padding-left: 0;
+    margin: .5rem 0 0;
+}
+
+/* Four cards sit as two by two at reading width, not three and one left over. */
+.pub-values.pub-values-2 {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+}
+@media (max-width: 600px) { .pub-values.pub-values-2 { grid-template-columns: 1fr; } }
+.pub-checks li {
+    display: flex;
+    gap: .6rem;
+    align-items: flex-start;
+}
+.pub-checks .material-symbols-rounded {
+    color: var(--success-text, var(--primary));
+    font-size: var(--icon-sm);
+    margin-top: .2em;
+    flex: none;
+}
+
+/* The small print: a closing disclaimer or a translation notice. */
+.pub-note {
+    font-size: var(--text-sm);
+    color: var(--muted-foreground, #6b7280);
+    border-top: 1px solid var(--border, #e5e7eb);
+    padding-top: 1rem;
+    margin-top: 2rem;
+}
+.pub-note + .pub-note { border-top: none; padding-top: 0; margin-top: .5rem; }
 
 /* ── Pricing ───────────────────────────────────────────────────────────── */
 

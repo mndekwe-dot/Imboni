@@ -34,5 +34,24 @@
   "rightsTitle": "Uburenganzira bwawe",
   "subtitle": "Uko Imboni ifata amakuru ibigo biduha byizeye.",
   "title": "Ibanga n'irinda ry'amakuru",
-  "translationNotice": "Iyi ni ubuhinduzi. Igihe habaye ukutumvikana hagati y'indimi, inyandiko y'Icyongereza ni yo ifite agaciro."
+  "translationNotice": "Iyi ni ubuhinduzi. Igihe habaye ukutumvikana hagati y'indimi, inyandiko y'Icyongereza ni yo ifite agaciro.",
+  "glanceTitle": "Muri make",
+  "glance": {
+    "separate": {
+      "title": "Buri shuri ryigenga",
+      "body": "Buri shuri rifite urubuga rwaryo rw’amakuru, bityo amakuru y’ishuri rimwe ntajya ahurira mu mbonerahamwe n’ay’irindi."
+    },
+    "roles": {
+      "title": "Uburenganzira bukurikira inshingano",
+      "body": "Abarimu, ababyeyi, abanyeshuri n’abakozi babona gusa ibyo inshingano yabo ikeneye, kandi ibi bishyirwa mu bikorwa kuri seriveri."
+    },
+    "nothing": {
+      "title": "Nta kigurishwa, nta kimeneka",
+      "body": "Ntitugurisha amakuru bwite, kandi raporo z’amakosa ntizigera zirimo amanota, ibijyanye n’ubuzima cyangwa ibimenyetso byo kwinjira."
+    },
+    "protected": {
+      "title": "Byahishwe kandi bibitswe",
+      "body": "Amakuru yoherezwa ahishwe na TLS, ijambobanga ribikwa ridasubirwamo, kandi ububiko bw’amakuru bubikwa buri joro."
+    }
+  }
 }
