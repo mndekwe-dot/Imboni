@@ -261,6 +261,15 @@ class SchoolSetting(models.Model):
     # Off by default: a school that does not ask for a deposit sees no change.
     hold_enrolment_until_deposit = models.BooleanField(default=False)
 
+    # Fee reminders the school has asked to go out on their own. Off by default:
+    # a message about money to every family should be a decision somebody made,
+    # not something a new school discovers. In-app and email only, never SMS,
+    # because SMS costs per message and an automatic job has nobody to say stop.
+    auto_fee_reminders = models.BooleanField(default=False)
+    fee_reminder_min_percent = models.PositiveSmallIntegerField(default=50)
+    fee_reminder_every_days = models.PositiveSmallIntegerField(default=14)
+    fee_reminders_last_sent = models.DateTimeField(null=True, blank=True)
+
     class Meta:
         db_table= 'school_setting'
 

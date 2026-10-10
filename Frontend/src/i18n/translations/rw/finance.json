@@ -519,6 +519,18 @@
     "active": "Rirakora"
   },
   "reminders": {
+    "auto": {
+      "desc": "Ubutumwa busanzwe bwohererezwa ubwabwo imiryango igifite nibura iyi ngano yo kwishyura, mu rubuga no kuri imeri. Ntibujya kuri SMS.",
+      "enabled": "Wibutsa imiryango mu buryo bwikora",
+      "every": "Ongera wohereze nyuma y'iminsi",
+      "lastSent": "Ibyoherejwe bwa nyuma: {{when}}",
+      "loadFailed": "Ntibyashobotse gukura igenamiterere ryo kwibutsa byikora.",
+      "min": "Imiryango igifite nibura (%) yo kwishyura gusa",
+      "neverSent": "Nta cyoherejwe",
+      "saveFailed": "Ntibyashobotse kuvugurura kwibutsa byikora.",
+      "saved": "Kwibutsa byikora byavuguruwe.",
+      "title": "Ohereza ubwabyo"
+    },
     "open": "Ohereza ibyibutsa",
     "title": "Ibutsa imiryango ifite ibirarane",
     "minPercent": "Ifitiye nibura iki gice (%) cy’amafaranga",

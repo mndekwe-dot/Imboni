@@ -519,6 +519,18 @@
     "active": "En vigueur"
   },
   "reminders": {
+    "auto": {
+      "desc": "Le message par défaut part tout seul vers les familles qui doivent encore au moins cette part, par notification et par e-mail. Jamais par SMS.",
+      "enabled": "Relancer les familles automatiquement",
+      "every": "Renvoyer après (jours)",
+      "lastSent": "Dernier envoi : {{when}}",
+      "loadFailed": "Impossible de charger les réglages des relances automatiques.",
+      "min": "Seulement les familles qui doivent encore au moins (%)",
+      "neverSent": "Pas encore envoyé",
+      "saveFailed": "Impossible de mettre à jour les relances automatiques.",
+      "saved": "Relances automatiques mises à jour.",
+      "title": "Envoyer automatiquement"
+    },
     "open": "Envoyer des rappels",
     "title": "Relancer les familles débitrices",
     "minPercent": "Doit au moins ce % de la facture",

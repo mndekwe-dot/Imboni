@@ -82,6 +82,8 @@ urlpatterns = [
          name='finance-statement-match'),
     path('finance/reconcile/statement/apply/', views.StatementApplyView.as_view(),
          name='finance-statement-apply'),
+    path('finance/reminders/auto/', views.AutoRemindersView.as_view(),
+         name='finance-reminders-auto'),
     path('finance/reminders/send/', views.RemindersSendView.as_view(),
          name='finance-reminders-send'),
     path('finance/reminders/', views.RemindersDocumentView.as_view(),

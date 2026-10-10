@@ -667,8 +667,17 @@ def _families_owing(request, term):
     fees = Fee.objects.select_related('student__user').prefetch_related('payments')
     if term is not None:
         fees = fees.filter(term=term)
-    fees = student_filters(fees, request)
+    return families_from_fees(student_filters(fees, request))
 
+
+def families_from_fees(fees):
+    """
+    Group fee lines into one row per student who still owes, largest first.
+
+    Split out of ``_families_owing`` so the scheduled reminder job, which has no
+    request and no class picker, counts "owes" exactly as the bursar's screen
+    and the printed letters do.
+    """
     families = {}
     for fee in fees:
         if fee.student is None:
@@ -786,6 +795,59 @@ class RemindersSendView(BursarView):
               {'min_percent': str(min_percent), 'min_amount': str(min_amount), 'notified': sent})
         return Response({**summary, 'sent': sent, 'reached': reached,
                          'unreachable': len(chosen) - reached})
+
+
+class AutoRemindersView(BursarView):
+    """
+    GET / PATCH /imboni/finance/reminders/auto/
+
+    Whether this school's fee reminders go out on their own, how much a family
+    must still owe to be included, and how many days apart they are sent.
+    """
+
+    def _payload(self, setting):
+        return {
+            'enabled': setting.auto_fee_reminders,
+            'min_percent': setting.fee_reminder_min_percent,
+            'every_days': setting.fee_reminder_every_days,
+            'last_sent': setting.fee_reminders_last_sent,
+        }
+
+    def get(self, request):
+        from apps.dos.models import SchoolSetting
+        return Response(self._payload(SchoolSetting.get_setting()))
+
+    def patch(self, request):
+        from apps.dos.models import SchoolSetting
+        data = request.data
+        setting = SchoolSetting.get_setting()
+        if 'enabled' in data:
+            if not isinstance(data['enabled'], bool):
+                return Response({'detail': 'enabled must be true or false.'}, status=400)
+            setting.auto_fee_reminders = data['enabled']
+        if 'min_percent' in data:
+            try:
+                value = int(data['min_percent'])
+            except (TypeError, ValueError):
+                return Response({'detail': 'The percentage must be a whole number.'}, status=400)
+            if not 0 <= value <= 100:
+                return Response({'detail': 'The percentage must be between 0 and 100.'}, status=400)
+            setting.fee_reminder_min_percent = value
+        if 'every_days' in data:
+            try:
+                value = int(data['every_days'])
+            except (TypeError, ValueError):
+                return Response({'detail': 'The interval must be a whole number of days.'}, status=400)
+            if not 1 <= value <= 90:
+                return Response({'detail': 'Send between every 1 and 90 days.'}, status=400)
+            setting.fee_reminder_every_days = value
+        setting.save()
+        from apps.audit.services import audit
+        audit(request.user, 'finance.auto_reminders_changed', 'automatic fee reminders',
+              {'enabled': setting.auto_fee_reminders,
+               'min_percent': setting.fee_reminder_min_percent,
+               'every_days': setting.fee_reminder_every_days})
+        return Response(self._payload(setting))
 
 
 class StatementMatchView(BursarView):
