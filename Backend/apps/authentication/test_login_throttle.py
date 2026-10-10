@@ -133,3 +133,61 @@ class TestSettings:
         src = (pathlib.Path(__file__).resolve().parents[2] / 'Imboni' / 'settings.py').read_text(encoding='utf-8')
         assert re.search(r"'login':\s+None if TESTING else '60/min'", src)
         assert re.search(r"'login_account':\s+None if TESTING else '3/hour'", src)
+
+
+@pytest.mark.django_db
+class TestAdminUnlock:
+    UNLOCK = '/imboni/auth/unlock/'
+
+    def _lock(self, email):
+        for _ in range(3):
+            attempt(email)
+        assert attempt(email, GOOD).status_code == 429
+
+    def test_an_administrator_can_let_a_locked_account_back_in(self, rates):
+        rates(login='1000/min', login_account='3/hour')
+        UserFactory(email='t@school.test', role='teacher')
+        self._lock('t@school.test')
+
+        admin = APIClient()
+        admin.force_authenticate(UserFactory(role='admin'))
+        r = admin.post(self.UNLOCK, {'email': 'T@school.test'}, format='json')
+
+        assert r.status_code == 200
+        assert attempt('t@school.test', GOOD).status_code == 200
+
+    def test_it_forgives_every_address_not_just_one(self, rates):
+        rates(login='1000/min', login_account='3/hour')
+        UserFactory(email='t@school.test', role='teacher')
+        for _ in range(3):
+            attempt('t@school.test', ip='198.51.100.7')
+        admin = APIClient()
+        admin.force_authenticate(UserFactory(role='admin'))
+        admin.post(self.UNLOCK, {'email': 't@school.test'}, format='json')
+
+        assert attempt('t@school.test', GOOD, ip='198.51.100.7').status_code == 200
+
+    def test_wrong_passwords_after_the_unlock_count_again(self, rates):
+        rates(login='1000/min', login_account='3/hour')
+        UserFactory(email='t@school.test', role='teacher')
+        self._lock('t@school.test')
+        admin = APIClient()
+        admin.force_authenticate(UserFactory(role='admin'))
+        admin.post(self.UNLOCK, {'email': 't@school.test'}, format='json')
+
+        codes = [attempt('t@school.test').status_code for _ in range(4)]
+        assert codes == [401, 401, 401, 429]
+
+    def test_only_an_administrator_may_do_it(self, rates):
+        UserFactory(email='t@school.test', role='teacher')
+        for role in ('teacher', 'dos', 'student', 'parent'):
+            c = APIClient()
+            c.force_authenticate(UserFactory(role=role))
+            assert c.post(self.UNLOCK, {'email': 't@school.test'}, format='json').status_code == 403
+        assert APIClient().post(self.UNLOCK, {'email': 't@school.test'}, format='json').status_code == 401
+
+    def test_an_unknown_address_is_a_404_not_a_silent_success(self, rates):
+        admin = APIClient()
+        admin.force_authenticate(UserFactory(role='admin'))
+        assert admin.post(self.UNLOCK, {'email': 'nobody@school.test'}, format='json').status_code == 404
+        assert admin.post(self.UNLOCK, {}, format='json').status_code == 400

@@ -17,6 +17,7 @@ from .views import (
     TwoFactorSetupView,
     TwoFactorVerifyView,
     TwoFactorDisableView,
+    UnlockSignInView,
 )
 
 
@@ -39,6 +40,7 @@ urlpatterns = router.urls + user_nested_router.urls + [
     path('auth/password-reset/', views.PasswordResetRequestView.as_view(), name='password-reset'),
     path('auth/password-reset/confirm/', views.PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
     # Invitation management
+    path('auth/unlock/', UnlockSignInView.as_view(), name='unlock-signin'),
     path('auth/invite/', SendInvitationView.as_view(),    name='send-invitation'),
     path('auth/invite/bulk/',BulkInviteView.as_view(),        name='bulk-invite'),
     path('auth/invite/csv/', CSVInviteView.as_view(),         name='csv-invite'),

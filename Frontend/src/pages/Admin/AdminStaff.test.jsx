@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, beforeAll } from 'vitest'
 import { renderWithRouter, screen, fireEvent, waitFor, within } from '../../test/test-utils'
 import { AdminStaff } from './AdminStaff'
 import {
-  getAdminTeacherStats, getInvitations, sendInvitation, resendInvitation, cancelInvitation,
+  getAdminTeacherStats, getInvitations, sendInvitation, resendInvitation, cancelInvitation, unlockSignIn,
 } from '../../api/admin'
 import {
   createStaffMember, getDepartments, getStaffMembers, deleteDepartment,
@@ -14,6 +14,7 @@ vi.mock('../../api/admin', () => ({
   sendInvitation: vi.fn(),
   resendInvitation: vi.fn(),
   cancelInvitation: vi.fn(),
+  unlockSignIn: vi.fn(),
 }))
 
 vi.mock('../../api/staff', () => ({
@@ -184,5 +185,27 @@ describe('AdminStaff', () => {
       first_name: 'New', last_name: 'Hire', email: 'new@imboni.test', role: 'teacher',
     })))
     expect(await screen.findByText('Invitation sent!')).toBeInTheDocument()
+  })
+
+  it('lets an administrator unlock a locked-out account by email', async () => {
+    unlockSignIn.mockResolvedValue({ unlocked: true, email: 'locked@imboni.test' })
+    renderWithRouter(<AdminStaff />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Unlock sign-in' }))
+
+    fireEvent.change(screen.getByLabelText('Email Address *'), { target: { value: 'locked@imboni.test' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Unlock' }))
+
+    await waitFor(() => expect(unlockSignIn).toHaveBeenCalledWith('locked@imboni.test'))
+    expect(await screen.findByText('locked@imboni.test can sign in again.')).toBeInTheDocument()
+  })
+
+  it('says why when the account cannot be unlocked', async () => {
+    unlockSignIn.mockRejectedValue({ response: { data: { error: 'No account has that email address.' } } })
+    renderWithRouter(<AdminStaff />)
+    fireEvent.click(await screen.findByRole('button', { name: 'Unlock sign-in' }))
+    fireEvent.change(screen.getByLabelText('Email Address *'), { target: { value: 'nobody@imboni.test' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Unlock' }))
+
+    expect(await screen.findByText('No account has that email address.')).toBeInTheDocument()
   })
 })
