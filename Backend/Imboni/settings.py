@@ -116,6 +116,9 @@ MIDDLEWARE = [
     'apps.tenants.middleware.SubscriptionStatusMiddleware',
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
+    # no-store, an inert CSP and a permissions policy on API answers; see
+    # apps/common/middleware.py for why each is there.
+    'apps.common.middleware.ApiSecurityHeadersMiddleware',
     # WhiteNoise serves static files (Django admin, DRF) straight from gunicorn
     # so a pilot doesn't need a separate nginx static block. Must sit right
     # after SecurityMiddleware.

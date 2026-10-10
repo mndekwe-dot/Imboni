@@ -113,6 +113,10 @@ services:
     # placeholder certificate has to be in place first.
     environment:
       IMBONI_DOMAIN: ${DOMAIN:?set DOMAIN in .env.prod, e.g. imboni.rw}
+      # One extra host the pages may connect to, for browser error
+      # monitoring (e.g. https://o123.ingest.sentry.io). Empty by default:
+      # the Content-Security-Policy then allows this origin only.
+      IMBONI_CSP_CONNECT: ${CSP_CONNECT_EXTRA:-}
       NGINX_ENVSUBST_FILTER: "IMBONI_"
     ports:
       - "80:80"

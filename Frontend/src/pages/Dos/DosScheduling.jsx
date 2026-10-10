@@ -23,7 +23,7 @@ import '../../styles/dos.css'
 import { dosNavItems, dosSecondaryItems } from './dosNav'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { formatDateWithWeekday, formatWeekdayShort, monthName, weekdayShortNames } from '../../utils/date'
-import { PRINT_FONT_STACK, printFontFace } from '../../utils/printFont'
+import { PRINT_FONT_STACK, printFontFace, printWhenFontsReady } from '../../utils/printFont'
 import { useToast } from '../../context/ToastContext'
 import { errorMessage } from '../../utils/errors'
 import { saveWithClashCheck } from '../../utils/examClash'
@@ -592,14 +592,15 @@ tr:nth-child(odd)  td:not(.date-cell) { background:#fff; }
     <span>${t('dos.scheduling.printGenerated', { date: formatDateWithWeekday(new Date()) })}</span>
 </div>
 
-<script>window.onload = function(){ (document.fonts ? document.fonts.ready : Promise.resolve()).then(function(){ window.focus(); window.print(); }); }<\/script>
 </body></html>`
 
         const iframe = printFrameRef.current
         const doc = iframe.contentDocument || iframe.contentWindow.document
         doc.open(); doc.write(html); doc.close()
-        // Fallback timer in case onload already fired
-        setTimeout(() => { try { iframe.contentWindow.focus(); iframe.contentWindow.print() } catch(_){} }, 600)
+        // Printed from here, not by a script inside the sheet: the page's
+        // Content-Security-Policy refuses inline scripts, and the frame
+        // inherits it. Waits for the font so the sheet is not set in a fallback.
+        printWhenFontsReady(iframe.contentWindow).catch(() => {})
     }
 
     // Map date → sorted exams list

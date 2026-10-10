@@ -78,6 +78,9 @@ server {
     root /usr/share/nginx/html;
     index index.html;
 
+    # Do not tell a scanner which nginx build this is.
+    server_tokens off;
+
     access_log /var/log/nginx/access.log imboni_noqs;
 
     # CSV imports and media uploads.
@@ -113,6 +116,28 @@ server {
 
     # ---- SPA: client-side routing fallback ---------------------------------
     location / {
+        # ---- Security headers for the app itself ---------------------------
+        # These sit here, not at server level, on purpose: the API and the
+        # Django admin are proxied and bring their own headers from Django
+        # (SecurityMiddleware, apps.common.middleware). nginx only owns the
+        # pages it serves from disk, and until now those went out bare.
+        #
+        # The policy is strict where it matters: scripts may only come from this
+        # origin, so a script injected into a page cannot run and cannot load
+        # one from elsewhere. Styles keep 'unsafe-inline' because the print
+        # sheets are written into a blank window with their own <style> block;
+        # an injected style cannot read data the way an injected script can.
+        # Nothing may frame the app (clickjacking), and it may only talk to its
+        # own host: the API, and the notification WebSocket.
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "DENY" always;
+        add_header Referrer-Policy "same-origin" always;
+        add_header Cross-Origin-Opener-Policy "same-origin" always;
+        add_header Permissions-Policy "camera=(self), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()" always;
+        # ${IMBONI_CSP_CONNECT} is empty unless error monitoring is on; then it
+        # names the one extra host the browser may report to (CSP_CONNECT_EXTRA).
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' wss://$host ${IMBONI_CSP_CONNECT}; worker-src 'self'; manifest-src 'self'; frame-src 'self' blob:; media-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests" always;
         try_files $uri $uri/ /index.html;
     }
 
