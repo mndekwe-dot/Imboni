@@ -1013,3 +1013,37 @@
 .lp-sub-mb-2   { margin-bottom: 2rem; }
 
 .hero-screenshot { display: block; width: 100%; height: auto; }
+
+/* ── Sign in as … ──────────────────────────────────────────────── */
+.hero-roles {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 1.75rem;
+}
+.hero-roles-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.82);
+  margin-right: 0.25rem;
+}
+.hero-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  backdrop-filter: blur(6px);
+}
+.hero-role .material-symbols-rounded { font-size: var(--icon-sm); }
+.hero-role:focus-visible { outline: 3px solid rgba(255, 255, 255, 0.8); outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) {
+  .hero-role:hover { background: rgba(255, 255, 255, 0.24); }
+}
