@@ -111,6 +111,32 @@ export function LiveMessages({
         loadThread(id)
     }
 
+    /* Keep the thread you are looking at current. The list polls, but the open
+     * thread used to reload only when you selected it or sent something, so a
+     * reply never appeared until you clicked away and back. This re-reads it on
+     * the same cadence, skips the round while the tab is hidden, and only
+     * replaces the messages when something actually arrived so the scroll
+     * position and any selection are left alone. */
+    useEffect(() => {
+        if (!selectedId) return undefined
+        let cancelled = false
+        const timer = setInterval(async () => {
+            if (document.hidden) return
+            try {
+                const data = await getMessages(selectedId)
+                if (cancelled) return
+                const next = Array.isArray(data) ? data : (data?.results ?? [])
+                setMessages(prev => {
+                    const settled = prev.filter(m => !m.pending)
+                    const same = settled.length === next.length
+                        && settled[settled.length - 1]?.id === next[next.length - 1]?.id
+                    return same ? prev : next
+                })
+            } catch { /* the list poll already reports a lost connection */ }
+        }, POLL_MS)
+        return () => { cancelled = true; clearInterval(timer) }
+    }, [selectedId])
+
     /* Arriving with someone already in mind: `?with=<user id>`.
      *
      * A "Message" button elsewhere in the app (a staff card, a class list) used
@@ -146,6 +172,16 @@ export function LiveMessages({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [openWith])
 
+    /* Arriving from a "new message" notification: `?conversation=<id>` opens
+     * that thread once the list has loaded, then drops the parameter. */
+    const openConversation = searchParams.get('conversation')
+    useEffect(() => {
+        if (!openConversation || selectedId || loadingConvs) return
+        if (conversations.some(c => c.id === openConversation)) selectConversation(openConversation)
+        setSearchParams({}, { replace: true })
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [openConversation, loadingConvs, conversations])
+
     // Keep the thread scrolled to the newest message
     useEffect(() => {
         if (threadBodyRef.current) {
@@ -156,12 +192,23 @@ export function LiveMessages({
     async function handleSend() {
         const content = draft.trim()
         if (!content || !selectedId || sending) return
+        /* Show it at once and clear the box; the thread is re-read from the
+         * server afterwards so the real id and time replace the placeholder.
+         * If the send fails the placeholder goes and the text comes back, so
+         * nothing the person typed is lost. */
+        const pendingId = `pending-${Date.now()}`
+        setMessages(prev => [...prev, {
+            id: pendingId, content, is_mine: true, pending: true,
+            created_at: new Date().toISOString(),
+        }])
+        setDraft('')
         setSending(true)
         try {
             await sendMessage(selectedId, content)
-            setDraft('')
             await loadThread(selectedId)
         } catch {
+            setMessages(prev => prev.filter(m => m.id !== pendingId))
+            setDraft(content)
             setError('Message not sent. Try again.')
         } finally {
             setSending(false)

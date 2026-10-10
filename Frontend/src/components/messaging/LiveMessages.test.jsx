@@ -106,3 +106,58 @@ describe('LiveMessages', () => {
     await waitFor(() => expect(screen.getByText(/Could not load messages/)).toBeInTheDocument())
   })
 })
+
+describe('LiveMessages: sending and arriving', () => {
+  it('shows your message at once, before the server has answered', async () => {
+    getConversations.mockResolvedValue(CONVERSATIONS)
+    getMessages.mockResolvedValue(THREAD)
+    sendMessage.mockReturnValue(new Promise(() => {}))
+    renderWithRouter(<LiveMessages {...nav} />)
+    await waitFor(() => expect(screen.getByText('Grace Uwase')).toBeInTheDocument())
+    fireEvent.click(screen.getByText('Please see me after class'))
+    await screen.findByText('Hello there')
+
+    const input = screen.getByPlaceholderText('Type your message…')
+    fireEvent.change(input, { target: { value: 'On my way' } })
+    fireEvent.click(screen.getByRole('button', { name: /Send/i }))
+
+    expect(await screen.findByText('On my way')).toBeInTheDocument()
+    expect(input).toHaveValue('')
+  })
+
+  it('takes a failed message back off and returns the text to the box', async () => {
+    getConversations.mockResolvedValue(CONVERSATIONS)
+    getMessages.mockResolvedValue(THREAD)
+    sendMessage.mockRejectedValue(new Error('offline'))
+    renderWithRouter(<LiveMessages {...nav} />)
+    await waitFor(() => expect(screen.getByText('Grace Uwase')).toBeInTheDocument())
+    fireEvent.click(screen.getByText('Please see me after class'))
+    await screen.findByText('Hello there')
+
+    const input = screen.getByPlaceholderText('Type your message…')
+    fireEvent.change(input, { target: { value: 'Lost words' } })
+    fireEvent.click(screen.getByRole('button', { name: /Send/i }))
+
+    await waitFor(() => expect(input).toHaveValue('Lost words'))
+    expect(screen.queryByText('Lost words', { selector: '.msg-bubble *' })).toBeNull()
+    expect(screen.getByText(/Message not sent/)).toBeInTheDocument()
+  })
+
+  it('opens the thread a notification pointed at', async () => {
+    getConversations.mockResolvedValue(CONVERSATIONS)
+    getMessages.mockResolvedValue(THREAD)
+    renderWithRouter(<LiveMessages {...nav} />, { route: '/student/messages?conversation=c1' })
+
+    await waitFor(() => expect(getMessages).toHaveBeenCalledWith('c1'))
+    expect(await screen.findByText('Hello there')).toBeInTheDocument()
+  })
+
+  it('ignores a conversation id that is not in your list', async () => {
+    getConversations.mockResolvedValue(CONVERSATIONS)
+    getMessages.mockResolvedValue(THREAD)
+    renderWithRouter(<LiveMessages {...nav} />, { route: '/student/messages?conversation=zzz' })
+
+    await waitFor(() => expect(screen.getByText('Grace Uwase')).toBeInTheDocument())
+    expect(getMessages).not.toHaveBeenCalled()
+  })
+})
