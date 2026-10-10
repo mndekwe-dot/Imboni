@@ -9,6 +9,7 @@ import { useCurrentTerm } from '../../hooks/useCurrentTerm'
 import { WelcomeBanner, bannerRole } from '../../components/layout/WelcomeBanner'
 import { useSchoolSettings } from '../../hooks/useSchoolSetting'
 import { StatCard } from '../../components/layout/StatCard'
+import { EmptyState } from '../../components/ui/EmptyState'
 import { DashboardContent } from '../../components/layout/DashboardContent'
 import { adminNavItems, adminSecondaryItems, adminUser } from './adminNav'
 import { getAdminDashboardStats, getAdminRecentActivity } from '../../api/admin'
@@ -87,27 +88,27 @@ export function AdminDashboard() {
     }, [toast])
 
     const statCards = stats ? [
-        { icon: 'groups',          value: stats.total_students,    label: 'Total Students',    trend: `+${stats.new_students} this term`, trendClass: 'positive', colorClass: ''        },
-        { icon: 'badge',           value: stats.teaching_staff,   label: 'Teaching Staff',    trend: 'Active teachers',                  trendClass: 'neutral',  colorClass: 'info'    },
-        { icon: 'trending_up',     value: `${stats.avg_performance}%`, label: 'Avg Performance', trend: stats.avg_performance_change >= 0 ? `+${stats.avg_performance_change}% vs prev term` : `${stats.avg_performance_change}% vs prev term`, trendClass: stats.avg_performance_change >= 0 ? 'positive' : 'negative', colorClass: 'success' },
-        { icon: 'pending_actions', value: stats.pending_approvals, label: 'Pending Approvals', trend: 'Requires action',                  trendClass: stats.pending_approvals > 0 ? 'negative' : 'positive', colorClass: 'warning' },
+        { icon: 'groups',          value: stats.total_students,    label: t('admin.dashboard.totalStudents'),    trend: t('admin.dashboard.newThisTerm', { count: stats.new_students }), trendClass: 'positive', colorClass: ''        },
+        { icon: 'badge',           value: stats.teaching_staff,   label: t('admin.dashboard.teachingStaff'),    trend: t('admin.dashboard.activeTeachers'),                  trendClass: 'neutral',  colorClass: 'info'    },
+        { icon: 'trending_up',     value: `${stats.avg_performance}%`, label: t('admin.dashboard.avgPerformance'), trend: t('admin.dashboard.vsPrevTerm', { value: `${stats.avg_performance_change >= 0 ? '+' : ''}${stats.avg_performance_change}` }), trendClass: stats.avg_performance_change >= 0 ? 'positive' : 'negative', colorClass: 'success' },
+        { icon: 'pending_actions', value: stats.pending_approvals, label: t('admin.dashboard.pendingApprovals'), trend: t('admin.dashboard.requiresAction'),                  trendClass: stats.pending_approvals > 0 ? 'negative' : 'positive', colorClass: 'warning' },
     ] : [
-        { icon: 'groups',          value: '-', label: 'Total Students', colorClass: ''        },
-        { icon: 'badge',           value: '-', label: 'Teaching Staff', colorClass: 'info'    },
-        { icon: 'trending_up',     value: '-', label: 'Avg Performance', colorClass: 'success' },
-        { icon: 'pending_actions', value: '-', label: 'Pending Approvals', colorClass: 'warning' },
+        { icon: 'groups',          value: '-', label: t('admin.dashboard.totalStudents'), colorClass: ''        },
+        { icon: 'badge',           value: '-', label: t('admin.dashboard.teachingStaff'), colorClass: 'info'    },
+        { icon: 'trending_up',     value: '-', label: t('admin.dashboard.avgPerformance'), colorClass: 'success' },
+        { icon: 'pending_actions', value: '-', label: t('admin.dashboard.pendingApprovals'), colorClass: 'warning' },
     ]
 
     const performanceData = stats ? [
-        { label: 'School Avg',    value: stats.avg_performance    || 0 },
-        { label: 'Attendance',    value: stats.attendance_rate    || 0 },
+        { label: t('admin.dashboard.schoolAvg'),    value: stats.avg_performance    || 0 },
+        { label: t('admin.dashboard.attendance'),    value: stats.attendance_rate    || 0 },
     ].filter(d => d.value > 0) : []
 
     const firstName = adminUser.userName.split(' ').find(w => !w.startsWith('Dr') && !w.startsWith('Mr') && !w.startsWith('Mrs')) || adminUser.userName.split(' ')[0]
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
@@ -129,6 +130,27 @@ export function AdminDashboard() {
                             badge={t('roles.principalShort')}
                         />
 
+                        {/* Quick actions sit under the greeting where they are used,
+                            not in a card below the fold. */}
+                        <div className="quick-actions" role="group" aria-label={t('common.quickActions')}>
+                            <button className="btn btn-primary" onClick={() => navigate('/admin/staff')}>
+                                <span className="material-symbols-rounded" aria-hidden="true">person_add</span>
+                                {t('admin.dashboard.manageStaff')}
+                            </button>
+                            <button className="btn btn-outline" onClick={() => navigate('/admin/announcements')}>
+                                <span className="material-symbols-rounded" aria-hidden="true">announcement</span>
+                                {t('admin.dashboard.postAnnouncement')}
+                            </button>
+                            <button className="btn btn-outline" onClick={() => navigate('/admin/students')}>
+                                <span className="material-symbols-rounded" aria-hidden="true">groups</span>
+                                {t('admin.dashboard.viewStudents')}
+                            </button>
+                            <button className="btn btn-outline" onClick={() => navigate('/admin/reports')}>
+                                <span className="material-symbols-rounded" aria-hidden="true">bar_chart</span>
+                                {t('admin.dashboard.viewReports')}
+                            </button>
+                        </div>
+
                         <div className="portal-stat-grid">
                             {statCards.map((s, i) => <StatCard key={i} {...s} loading={loading && !stats} />)}
                         </div>
@@ -138,13 +160,13 @@ export function AdminDashboard() {
                             {/* Recent Activity */}
                             <div className="card">
                                 <div className="card-header">
-                                    <h2 className="card-title">Recent Activity</h2>
+                                    <h2 className="card-title">{t('admin.dashboard.recentActivity')}</h2>
                                 </div>
                                 <div className="card-content">
                                     {loading ? (
                                         <SkeletonActivity />
                                     ) : activities.length === 0 ? (
-                                        <p className="adm-dash-note">No recent activity.</p>
+                                        <EmptyState icon="history" title={t('admin.dashboard.noRecentActivity')} />
                                     ) : (
                                         activities.map((item, i) => {
                                             const meta = ACTIVITY_ICON[item.activity_type] || { icon: 'info', cls: 'info' }
@@ -168,8 +190,8 @@ export function AdminDashboard() {
                             {performanceData.length > 0 && (
                                 <div className="card">
                                     <div className="card-header">
-                                        <h2 className="card-title">School Overview</h2>
-                                        <p className="card-description">Key indicators (Term 2)</p>
+                                        <h2 className="card-title">{t('admin.dashboard.schoolOverview')}</h2>
+                                        <p className="card-description">{t('admin.dashboard.keyIndicators', { term: term?.name || '' })}</p>
                                     </div>
                                     <div className="card-content">
                                         <ResponsiveContainer width="100%" height={200}>
@@ -187,7 +209,7 @@ export function AdminDashboard() {
                                             </BarChart>
                                         </ResponsiveContainer>
                                         <div className="chart-legend-row adm-legend-mt">
-                                            {[['var(--success)', '≥ 90% Excellent'], ['var(--primary)', '75-89% Good'], ['var(--warning)', '< 75% Needs attention']].map(([color, label]) => (
+                                            {[['var(--success)', t('admin.dashboard.legendExcellent')], ['var(--primary)', t('admin.dashboard.legendGood')], ['var(--warning)', t('admin.dashboard.legendNeeds')]].map(([color, label]) => (
                                                 <div key={label} className="chart-legend-item">
                                                     <span className="chart-legend-dot-sq" style={{ background: color }} />
                                                     {label}
@@ -198,33 +220,6 @@ export function AdminDashboard() {
                                 </div>
                             )}
 
-                        </div>
-
-                        {/* Quick Actions */}
-                        <div className="card">
-                            <div className="card-header">
-                                <h2 className="card-title">Quick Actions</h2>
-                            </div>
-                            <div className="card-content">
-                                <div className="adm-action-buttons">
-                                    <button className="btn btn-primary" onClick={() => navigate('/admin/staff')}>
-                                        <span className="material-symbols-rounded" aria-hidden="true">person_add</span>
-                                        Manage Staff
-                                    </button>
-                                    <button className="btn btn-outline" onClick={() => navigate('/admin/announcements')}>
-                                        <span className="material-symbols-rounded" aria-hidden="true">announcement</span>
-                                        Post Announcement
-                                    </button>
-                                    <button className="btn btn-outline" onClick={() => navigate('/admin/students')}>
-                                        <span className="material-symbols-rounded" aria-hidden="true">groups</span>
-                                        View Students
-                                    </button>
-                                    <button className="btn btn-outline" onClick={() => navigate('/admin/reports')}>
-                                        <span className="material-symbols-rounded" aria-hidden="true">bar_chart</span>
-                                        View Reports
-                                    </button>
-                                </div>
-                            </div>
                         </div>
 
                     </DashboardContent>
