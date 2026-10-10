@@ -215,10 +215,13 @@ class AuthViewSet(viewsets.ViewSet):
                 pass
 
         if user is None:
+            # Only a wrong password uses up the per-account allowance.
+            LoginAccountThrottle().record_failure(request)
             return Response(
                 {'error': 'Invalid email or password.'},
                 status=status.HTTP_401_UNAUTHORIZED,
             )
+        LoginAccountThrottle().reset(request)
 
         # Role check — only allow if user's role matches the portal
         if portal and user.role not in self.PORTAL_ROLES[portal]:
