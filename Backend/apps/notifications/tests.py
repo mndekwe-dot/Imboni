@@ -112,12 +112,13 @@ class TestPeriodicTaskWrappers:
     def test_due_date_reminder_task_runs_the_command(self):
         from apps.teacher.tasks import send_due_date_reminders_task
         result = send_due_date_reminders_task.apply(args=(1,)).get()
-        assert 'reminder(s) sent' in result
+        # One entry per school, each the command's own report.
+        assert result and all('reminder(s) sent' in r for r in result.values())
 
     def test_weekly_digest_task_runs_the_command(self):
         from apps.parents.tasks import send_weekly_digest_task
         result = send_weekly_digest_task.apply(kwargs={'no_email': True}).get()
-        assert 'digest(s) sent' in result
+        assert result and all('digest(s) sent' in r for r in result.values())
 
     def test_beat_schedule_points_at_real_tasks(self):
         from Imboni.celery import app

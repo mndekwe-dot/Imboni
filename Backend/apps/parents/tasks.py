@@ -13,10 +13,16 @@ def send_weekly_digest_task(no_email=False):
     """Send each parent their children's weekly summary."""
     from django.core.management import call_command
 
-    out = StringIO()
+    from apps.common.tenancy import run_in_every_school
+
     args = ['--no-email'] if no_email else []
-    call_command('send_weekly_digest', *args, stdout=out)
-    return out.getvalue().strip()
+
+    def one_school():
+        out = StringIO()
+        call_command('send_weekly_digest', *args, stdout=out)
+        return out.getvalue().strip()
+
+    return run_in_every_school(one_school)
 
 
 @shared_task

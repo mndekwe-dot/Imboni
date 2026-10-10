@@ -22,6 +22,31 @@ app.config_from_object('django.conf:settings', namespace='CELERY')
 # Find tasks.py in every installed app
 app.autodiscover_tasks()
 
+# ── Carry the school with each task ────────────────────────────────────────────
+# A task queued from a request runs later in a worker that starts on the public
+# schema. Stamp the school onto the message when it is queued and switch to it
+# when the task starts, or tenant-table tasks (push, bulk notify, reminders)
+# fail with "relation does not exist". See apps/common/tenancy.py.
+from celery.signals import before_task_publish, task_postrun, task_prerun  # noqa: E402
+
+
+@before_task_publish.connect
+def _stamp_school(headers=None, **kwargs):
+    from apps.common.tenancy import stamp_schema
+    stamp_schema(headers)
+
+
+@task_prerun.connect
+def _enter_school(task_id=None, task=None, **kwargs):
+    from apps.common.tenancy import enter_schema
+    enter_schema(task_id, getattr(task, 'request', None))
+
+
+@task_postrun.connect
+def _leave_school(task_id=None, **kwargs):
+    from apps.common.tenancy import leave_schema
+    leave_schema(task_id)
+
 # ── Periodic schedule ──────────────────────────────────────────────────────────
 # Times are in CELERY_TIMEZONE (Africa/Kigali, from settings).
 app.conf.beat_schedule = {
@@ -57,6 +82,11 @@ app.conf.beat_schedule = {
     'settle-online-payments': {
         'task': 'apps.finance.tasks.settle_online_payments_task',
         'schedule': crontab(minute='*/5'),
+    },
+    # Every day at 09:00 — remind owing families, in schools that switched it on
+    'send-scheduled-fee-reminders': {
+        'task': 'apps.finance.tasks.send_scheduled_fee_reminders_task',
+        'schedule': crontab(hour=9, minute=0),
     },
     # Every day at 08:00 — tell schools their subscription ends in 30, 15 or 3 days
     'send-contract-expiry-reminders': {
