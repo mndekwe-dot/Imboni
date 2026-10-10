@@ -358,3 +358,91 @@ class TestHealth:
         backups = next(c for c in resp.data['components'] if c['name'] == 'Database backups')
         assert backups['ok'] is False
         assert 'No backup found' in backups['detail']
+
+
+class TestContractAppliesToTheSchool:
+    """Signing or renewing must leave the school's own record in agreement."""
+
+    def _school(self, status='trial', plan='free'):
+        with _public():
+            c = Client(name='Sync Co', schema_name=f'sync{Client.objects.count()}', status=status, plan=plan)
+            c.auto_create_schema = False
+            c.save()
+        return c
+
+    def _draft(self, client, plan='basic', days=365):
+        with _public():
+            return Contract.objects.create(
+                client=client, title='Annual', plan=plan,
+                start_date=timezone.localdate(),
+                end_date=timezone.localdate() + timedelta(days=days))
+
+    def _operator(self):
+        # One operator per test: the email is unique.
+        if not hasattr(self, '_op'):
+            self._op = platform_admin()
+        return self._op
+
+    def _sign(self, contract):
+        with _public():
+            return platform_ops.ContractViewSet.as_view({'post': 'sign'})(
+                _authed('post', self._operator(), {'signed_by': 'Ops'}), pk=str(contract.id))
+
+    def test_signing_moves_a_trial_school_onto_the_contract(self):
+        client = self._school(status='trial', plan='free')
+        contract = self._draft(client, plan='basic')
+
+        assert self._sign(contract).status_code == 200
+
+        with _public():
+            client.refresh_from_db()
+        assert client.plan == 'basic'
+        assert client.paid_until == contract.end_date
+        assert client.status == 'active'
+        assert client.on_trial is False
+
+    def test_a_suspended_school_stays_suspended_when_a_contract_is_signed(self):
+        client = self._school(status='suspended')
+        contract = self._draft(client)
+
+        self._sign(contract)
+
+        with _public():
+            client.refresh_from_db()
+        assert client.status == 'suspended'
+        assert client.paid_until == contract.end_date      # the date still follows
+
+    def test_an_unknown_plan_name_is_ignored_not_written(self):
+        client = self._school(plan='basic')
+        contract = self._draft(client, plan='gold-plated')
+
+        self._sign(contract)
+
+        with _public():
+            client.refresh_from_db()
+        assert client.plan == 'basic'
+
+    def test_a_shorter_contract_never_pulls_paid_until_backwards(self):
+        client = self._school(status='active')
+        with _public():
+            client.paid_until = timezone.localdate() + timedelta(days=700)
+            client.save(update_fields=['paid_until'])
+        contract = self._draft(client, days=30)
+
+        self._sign(contract)
+
+        with _public():
+            client.refresh_from_db()
+        assert client.paid_until == timezone.localdate() + timedelta(days=700)
+
+    def test_renewing_a_read_only_school_brings_it_back(self):
+        client = self._school(status='read_only', plan='basic')
+        contract = self._draft(client, plan='basic', days=30)
+        self._sign(contract)
+        with _public():
+            client.status = 'read_only'
+            client.save(update_fields=['status'])
+            platform_ops.ContractViewSet.as_view({'post': 'renew'})(
+                _authed('post', self._operator()), pk=str(contract.id))
+            client.refresh_from_db()
+        assert client.status == 'active'

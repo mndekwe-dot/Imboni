@@ -176,3 +176,54 @@ def send_expiry_reminders(today=None):
             logger.info('Reminded %s: contract %s ends in %s days', contract.client.schema_name,
                         contract.id, days_left)
     return {'sent': sent, 'skipped': skipped}
+
+
+def apply_contract_to_school(contract, request=None):
+    """
+    Make the school's own record agree with a contract that has just been signed
+    or renewed.
+
+    The contract and the school used to be two records that nobody kept in step:
+    signing a contract left the school on its trial plan with no paid-until date,
+    so the plan limits, the billing page and the platform console all described a
+    different arrangement from the one on paper.
+
+    * ``paid_until`` follows the contract's end date (never moved backwards past
+      a later date the school already holds);
+    * ``plan`` follows the contract when it names a real plan;
+    * a trial or past-due school becomes active, and a school that was only
+      read-only because this contract ran out is brought back.
+
+    A suspended school is left alone: that was somebody's decision (non-payment,
+    abuse) and a signature on a new contract is not the same as lifting it.
+    Returns the list of fields that changed.
+    """
+    from .models import Client
+    from .platform_audit import record
+
+    client = contract.client
+    if client is None or contract.status != 'active':
+        return []
+
+    changed = {}
+
+    def set_field(name, value):
+        old = getattr(client, name)
+        if old != value:
+            changed[name] = [str(old), str(value)]
+            setattr(client, name, value)
+
+    if client.paid_until is None or contract.end_date > client.paid_until:
+        set_field('paid_until', contract.end_date)
+    if contract.plan in dict(Client.PLAN_CHOICES):
+        set_field('plan', contract.plan)
+    if client.status in ('trial', 'past_due', 'read_only'):
+        set_field('status', 'active')
+        set_field('on_trial', False)
+
+    if changed:
+        client.save(update_fields=list(changed))
+        record('school.contract_applied', request=request, client=client, target=client,
+               target_label=client.name,
+               changes={**changed, 'contract': str(contract.id)})
+    return list(changed)
