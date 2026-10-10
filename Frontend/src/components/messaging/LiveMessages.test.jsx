@@ -146,7 +146,7 @@ describe('LiveMessages: sending and arriving', () => {
   it('opens the thread a notification pointed at', async () => {
     getConversations.mockResolvedValue(CONVERSATIONS)
     getMessages.mockResolvedValue(THREAD)
-    renderWithRouter(<LiveMessages {...nav} />, { route: '/student/messages?conversation=c1' })
+    renderWithRouter(<LiveMessages {...nav} />, { route: '/student/messages?thread=c1' })
 
     await waitFor(() => expect(getMessages).toHaveBeenCalledWith('c1'))
     expect(await screen.findByText('Hello there')).toBeInTheDocument()
@@ -155,7 +155,7 @@ describe('LiveMessages: sending and arriving', () => {
   it('ignores a conversation id that is not in your list', async () => {
     getConversations.mockResolvedValue(CONVERSATIONS)
     getMessages.mockResolvedValue(THREAD)
-    renderWithRouter(<LiveMessages {...nav} />, { route: '/student/messages?conversation=zzz' })
+    renderWithRouter(<LiveMessages {...nav} />, { route: '/student/messages?thread=zzz' })
 
     await waitFor(() => expect(screen.getByText('Grace Uwase')).toBeInTheDocument())
     expect(getMessages).not.toHaveBeenCalled()

@@ -29,7 +29,7 @@ def test_the_recipient_gets_a_notice_pointing_at_their_own_portal(make_authentic
 
     n = Notification.objects.get(user=parent)
     assert n.type == 'message'
-    assert n.path == f'/parent/messages?conversation={conv.id}'
+    assert n.path == f'/parent/messages?thread={conv.id}'
     assert 'Please call me' in n.message
     assert not Notification.objects.filter(user=teacher).exists()   # not the sender
 

@@ -191,7 +191,7 @@ class MessageListCreateView(generics.ListCreateAPIView):
         # Opening it also settles the "new message" notice for this thread.
         Notification.objects.filter(
             user=self.request.user, type='message', is_read=False,
-            path__endswith=f'conversation={conversation.id}',
+            path__endswith=f'thread={conversation.id}',
         ).update(is_read=True, read_at=now)
         return (
             Message.objects
