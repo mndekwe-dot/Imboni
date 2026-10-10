@@ -7,7 +7,11 @@
   "title": "Trouver votre école",
   "copy": {
     "eachSchoolOnImboniIsKeptCompletelySeparate": "Chaque école sur Imboni est totalement séparée, jusqu'à sa propre base de données. L'adresse web de votre école indique au système à quelle école vous appartenez, ce qui garantit que les dossiers d'une école n'apparaissent jamais chez une autre.",
+    "orWord": "ou",
+    "signUpHere": "inscrivez-vous ici",
     "stillStuck": "Toujours bloqué ?",
+    "stuckBody": "Le secrétariat de votre école peut vous donner l'adresse et confirmer quel e-mail il a pour vous. Si vous créez une nouvelle école plutôt que d'en rejoindre une,",
+    "talkToUs": "parlez-nous",
     "theEmailListsEverySchoolYourAddressIsRegis": "L'e-mail liste toutes les écoles où votre adresse est enregistrée. Si rien n'arrive dans quelques minutes, vérifiez vos courriers indésirables, puis demandez au secrétariat de votre école quelle adresse il a pour vous.",
     "useTheAddressYourSchoolHasOnFileForYouForA": "Utilisez l'adresse que votre école a enregistrée pour vous. Pour un parent, c'est généralement celle à laquelle l'école écrit ; pour le personnel et les élèves, c'est l'e-mail de l'école.",
     "whyDoesMySchoolHaveItsOwnAddress": "Pourquoi mon école a-t-elle sa propre adresse ?",

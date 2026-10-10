@@ -95,11 +95,9 @@ export function FindSchool() {
 
                 <h2>{t('findSchool.copy.stillStuck')}</h2>
                 <p>
-                    Your school office can tell you the address and confirm which
-                    email they hold for you. If you are setting up a new school
-                    rather than joining one,{' '}
-                    <Link to="/signup">sign up here</Link> or{' '}
-                    <Link to="/contact">talk to us</Link>.
+                    {t('findSchool.copy.stuckBody')}{' '}
+                    <Link to="/signup">{t('findSchool.copy.signUpHere')}</Link>{' '}{t('findSchool.copy.orWord')}{' '}
+                    <Link to="/contact">{t('findSchool.copy.talkToUs')}</Link>.
                 </p>
             </div>
         </PublicLayout>
