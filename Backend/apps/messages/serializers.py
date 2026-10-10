@@ -3,12 +3,12 @@ from apps.common.uploads import validate_document
 from .models import Conversation, Message
 
 # Roles considered "staff". Students and parents may only message staff.
-STAFF_ROLES = {'teacher', 'dos', 'discipline', 'matron', 'admin'}
+STAFF_ROLES = {'teacher', 'dos', 'discipline', 'matron', 'admin', 'librarian', 'bursar'}
 
 ROLE_LABELS = {
     'student': 'Student', 'parent': 'Parent', 'teacher': 'Teacher',
     'dos': 'Director of Studies', 'discipline': 'Discipline', 'matron': 'Matron',
-    'admin': 'Admin',
+    'admin': 'Admin', 'librarian': 'Librarian', 'bursar': 'Bursar',
 }
 
 

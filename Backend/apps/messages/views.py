@@ -5,7 +5,9 @@ from django.db.models import Q
 from django.http import Http404
 from django.utils import timezone
 from apps.authentication.models import User
-from .models import Conversation, Message
+from apps.notifications.models import Notification
+from .models import Conversation, Message, MessageReadReceipt
+from .notify import notify_new_message
 from .serializers import (
     ConversationSerializer, MessageSerializer, STAFF_ROLES, ROLE_LABELS,
 )
@@ -132,9 +134,10 @@ class ConversationListCreateView(generics.ListCreateAPIView):
 
         content = (request.data.get('content') or '').strip()
         if content:
-            Message.objects.create(
+            first = Message.objects.create(
                 conversation=conversation, sender=request.user, content=content,
             )
+            notify_new_message(first)
             conversation.updated_at = timezone.now()
             conversation.save(update_fields=['updated_at'])
 
@@ -174,10 +177,22 @@ class MessageListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         conversation = self._get_conversation_for_participant()
-        # Opening the thread marks the other side's unread messages as read.
-        conversation.messages.filter(is_read=False).exclude(
-            sender=self.request.user
-        ).update(is_read=True, read_at=timezone.now())
+        # Opening the thread marks the other side's unread messages as read, and
+        # records who read them: the flag says "somebody", the receipt says whom.
+        now = timezone.now()
+        unread = conversation.messages.filter(is_read=False).exclude(sender=self.request.user)
+        unread_ids = list(unread.values_list('id', flat=True))
+        if unread_ids:
+            unread.update(is_read=True, read_at=now)
+            MessageReadReceipt.objects.bulk_create(
+                [MessageReadReceipt(message_id=mid, user=self.request.user) for mid in unread_ids],
+                ignore_conflicts=True,
+            )
+        # Opening it also settles the "new message" notice for this thread.
+        Notification.objects.filter(
+            user=self.request.user, type='message', is_read=False,
+            path__endswith=f'conversation={conversation.id}',
+        ).update(is_read=True, read_at=now)
         return (
             Message.objects
             .filter(conversation=conversation)
@@ -187,6 +202,7 @@ class MessageListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         conversation = self._get_conversation_for_participant()
-        serializer.save(sender=self.request.user, conversation=conversation)
+        message = serializer.save(sender=self.request.user, conversation=conversation)
+        notify_new_message(message)
         conversation.updated_at = timezone.now()
         conversation.save(update_fields=['updated_at'])

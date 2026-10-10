@@ -11,6 +11,7 @@ class Notification(models.Model):
         ('timetable',    'Timetable Conflict'),
         ('staff',        'Staff Status'),
         ('announcement', 'Announcement'),
+        ('message',      'New Message'),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

@@ -58,7 +58,9 @@ def _notify_parent(dis_user, parent_user, report):
         dis_user, parent_user,
         subject=f"Conduct Report for {student_name}",
     )
-    Message.objects.create(conversation=conv, sender=dis_user, content=content)
+    message = Message.objects.create(conversation=conv, sender=dis_user, content=content)
+    from apps.messages.notify import notify_new_message
+    notify_new_message(message)
     conv.updated_at = timezone.now()
     conv.save(update_fields=['updated_at'])
 
