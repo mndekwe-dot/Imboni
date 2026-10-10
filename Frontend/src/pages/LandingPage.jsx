@@ -164,6 +164,18 @@ export function LandingPage() {
                                 {t('landing.hero.secondary')}
                             </a>
                         </div>
+
+                        {/* "Which one am I?" answered up front: one tap to the right
+                            sign-in instead of a generic door and a role picker. */}
+                        <div className="hero-roles">
+                            <span className="hero-roles-label">{t('landing.hero.signInAs')}</span>
+                            {[['student', 'school', '/login/student'], ['teacher', 'person_book', '/login/teacher'], ['parent', 'family_restroom', '/login/parent'], ['staff', 'badge', '/login']].map(([role, icon, to]) => (
+                                <Link key={role} to={to} className="hero-role">
+                                    <span className="material-symbols-rounded" aria-hidden="true">{icon}</span>
+                                    {t(`roles.${role}`)}
+                                </Link>
+                            ))}
+                        </div>
                     </div>
 
                     {/* RIGHT: the real student dashboard (a screenshot of the app
