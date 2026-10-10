@@ -32,6 +32,7 @@ from .platform_auth import (
 )
 from .platform_audit import AuditedViewSetMixin, record
 from . import invitations
+from .lifecycle import apply_contract_to_school
 from .school_context import school_context
 from .serializers import (
     PlatformAuditLogSerializer, PlatformUserSerializer,
@@ -168,6 +169,7 @@ class ContractViewSet(_PlatformBase):
         contract.save(update_fields=['signed_at', 'signed_by', 'status', 'updated_at'])
         self.audit('sign', contract, changes={'status': [was, 'active'],
                                               'signed_by': contract.signed_by})
+        apply_contract_to_school(contract, request=request)
         return Response(ContractSerializer(contract).data)
 
     @action(detail=True, methods=['post'])
@@ -196,6 +198,7 @@ class ContractViewSet(_PlatformBase):
         old.save(update_fields=['status', 'updated_at'])
         self.audit('renew', new, changes={'renewed_from': str(old.pk),
                                           'end_date': str(new.end_date)})
+        apply_contract_to_school(new, request=request)
         return Response(ContractSerializer(new).data, status=http_status.HTTP_201_CREATED)
 
 
