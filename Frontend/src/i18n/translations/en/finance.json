@@ -519,6 +519,18 @@
     "active": "In use"
   },
   "reminders": {
+    "auto": {
+      "desc": "The default message goes out on its own to families who still owe at least this share, by in-app notice and email. Never by SMS.",
+      "enabled": "Remind families automatically",
+      "every": "Send again after (days)",
+      "lastSent": "Last sent {{when}}",
+      "loadFailed": "Could not load the automatic reminder settings.",
+      "min": "Only families still owing at least (%)",
+      "neverSent": "Not sent yet",
+      "saveFailed": "Could not update automatic reminders.",
+      "saved": "Automatic reminders updated.",
+      "title": "Send these automatically"
+    },
     "open": "Send reminders",
     "title": "Remind families who owe",
     "minPercent": "Owing at least this % of the bill",

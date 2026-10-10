@@ -88,6 +88,8 @@ export const createIncomeCategory = (d) => client.post('/imboni/finance/income-c
 export const getArrears     = (params) => client.get('/imboni/finance/arrears/', { params })
 export const carryArrears   = (data)   => client.post('/imboni/finance/arrears/', data || {})
 export const sendFeeReminders = (data) => client.post('/imboni/finance/reminders/send/', data)
+export const getAutoReminders = () => client.get('/imboni/finance/reminders/auto/')
+export const updateAutoReminders = (data) => client.patch('/imboni/finance/reminders/auto/', data)
 
 // ── Budget ────────────────────────────────────────────────────────────────────
 export const getBudgets     = (params) => client.get('/imboni/finance/budgets/', { params })

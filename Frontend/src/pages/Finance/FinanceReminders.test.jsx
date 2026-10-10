@@ -1,12 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderWithRouter, screen, fireEvent, waitFor } from '../../test/test-utils'
 import { RemindersModal } from './FinanceReminders'
-import { sendFeeReminders } from '../../api/finance'
+import { sendFeeReminders, getAutoReminders, updateAutoReminders } from '../../api/finance'
 
-vi.mock('../../api/finance', () => ({ sendFeeReminders: vi.fn() }))
+vi.mock('../../api/finance', () => ({
+    sendFeeReminders: vi.fn(),
+    getAutoReminders: vi.fn(),
+    updateAutoReminders: vi.fn(),
+}))
 
 describe('RemindersModal', () => {
-    beforeEach(() => vi.clearAllMocks())
+    beforeEach(() => {
+        vi.clearAllMocks()
+        getAutoReminders.mockResolvedValue({ enabled: false, min_percent: 50, every_days: 14, last_sent: null })
+    })
 
     it('cannot send until it has previewed, and sends exactly what was previewed', async () => {
         sendFeeReminders.mockResolvedValueOnce({ families: 3, total: '240000', sample: 'Fees reminder: Amina owes 80,000', sent: 0 })
@@ -42,5 +49,35 @@ describe('RemindersModal', () => {
         renderWithRouter(<RemindersModal params={{}} onClose={() => {}} />)
         fireEvent.click(screen.getByRole('button', { name: 'Preview' }))
         expect(await screen.findByText('No family matches these thresholds.')).toBeInTheDocument()
+    })
+})
+
+describe('RemindersModal: automatic reminders', () => {
+    beforeEach(() => {
+        vi.clearAllMocks()
+        getAutoReminders.mockResolvedValue({ enabled: false, min_percent: 50, every_days: 14, last_sent: null })
+    })
+
+    it('is off until the bursar turns it on, and saves the moment it is switched', async () => {
+        updateAutoReminders.mockResolvedValue({ enabled: true, min_percent: 50, every_days: 14, last_sent: null })
+        renderWithRouter(<RemindersModal params={{}} onClose={() => {}} />)
+
+        const box = await screen.findByRole('checkbox', { name: 'Remind families automatically' })
+        expect(box).not.toBeChecked()
+        fireEvent.click(box)
+
+        await waitFor(() => expect(updateAutoReminders).toHaveBeenCalledWith({ enabled: true }))
+        expect(await screen.findByText('Not sent yet')).toBeInTheDocument()
+    })
+
+    it('puts the switch back and says why when the save fails', async () => {
+        updateAutoReminders.mockRejectedValue(new Error('server said no'))
+        renderWithRouter(<RemindersModal params={{}} onClose={() => {}} />)
+
+        const box = await screen.findByRole('checkbox', { name: 'Remind families automatically' })
+        fireEvent.click(box)
+
+        await waitFor(() => expect(box).not.toBeChecked())
+        expect(await screen.findByText(/server said no|Could not update automatic reminders/)).toBeInTheDocument()
     })
 })
