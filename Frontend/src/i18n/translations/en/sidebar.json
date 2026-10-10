@@ -8,5 +8,7 @@
   "openMenu": "Open menu",
   "tagline": "Education Connects",
   "waiting": "{{count}} waiting",
-  "switchTo": "Switch to {{role}}"
+  "switchTo": "Switch to {{role}}",
+  "quickNavigation": "Quick navigation",
+  "more": "More"
 }

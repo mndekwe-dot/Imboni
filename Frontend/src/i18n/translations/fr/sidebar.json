@@ -8,5 +8,7 @@
   "openMenu": "Ouvrir le menu",
   "tagline": "L'éducation relie",
   "waiting": "{{count}} en attente",
-  "switchTo": "Passer à : {{role}}"
+  "switchTo": "Passer à : {{role}}",
+  "quickNavigation": "Navigation rapide",
+  "more": "Plus"
 }
