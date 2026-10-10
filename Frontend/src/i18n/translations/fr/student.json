@@ -155,5 +155,14 @@
     "subtitle": "Emploi du temps hebdomadaire",
     "subtitleWithClass": "Emploi du temps hebdomadaire de la classe {{class}}",
     "title": "Mon emploi du temps"
+  },
+  "copy": {
+    "backToAssignments": "Retour aux devoirs",
+    "exit": "Quitter",
+    "issuedBy": "Émis par",
+    "oneQuestionAtATimeOnceYouMoveOnYouCannotGo": "Une question à la fois. Une fois passé à la suivante, vous ne pouvez plus revenir modifier une réponse.",
+    "questionReview": "Révision des questions",
+    "submittedLate": "Remis en retard",
+    "timeIsUpYourAnswersHaveBeenSubmittedAutoma": "Le temps est écoulé ! Vos réponses ont été envoyées automatiquement."
   }
 }

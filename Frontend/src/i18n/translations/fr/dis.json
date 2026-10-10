@@ -508,5 +508,10 @@
     "legendTaken": "Occupé",
     "legendFree": "Disponible",
     "legendClosed": "Fermé / maintenance"
+  },
+  "copy": {
+    "editTimeSlots": "Modifier les créneaux",
+    "noApprovedBehaviorReportsOnRecord": "Aucun rapport de comportement approuvé.",
+    "weeklyExtracurricularSchedule": "Programme hebdomadaire des activités"
   }
 }

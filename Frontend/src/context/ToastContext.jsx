@@ -1,3 +1,4 @@
+import i18n from 'i18next'
 import { createContext, useCallback, useContext, useMemo, useState } from 'react'
 import '../styles/toast.css'
 
@@ -55,7 +56,7 @@ export function ToastProvider({ children }) {
     return (
         <ToastContext.Provider value={toast}>
             {children}
-            <div className="toast-container" role="region" aria-label="Notifications" aria-live="polite">
+            <div className="toast-container" role="region" aria-label={i18n.t('account.navNotifications')} aria-live="polite">
                 {toasts.map(t => (
                     <div
                         key={t.id}
@@ -66,7 +67,7 @@ export function ToastProvider({ children }) {
                         <span className="toast-message">{t.message}</span>
                         <button
                             className="toast-close"
-                            aria-label="Dismiss notification"
+                            aria-label={i18n.t('common.copy.dismissNotification')}
                             onClick={() => dismiss(t.id)}
                         >
                             <span className="material-symbols-rounded" aria-hidden="true">close</span>

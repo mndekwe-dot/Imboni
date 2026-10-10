@@ -4,5 +4,13 @@
   "sendFailed": "Could not send that.",
   "sentMessage": "Thank you — we will follow up with your school.",
   "subtitle": "Ask your school to invite you, or send us their details.",
-  "title": "Find your school"
+  "title": "Find your school",
+  "copy": {
+    "eachSchoolOnImboniIsKeptCompletelySeparate": "Each school on Imboni is kept completely separate, down to its own database. Your school's web address is what tells the system which school you belong to, which is part of how one school's records can never appear in another's.",
+    "stillStuck": "Still stuck?",
+    "theEmailListsEverySchoolYourAddressIsRegis": "The email lists every school your address is registered with. If nothing arrives within a few minutes, check your spam folder, then ask your school office to confirm which address they hold for you.",
+    "useTheAddressYourSchoolHasOnFileForYouForA": "Use the address your school has on file for you. For a parent that is usually the one the school writes to; for staff and students it is your school email.",
+    "whyDoesMySchoolHaveItsOwnAddress": "Why does my school have its own address?",
+    "yourEmailAddress": "Your email address"
+  }
 }

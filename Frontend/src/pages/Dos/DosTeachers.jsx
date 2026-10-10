@@ -218,7 +218,7 @@ function TeacherModal({ teacher, config, subjectOptions, onClose, onSave }) {
                 <EmptyState
                     icon="settings"
                     title={t('dos.teachers.noClassesConfigured')}
-                    description="Go to School Settings to add sections, year groups, and streams before assigning classes."
+                    description={t('dos.teachers.noClassesHint')}
                 />
             ) : (
                 <>
@@ -322,7 +322,7 @@ function InviteTeacherModal({ onClose, onInvite }) {
             <div className="dt-info-box">
                 <span className="material-symbols-rounded dt-info-icon" aria-hidden="true">info</span>
                 <p className="dt-info-text">
-                    An email will be sent with a secure registration link. The teacher sets their own password. You never need to share credentials.
+                    {t('dos.copy.anEmailWillBeSentWithASecureRegistrationLi')}
                 </p>
             </div>
 
@@ -574,7 +574,7 @@ export function DosTeachers() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={dosNavItems} secondaryItems={dosSecondaryItems} />

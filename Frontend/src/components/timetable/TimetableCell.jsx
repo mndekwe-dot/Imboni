@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { shortTeacher } from './timetableDisplay'
 
 /**
@@ -26,6 +27,7 @@ import { shortTeacher } from './timetableDisplay'
  *   isNow     {boolean}      This row is the period running right now
  */
 export function TimetableCell({ cell, editable, onEdit, colIndex, tone, homeRoom, today, isNow }) {
+    const { t } = useTranslation()
 
     /* Classes shared by every state so today/now emphasis reaches all of them. */
     const stateClass = `tt-col-${colIndex}${today ? ' tt-today-col' : ''}${isNow ? ' tt-now-row' : ''}`
@@ -42,7 +44,7 @@ export function TimetableCell({ cell, editable, onEdit, colIndex, tone, homeRoom
 
     /* Break row — matches either by type field or legacy subject string */
     if (cell.type === 'break' || cell.subject === 'Break') {
-        return <td className={`tt-cell tt-break ${stateClass}`}>Break</td>
+        return <td className={`tt-cell tt-break ${stateClass}`}>{t('timetable.break')}</td>
     }
 
     /* A tone means "colour this by subject" — the academic grid. Without one the

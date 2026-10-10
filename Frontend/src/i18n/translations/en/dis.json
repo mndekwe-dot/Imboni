@@ -508,5 +508,10 @@
     "legendTaken": "Occupied",
     "legendFree": "Available",
     "legendClosed": "Closed / maintenance"
+  },
+  "copy": {
+    "editTimeSlots": "Edit Time Slots",
+    "noApprovedBehaviorReportsOnRecord": "No approved behavior reports on record.",
+    "weeklyExtracurricularSchedule": "Weekly Extracurricular Schedule"
   }
 }

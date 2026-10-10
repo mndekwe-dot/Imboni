@@ -1,3 +1,4 @@
+import i18n from 'i18next'
 import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -176,7 +177,7 @@ const Account             = load(() => import('./pages/Account'), 'Account');
 
 function RouteFallback() {
   return (
-    <div className="route-fallback" role="status" aria-label="Loading">
+    <div className="route-fallback" role="status" aria-label={i18n.t('common.copy.loading')}>
       <div className="route-fallback-spinner" />
     </div>
   );
@@ -199,7 +200,7 @@ function App() {
     <>
     {/* Keyboard users can jump past the sidebar straight to page content.
         Every portal page renders <main id="main-content">. */}
-    <a href="#main-content" className="skip-link">Skip to main content</a>
+    <a href="#main-content" className="skip-link">{i18n.t('common.copy.skipToMainContent')}</a>
     <TransferTray />
     <SupportBanner />
     <Suspense fallback={<RouteFallback />}>

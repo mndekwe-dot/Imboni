@@ -13,5 +13,22 @@
   "nothingScheduled": "Nothing scheduled",
   "break": "Break",
   "now": "Now",
-  "month": "Month"
+  "month": "Month",
+  "copy": {
+    "academicClub": "Academic Club",
+    "academicClubs": "Academic Clubs",
+    "activityType": "Activity Type",
+    "boardingDormitory": "Boarding / Dormitory",
+    "closeDialog": "Close dialog",
+    "dragToMoveThisLesson": "Drag to move this lesson",
+    "emptyFree": "Empty / Free",
+    "label": "Label",
+    "manageTimeSlots": "Manage Time Slots",
+    "noLessonsScheduledForThisTermYet": "No lessons scheduled for this term yet.",
+    "period": "Period",
+    "removeRow": "Remove row",
+    "selectDay": "Select day",
+    "socialCommunity": "Social / Community",
+    "timeSlot": "Time Slot"
+  }
 }

@@ -81,6 +81,7 @@ function StatBox({ icon, value, label, tone }) {
 }
 
 function AnnouncementCard({ ann, onMarkRead }) {
+    const { t } = useTranslation()
     const cat     = CATEGORY_COLOR[ann.category] || CATEGORY_COLOR.general
     const isRead  = ann.is_read
     const date    = ann.published_at || ann.created_at
@@ -128,7 +129,7 @@ function AnnouncementCard({ ann, onMarkRead }) {
                     {!isRead && (
                         <button onClick={() => onMarkRead(ann.id)} className="pann-mark-btn">
                             <span className="material-symbols-rounded" aria-hidden="true">done</span>
-                            Mark as read
+                            {t('parent.copy.markAsRead')}
                         </button>
                     )}
                 </div>

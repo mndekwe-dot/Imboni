@@ -54,16 +54,13 @@ export function FindSchool() {
                         <span className="material-symbols-rounded" aria-hidden="true">mark_email_read</span>
                         <p>{message}</p>
                         <p className="pub-find-note">
-                            The email lists every school your address is registered
-                            with. If nothing arrives within a few minutes, check
-                            your spam folder, then ask your school office to
-                            confirm which address they hold for you.
+                            {t('findSchool.copy.theEmailListsEverySchoolYourAddressIsRegis')}
                         </p>
-                        <Link to="/" className="pub-plan-cta">Back to home</Link>
+                        <Link to="/" className="pub-plan-cta">{t('auth.backToHome')}</Link>
                     </div>
                 ) : (
                     <form onSubmit={handleSubmit} className="pub-find-form">
-                        <label htmlFor="find-email">Your email address</label>
+                        <label htmlFor="find-email">{t('findSchool.copy.yourEmailAddress')}</label>
                         <input
                             id="find-email"
                             type="email"
@@ -82,26 +79,21 @@ export function FindSchool() {
                         </button>
 
                         <p className="pub-find-note">
-                            Use the address your school has on file for you. For a
-                            parent that is usually the one the school writes to;
-                            for staff and students it is your school email.
+                            {t('findSchool.copy.useTheAddressYourSchoolHasOnFileForYouForA')}
                         </p>
                     </form>
                 )}
 
-                <h2>Why does my school have its own address?</h2>
+                <h2>{t('findSchool.copy.whyDoesMySchoolHaveItsOwnAddress')}</h2>
                 <p>
-                    Each school on Imboni is kept completely separate, down to its
-                    own database. Your school&apos;s web address is what tells the
-                    system which school you belong to, which is part of how one
-                    school&apos;s records can never appear in another&apos;s.
+                    {t('findSchool.copy.eachSchoolOnImboniIsKeptCompletelySeparate')}
                 </p>
                 <p>
                     It looks like <strong>yourschool.imboni.tech</strong>. Bookmark
                     it once and you will not need this page again.
                 </p>
 
-                <h2>Still stuck?</h2>
+                <h2>{t('findSchool.copy.stillStuck')}</h2>
                 <p>
                     Your school office can tell you the address and confirm which
                     email they hold for you. If you are setting up a new school

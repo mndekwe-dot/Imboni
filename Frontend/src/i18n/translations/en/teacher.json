@@ -453,5 +453,15 @@
     "readOnlyNote": "Your timetable is set by the Director of Studies. Contact the Director of Studies to request changes.",
     "subtitle": "Your weekly teaching schedule",
     "title": "My Timetable"
+  },
+  "copy": {
+    "attendanceSavedOfflineItWillSyncAutomatica": "Attendance saved offline. It will sync automatically when you're back online.",
+    "attendanceSavedSuccessfully": "Attendance saved successfully.",
+    "clickToPreFillTheForm": "Click to pre-fill the form",
+    "comment": "Comment",
+    "enterTheFirstResultsNow": "Enter the first results now.",
+    "markAllPresent": "Mark All Present",
+    "noSubjectsAssigned": "No subjects assigned",
+    "reset": "Reset"
   }
 }

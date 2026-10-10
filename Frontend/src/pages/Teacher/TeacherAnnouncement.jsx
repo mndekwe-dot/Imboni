@@ -91,7 +91,7 @@ function AnnouncementCard({ ann, onEdit, onDelete, onPublish, busy }) {
                     <div className="ann-item-title">{ann.title}</div>
                     <div className="ann-item-meta">
                         {isDraft
-                            ? <span className="ta-tag-draft">Draft</span>
+                            ? <span className="ta-tag-draft">{t('common.draft')}</span>
                             : <span className="ta-tag-cat" style={{ color }}>{cat}</span>
                         }
                         <span>·</span>
@@ -322,7 +322,7 @@ export function TeacherAnnouncement() {
                                 {editingId && (
                                     <button className="btn btn-outline btn-sm" onClick={handleCancelEdit}>
                                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">close</span>
-                                        Cancel Edit
+                                        {t('announcements.cancelEdit')}
                                     </button>
                                 )}
                             </div>
@@ -341,14 +341,14 @@ export function TeacherAnnouncement() {
                                             </select>
                                         </div>
                                         <div className="form-group">
-                                            <label className="label">Audience</label>
+                                            <label className="label">{t('common.audience')}</label>
                                             <select
                                                 className="input"
                                                 value={form.audienceKey}
                                                 onChange={e => setForm(p => ({ ...p, audienceKey: e.target.value }))}
                                             >
                                                 {audienceOpts.length === 0 && (
-                                                    <option value="all">All Classes</option>
+                                                    <option value="all">{t('common.allClasses')}</option>
                                                 )}
                                                 {audienceOpts.map(o => (
                                                     <option key={audienceKey(o)} value={audienceKey(o)}>{o.label}</option>
@@ -396,7 +396,7 @@ export function TeacherAnnouncement() {
                                                 disabled={saving || !isValid}
                                             >
                                                 <span className="material-symbols-rounded icon-sm" aria-hidden="true">save</span>
-                                                Save Draft
+                                                {t('common.saveDraft')}
                                             </button>
                                         )}
                                         <button
@@ -417,8 +417,8 @@ export function TeacherAnnouncement() {
                         {/* Quick Templates */}
                         <div className="card mb-1-5">
                             <div className="card-header">
-                                <h3 className="card-title">Quick Templates</h3>
-                                <p className="card-description">Click to pre-fill the form</p>
+                                <h3 className="card-title">{t('announcements.quickTemplates')}</h3>
+                                <p className="card-description">{t('teacher.copy.clickToPreFillTheForm')}</p>
                             </div>
                             <div className="card-content">
                                 <div className="filter-group">

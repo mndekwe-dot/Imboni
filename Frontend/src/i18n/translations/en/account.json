@@ -48,5 +48,10 @@
   "updateProfile": "Update Profile",
   "uploadClick": "Click to upload",
   "uploadHint": "JPG or PNG (max. 2 MB)",
-  "uploadOrDrag": "or drag and drop"
+  "uploadOrDrag": "or drag and drop",
+  "copy": {
+    "saveTheseBackupCodesSomewhereSafeEachWorks": "Save these backup codes somewhere safe. Each works once if you lose your device.",
+    "twoFactorAuthentication": "Two-Factor Authentication",
+    "yourPassword": "Your password"
+  }
 }

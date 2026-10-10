@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 import { NotificationDropdown } from '../NotificationDropdown'
 import { LanguageSwitcher } from '../ui/LanguageSwitcher'
 import { formatDateWithWeekday } from '../../utils/date'
 
 export function DashboardHeader({ title, subtitle, userName, userRole, userInitials, avatarClass, notifications, onNotificationRead, actions }) {
+  const { t } = useTranslation()
   // The date helpers return '' for a missing value on purpose, so calling
   // this with no argument rendered an empty pill in every portal header.
   const today = formatDateWithWeekday(new Date())
@@ -12,7 +14,7 @@ export function DashboardHeader({ title, subtitle, userName, userRole, userIniti
     <header className="dashboard-header">
       <button
         className="mobile-menu-btn"
-        aria-label="Open menu"
+        aria-label={t('sidebar.openMenu')}
         onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-sidebar'))}
       >
         <span className="material-symbols-rounded" aria-hidden="true">menu</span>
@@ -26,6 +28,16 @@ export function DashboardHeader({ title, subtitle, userName, userRole, userIniti
       <div className="dashboard-header-actions">
         <span className="date-display">{today}</span>
 
+        <button
+          type="button"
+          className="header-search-btn"
+          aria-label={t('common.palette.open')}
+          title={t('common.palette.open')}
+          onClick={() => document.dispatchEvent(new CustomEvent('imboni:open-palette'))}
+        >
+          <span className="material-symbols-rounded" aria-hidden="true">search</span>
+        </button>
+
         <LanguageSwitcher />
 
         {/* Optional page-specific action buttons (e.g. "+ Add Exam") */}
@@ -38,7 +50,7 @@ export function DashboardHeader({ title, subtitle, userName, userRole, userIniti
             <span className="header-user-name">{userName}</span>
             <span className="header-user-role">{userRole}</span>
           </div>
-          <Link to={`/profile?role=${avatarClass?.replace('-av', '') ?? ''}`} className={`header-user-av ${avatarClass}`} aria-label="Your profile">{userInitials}</Link>
+          <Link to={`/profile?role=${avatarClass?.replace('-av', '') ?? ''}`} className={`header-user-av ${avatarClass}`} aria-label={t('common.copy.yourProfile')}>{userInitials}</Link>
         </div>
       </div>
     </header>

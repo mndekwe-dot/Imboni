@@ -13,5 +13,8 @@
   "selectConversation": "Hitamo ikiganiro kugira ngo ugisome.",
   "title": "Ubutumwa",
   "typeMessage": "Andika ubutumwa bwawe…",
-  "viewProfile": "Reba umwirondoro"
+  "viewProfile": "Reba umwirondoro",
+  "copy": {
+    "noContactsFound": "Nta muntu wabonetse."
+  }
 }

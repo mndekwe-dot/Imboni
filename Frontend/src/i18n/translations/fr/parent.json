@@ -118,5 +118,15 @@
       "failed": "Non payé",
       "needs_review": "Reçu : le bureau confirme"
     }
+  },
+  "copy": {
+    "actionTaken": "Mesure prise",
+    "awards": "Récompenses",
+    "markAsRead": "Marquer comme lu",
+    "noReportsFound": "Aucun rapport trouvé.",
+    "recentReports": "Rapports récents",
+    "recentResults": "Résultats récents",
+    "termResult": "Résultat du trimestre",
+    "warnings": "Avertissements"
   }
 }

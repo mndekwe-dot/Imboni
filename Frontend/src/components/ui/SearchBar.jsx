@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useRef } from 'react'
 import '../../styles/tables.css'
 
@@ -29,6 +30,7 @@ export function SearchBar({
     className = '',
     autoFocus = false,
 }) {
+    const { t } = useTranslation()
     const inputRef = useRef(null)
 
     function clear() {
@@ -50,7 +52,7 @@ export function SearchBar({
                 onChange={e => onChange(e.target.value)}
             />
             {value && (
-                <button type="button" className="search-bar-clear" onClick={clear} aria-label="Clear search">
+                <button type="button" className="search-bar-clear" onClick={clear} aria-label={t('common.copy.clearSearch')}>
                     <span className="material-symbols-rounded" aria-hidden="true">close</span>
                 </button>
             )}

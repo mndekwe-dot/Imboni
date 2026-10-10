@@ -4,5 +4,13 @@
   "sendFailed": "Ntibyashobotse kohereza.",
   "sentMessage": "Murakoze — tuzakurikirana ishuri ryanyu.",
   "subtitle": "Saba ishuri ryawe kugutumira, cyangwa utwoherereze amakuru yaryo.",
-  "title": "Shakisha ishuri ryawe"
+  "title": "Shakisha ishuri ryawe",
+  "copy": {
+    "eachSchoolOnImboniIsKeptCompletelySeparate": "Buri kigo kuri Imboni gitandukanye burundu, kugeza no ku bubiko bwacyo bwite. Aderesi y'urubuga rw'ikigo cyawe ni yo ibwira sisitemu ikigo ubarizwamo, bityo amakuru y'ikigo kimwe ntashobora kugaragara mu kindi.",
+    "stillStuck": "Haracyari ikibazo?",
+    "theEmailListsEverySchoolYourAddressIsRegis": "Imeri irimo ibigo byose aderesi yawe yanditsemo. Niba nta kintu kigeze mu minota mike, reba mu mabaruwa atifuzwa, hanyuma ubaze ibiro by'ikigo cyawe aderesi bafite.",
+    "useTheAddressYourSchoolHasOnFileForYouForA": "Koresha aderesi ikigo cyawe kibitse. Ku mubyeyi akenshi ni iyo ikigo kimwandikiraho; ku bakozi n'abanyeshuri ni imeri y'ikigo.",
+    "whyDoesMySchoolHaveItsOwnAddress": "Kuki ikigo cyanjye gifite aderesi yacyo?",
+    "yourEmailAddress": "Imeri yawe"
+  }
 }

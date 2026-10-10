@@ -155,5 +155,14 @@
     "subtitle": "Weekly Schedule",
     "subtitleWithClass": "Class {{class}} Weekly Schedule",
     "title": "My Timetable"
+  },
+  "copy": {
+    "backToAssignments": "Back to Assignments",
+    "exit": "Exit",
+    "issuedBy": "Issued By",
+    "oneQuestionAtATimeOnceYouMoveOnYouCannotGo": "One question at a time. Once you move on, you cannot go back to change an answer.",
+    "questionReview": "Question Review",
+    "submittedLate": "Submitted late",
+    "timeIsUpYourAnswersHaveBeenSubmittedAutoma": "Time is up! Your answers have been submitted automatically."
   }
 }

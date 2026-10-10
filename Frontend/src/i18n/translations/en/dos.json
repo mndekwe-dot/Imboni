@@ -460,5 +460,11 @@
     "weekly": "Weekly Timetable",
     "weeklyFor": "Class {{name}}: Weekly Timetable",
     "weightAbbr": "Wt"
+  },
+  "copy": {
+    "anEmailWillBeSentWithASecureRegistrationLi": "An email will be sent with a secure registration link. The teacher sets their own password. You never need to share credentials.",
+    "dragAnExamOntoAnotherDayOrTimeSlotToResche": "Drag an exam onto another day or time slot to reschedule it.",
+    "noDatedExamsToLayOutYet": "No dated exams to lay out yet.",
+    "twoInvitationEmailsWillBeSentOneForTheStud": "Two invitation emails will be sent: one for the student to create their account, and one for the parent/guardian."
   }
 }

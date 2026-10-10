@@ -263,7 +263,7 @@ export function AdminApprovals() {
                 />
             )}
 
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />

@@ -98,7 +98,7 @@ export function ParentAttendance() {
                         {loading ? (
                             <SkeletonList items={3} />
                         ) : !child ? (
-                            <p className="u-pad u-muted">No children linked to your account yet.</p>
+                            <p className="u-pad u-muted">{t('parent.noChildren')}</p>
                         ) : (
                             <>
                                 <AttendancePanel key={child.id} childId={child.id} />

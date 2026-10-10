@@ -328,5 +328,22 @@
   "yearGroups": "Promotions",
   "yes": "Oui",
   "yesDelete": "Oui, supprimer",
-  "yesterday": "Hier"
+  "yesterday": "Hier",
+  "copy": {
+    "clearSearch": "Effacer la recherche",
+    "dismissNotification": "Fermer la notification",
+    "goHome": "Retour à l'accueil",
+    "loading": "Chargement",
+    "skipToMainContent": "Aller au contenu principal",
+    "tryAgain": "Réessayer",
+    "unexpectedError": "Une erreur inattendue s'est produite et la page n'a pas pu être affichée. Notre équipe a été prévenue. Vous pouvez réessayer ou recharger la page.",
+    "yourProfile": "Votre profil"
+  },
+  "palette": {
+    "open": "Rechercher une page (Ctrl+K)",
+    "title": "Aller à une page",
+    "placeholder": "Rechercher une page…",
+    "noResults": "Aucune page ne correspond.",
+    "hint": "↑ ↓ pour naviguer · Entrée pour ouvrir · Échap pour fermer"
+  }
 }

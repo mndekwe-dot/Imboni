@@ -460,5 +460,11 @@
     "weekly": "Gahunda y'icyumweru",
     "weeklyFor": "Ishuri {{name}}: gahunda y'icyumweru",
     "weightAbbr": "Uburemere"
+  },
+  "copy": {
+    "anEmailWillBeSentWithASecureRegistrationLi": "Hazoherezwa imeri irimo umurongo wizewe wo kwiyandikisha. Umwarimu ashyiraho ijambo ry'ibanga rye. Nta na rimwe ukeneye gusangiza amakuru yo kwinjira.",
+    "dragAnExamOntoAnotherDayOrTimeSlotToResche": "Kurura ikizamini ugishyire ku wundi munsi cyangwa igihe kugira ngo ucyimure.",
+    "noDatedExamsToLayOutYet": "Nta bizamini bifite itariki byo kugaragaza.",
+    "twoInvitationEmailsWillBeSentOneForTheStud": "Hazoherezwa imeri ebyiri z'ubutumire: imwe ku munyeshuri ngo afungure konti ye, indi ku mubyeyi/umurera."
   }
 }

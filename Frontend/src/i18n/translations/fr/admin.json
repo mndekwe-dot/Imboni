@@ -229,5 +229,21 @@
     "loadFailed": "Impossible de charger le journal d’audit.",
     "showing": "{{shown}} sur {{count}}",
     "more": "Charger plus"
+  },
+  "copy": {
+    "addAReply": "Ajouter une réponse…",
+    "briefSummaryOfTheIssue": "Bref résumé du problème",
+    "contactSupport": "Contacter l'assistance",
+    "currentPlan": "Forfait actuel",
+    "describeWhatSHappening": "Décrivez ce qui se passe…",
+    "enrollmentByClass": "Effectif par classe",
+    "noDataAvailable": "Aucune donnée disponible.",
+    "noPlansAvailable": "Aucun forfait disponible.",
+    "normal": "Normale",
+    "performanceDistribution": "Répartition des résultats",
+    "teachersBySubject": "Enseignants par matière",
+    "usageThisPlan": "Utilisation de ce forfait",
+    "weeklyTrend": "Tendance hebdomadaire",
+    "yourTickets": "Vos demandes"
   }
 }

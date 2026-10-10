@@ -200,7 +200,7 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
                     <span className={`modal-footer-hint${saveError ? ' has-error' : ''}`}>
                         {saveError || (filledCount > 0 ? `${filledCount} student${filledCount !== 1 ? 's' : ''} with scores` : '* Fill in all fields and at least one score')}
                     </span>
-                    <button className="btn btn-outline" onClick={cancel}>Cancel</button>
+                    <button className="btn btn-outline" onClick={cancel}>{t('common.cancel')}</button>
                     <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">save</span>
                         {saving ? 'Saving…' : 'Save Results'}
@@ -229,7 +229,7 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
                     <label className="form-label">Subject *</label>
                     <select className="form-control" value={form.subject_id} onChange={e => handle('subject_id', e.target.value)}>
                         {subjectsForClass.length === 0
-                            ? <option value="">No subjects assigned</option>
+                            ? <option value="">{t('teacher.copy.noSubjectsAssigned')}</option>
                             : subjectsForClass.map(s => <option key={s.id} value={s.id}>{s.name}</option>)
                         }
                     </select>
@@ -274,16 +274,16 @@ function EnterResultsModal({ classObj, classes, onClose, onSaved }) {
             {loadingStud ? (
                 <p className="tr-empty-pad">Loading students…</p>
             ) : students.length === 0 ? (
-                <p className="u-muted">No students found in this class.</p>
+                <p className="u-muted">{t('teacher.classes.noStudentsInClass')}</p>
             ) : (
                 <div className="table-responsive tr-score-scroll">
                     <table className="data-table">
                         <thead className="tr-sticky-head">
                             <tr>
-                                <th>Student</th>
+                                <th>{t('common.student')}</th>
                                 <th className="tr-th-score">Score {form.max_score ? `/ ${form.max_score}` : ''}</th>
-                                <th>Comment <span className="tr-optional">(optional)</span></th>
-                                <th className="tr-th-absent">Absent</th>
+                                <th>{t('teacher.copy.comment')} <span className="tr-optional">(optional)</span></th>
+                                <th className="tr-th-absent">{t('common.absent')}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -518,7 +518,7 @@ export function TeacherResults() {
                                         title={selectedClass ? 'Create a new assessment and enter marks' : 'Select a class first'}
                                     >
                                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">add</span>
-                                        Enter Results
+                                        {t('teacher.classes.enterResults')}
                                     </button>
                                     <button
                                         className="btn btn-outline select-xs"
@@ -526,7 +526,7 @@ export function TeacherResults() {
                                         disabled={!rows.length}
                                     >
                                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">download</span>
-                                        Export
+                                        {t('common.export')}
                                     </button>
                                 </div>
 
@@ -611,7 +611,7 @@ export function TeacherResults() {
                                                         className="tr-inline-link"
                                                         onClick={() => setShowEnterModal(true)}
                                                     >
-                                                        Enter the first results now.
+                                                        {t('teacher.copy.enterTheFirstResultsNow')}
                                                     </button>
                                                 </span>
                                             }

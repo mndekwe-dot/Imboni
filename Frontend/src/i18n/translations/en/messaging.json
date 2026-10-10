@@ -13,5 +13,8 @@
   "selectConversation": "Select a conversation to read it.",
   "title": "Messages",
   "typeMessage": "Type your message…",
-  "viewProfile": "View profile"
+  "viewProfile": "View profile",
+  "copy": {
+    "noContactsFound": "No contacts found."
+  }
 }

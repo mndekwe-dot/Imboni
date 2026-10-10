@@ -86,5 +86,8 @@
   "titleRequiredError": "Title is required.",
   "trySearch": "Try a different search term.",
   "updateAndPublish": "Update & Publish",
-  "updated": "Announcement updated."
+  "updated": "Announcement updated.",
+  "copy": {
+    "urgentAnnouncementsAreHighlightedAndSentIm": "Urgent announcements are highlighted and sent immediately to all recipients."
+  }
 }

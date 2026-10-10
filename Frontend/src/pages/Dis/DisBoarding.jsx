@@ -134,7 +134,7 @@ function BoardingModal({ record, dormitories, onClose, onSave }) {
                         <div className="form-group">
                             <label className="form-label">{t('common.dormitory')} *</label>
                             <select className="form-input" name="dormitory" value={form.dormitory} onChange={handleChange}>
-                                <option value="">Select dormitory...</option>
+                                <option value="">{t('dis.boarding.selectDormitory')}</option>
                                 {dormitories.length > 0 ? (() => {
                                     // Group by section_name; fall back to flat list if no sections
                                     const sectionNames = [...new Set(dormitories.map(d => d.section_name).filter(Boolean))]
@@ -235,7 +235,7 @@ function BoardingRow({ record, dormSectionMap, onEdit, onDelete }) {
             <td className="action-cell">
                 {confirmDelete ? (
                     <>
-                        <span className="remove-confirm-text">Remove?</span>
+                        <span className="remove-confirm-text">{t('common.removeConfirm')}</span>
                         <button className="btn btn-primary btn-sm" onClick={() => onDelete(record.id)}>Yes</button>
                         <button className="btn btn-outline btn-sm" onClick={() => setConfirmDelete(false)}>No</button>
                     </>

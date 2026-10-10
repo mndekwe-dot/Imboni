@@ -39,6 +39,7 @@ function BehaviourStat({ cardClass, value, label, trend, trendClass, icon, iconC
 }
 
 function BehaviourCard({ title, reported_by_display, badge, report_type, description, date, action_taken }) {
+    const { t } = useTranslation()
     const type      = report_type === 'positive' || report_type === 'achievement' ? 'positive' : 'warning'
     const badgeCls  = type === 'positive' ? 'positive' : 'neutral'
     const badgeIcon = type === 'positive' ? 'sentiment_satisfied' : 'warning'
@@ -64,7 +65,7 @@ function BehaviourCard({ title, reported_by_display, badge, report_type, descrip
                 </div>
                 {action_taken && (
                     <div className="behavior-meta-item">
-                        <span className="behavior-meta-label">Action Taken</span>
+                        <span className="behavior-meta-label">{t('parent.copy.actionTaken')}</span>
                         <span className="behavior-meta-value">{action_taken}</span>
                     </div>
                 )}
@@ -161,7 +162,7 @@ export function ParentBehaviour() {
                         {loading ? (
                             <SkeletonList items={3} />
                         ) : !child ? (
-                            <p className="u-pad u-muted">No children linked to your account yet.</p>
+                            <p className="u-pad u-muted">{t('parent.noChildren')}</p>
                         ) : (
                             <>
                                 {/* Conduct hero */}
@@ -175,10 +176,10 @@ export function ParentBehaviour() {
                                             </div>
                                         </div>
                                         <div className="conduct-hero-stats">
-                                            <div className="conduct-stat"><span className="label">Conduct</span><span className="value grade-a">{stats.conduct_grade || '-'}</span></div>
-                                            <div className="conduct-stat"><span className="label">Positive</span><span className="value">{stats.positive_reports}</span></div>
-                                            <div className="conduct-stat"><span className="label">Warnings</span><span className="value">{stats.warnings}</span></div>
-                                            <div className="conduct-stat"><span className="label">Awards</span><span className="value">{stats.achievements}</span></div>
+                                            <div className="conduct-stat"><span className="label">{t('dis.students.conductColumn')}</span><span className="value grade-a">{stats.conduct_grade || '-'}</span></div>
+                                            <div className="conduct-stat"><span className="label">{t('dis.dashboard.typePositive')}</span><span className="value">{stats.positive_reports}</span></div>
+                                            <div className="conduct-stat"><span className="label">{t('parent.copy.warnings')}</span><span className="value">{stats.warnings}</span></div>
+                                            <div className="conduct-stat"><span className="label">{t('parent.copy.awards')}</span><span className="value">{stats.achievements}</span></div>
                                         </div>
                                     </div>
                                 )}
@@ -193,7 +194,7 @@ export function ParentBehaviour() {
                                 {/* Reports */}
                                 <div className="card mt-1-5">
                                     <div className="card-header">
-                                        <h3 className="card-title">Recent Reports</h3>
+                                        <h3 className="card-title">{t('parent.copy.recentReports')}</h3>
                                     </div>
                                     <div className="card-content">
                                         <div className="behavior-filter-bar">
@@ -212,7 +213,7 @@ export function ParentBehaviour() {
                                         {loadingData ? (
                                             <SkeletonCards count={3} lines={3} />
                                         ) : visible.length === 0 ? (
-                                            <p className="u-muted u-mt">No reports found.</p>
+                                            <p className="u-muted u-mt">{t('parent.copy.noReportsFound')}</p>
                                         ) : (
                                             <div className="behavior-grid">
                                                 {visible.map((r, i) => <BehaviourCard key={r.id || i} {...r} />)}

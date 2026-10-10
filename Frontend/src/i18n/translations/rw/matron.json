@@ -192,5 +192,17 @@
       "expiring": "Bigiye kurangira cyangwa byararangiye"
     },
     "correctionHint": "Mu gukosora, koresha umubare ufite ikimenyetso gisubira inyuma ukureho."
+  },
+  "copy": {
+    "fullList": "Urutonde rwose",
+    "messageDisciplineMaster": "Ohereza ubutumwa ku Muyobozi w'Imyitwarire",
+    "noBoardersFound": "Nta munyeshuri uba mu icumbi wabonetse.",
+    "noReportsFiledYet": "Nta raporo ziratangwa.",
+    "report": "Raporo",
+    "reportIncidentToDiscipline": "Tanga raporo y'ikibazo ku Muyobozi w'Imyitwarire",
+    "reportsToDiscipline": "Raporo zoherejwe ku Muyobozi w'Imyitwarire",
+    "takeRollCall": "Fata ipaji",
+    "tonightSRollCall": "Ipaji y'iri joro",
+    "viewDailySchedule": "Reba gahunda y'umunsi"
   }
 }

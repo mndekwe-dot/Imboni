@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useEffect, useState } from 'react'
 import {
     getTwoFactorStatus, setupTwoFactor, verifyTwoFactor, disableTwoFactor,
@@ -9,6 +10,7 @@ import {
  * and lets them disable it again (password-confirmed).
  */
 export function TwoFactorSettings() {
+    const { t } = useTranslation()
     const [enabled,  setEnabled]  = useState(null)   // null = still loading
     const [stage,    setStage]    = useState('idle') // idle | setup | backup | disable
     const [setupData, setSetupData] = useState(null) // { secret, qr, otpauth_uri }
@@ -66,7 +68,7 @@ export function TwoFactorSettings() {
         <div className="tfa-section">
             <h4 className="tfa-title">
                 <span className="material-symbols-rounded" aria-hidden="true">encrypted</span>
-                Two-Factor Authentication
+                {t('account.copy.twoFactorAuthentication')}
             </h4>
             <p className="tfa-lead">
                 Add a second step at sign-in using an authenticator app (Google
@@ -82,7 +84,7 @@ export function TwoFactorSettings() {
                         <span className="material-symbols-rounded" aria-hidden="true">check_circle</span> Enabled
                     </span>
                     <button className="btn btn-secondary" onClick={() => { setStage('disable'); setError('') }}>
-                        Disable
+                        {t('platform.operators.disable')}
                     </button>
                 </div>
             )}
@@ -117,7 +119,7 @@ export function TwoFactorSettings() {
                             {busy ? 'Verifying…' : 'Verify and enable'}
                         </button>
                         <button className="btn btn-secondary" onClick={() => { setStage('idle'); setError('') }}>
-                            Cancel
+                            {t('common.cancel')}
                         </button>
                     </div>
                 </div>
@@ -127,7 +129,7 @@ export function TwoFactorSettings() {
             {stage === 'backup' && (
                 <div className="tfa-panel">
                     <p className="tfa-step tfa-step--strong">
-                        Save these backup codes somewhere safe. Each works once if you lose your device.
+                        {t('account.copy.saveTheseBackupCodesSomewhereSafeEachWorks')}
                     </p>
                     <div className="tfa-codes">
                         {backupCodes.map(c => <span key={c}>{c}</span>)}
@@ -144,17 +146,17 @@ export function TwoFactorSettings() {
                     <div className="form-group">
                         <label className="form-label">Confirm your password to disable 2FA</label>
                         <input
-                            className="form-input" type="password" placeholder="Your password"
+                            className="form-input" type="password" placeholder={t('account.copy.yourPassword')}
                             value={password} autoFocus
                             onChange={e => setPassword(e.target.value)}
-                         aria-label="Your password"/>
+                         aria-label={t('account.copy.yourPassword')}/>
                     </div>
                     <div className="form-actions tfa-actions">
                         <button className="btn btn-primary btn-destructive" onClick={confirmDisable} disabled={busy || !password}>
                             {busy ? 'Disabling…' : 'Disable 2FA'}
                         </button>
                         <button className="btn btn-secondary" onClick={() => { setStage('idle'); setError(''); setPassword('') }}>
-                            Cancel
+                            {t('common.cancel')}
                         </button>
                     </div>
                 </div>

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router'
 import '../../styles/layout.css'
@@ -135,6 +136,7 @@ function QuestionCard({ q, qi, total, answer, onChange, submitted, result }) {
 // ── Results Panel ─────────────────────────────────────────────────────────────
 
 function ResultsPanel({ results, quiz, isLate, onBack }) {
+    const { t } = useTranslation()
     const { score, max_score, percentage, answers } = results
     const grade = percentage >= 80 ? 'A' : percentage >= 70 ? 'B' : percentage >= 60 ? 'C' : percentage >= 50 ? 'D' : 'F'
     const gradeColor = { A: 'var(--success)', B: 'var(--info)', C: 'var(--warning)', D: 'var(--accent)', F: 'var(--destructive)' }[grade]
@@ -150,7 +152,7 @@ function ResultsPanel({ results, quiz, isLate, onBack }) {
                 <div className="sqz-result-pct">{percentage}%</div>
                 {isLate && (
                     <div className="sqz-late-badge">
-                        Submitted late
+                        {t('student.copy.submittedLate')}
                     </div>
                 )}
                 <div className="sqz-result-sub">
@@ -158,7 +160,7 @@ function ResultsPanel({ results, quiz, isLate, onBack }) {
                 </div>
             </div>
 
-            <div className="sqz-review-title">Question Review</div>
+            <div className="sqz-review-title">{t('student.copy.questionReview')}</div>
 
             {quiz.questions.map((q, qi) => {
                 const ans = answers?.find(a => String(a.question_id) === String(q.id))
@@ -171,7 +173,7 @@ function ResultsPanel({ results, quiz, isLate, onBack }) {
 
             <button className="btn btn-primary sqz-back-btn" onClick={onBack}>
                 <span className="material-symbols-rounded icon-sm" aria-hidden="true">arrow_back</span>
-                Back to Assignments
+                {t('student.copy.backToAssignments')}
             </button>
         </div>
     )
@@ -180,6 +182,7 @@ function ResultsPanel({ results, quiz, isLate, onBack }) {
 // ── Main Quiz Page ────────────────────────────────────────────────────────────
 
 export function StudentQuizPage() {
+    const { t } = useTranslation()
     const { assignmentId } = useParams()
     const navigate = useNavigate()
 
@@ -276,7 +279,7 @@ export function StudentQuizPage() {
                 <p className="sqz-error-title">{loadError}</p>
                 <button className="btn btn-outline" onClick={() => navigate('/student/assignments')}>
                     <span className="material-symbols-rounded icon-sm" aria-hidden="true">arrow_back</span>
-                    Back to Assignments
+                    {t('student.copy.backToAssignments')}
                 </button>
             </div>
         )
@@ -299,7 +302,7 @@ export function StudentQuizPage() {
                 <button className="btn btn-outline btn-sm" onClick={() => navigate('/student/assignments')}
                     disabled={submitting}>
                     <span className="material-symbols-rounded icon-sm" aria-hidden="true">arrow_back</span>
-                    Exit
+                    {t('student.copy.exit')}
                 </button>
                 <div className="sqz-header-titlewrap">
                     <div className="sqz-header-title">{quiz.title}</div>
@@ -320,7 +323,7 @@ export function StudentQuizPage() {
                 {timedOut && (
                     <div className="alert alert-danger u-mb">
                         <span className="material-symbols-rounded sqz-alert-icon" aria-hidden="true">timer_off</span>
-                        Time is up! Your answers have been submitted automatically.
+                        {t('student.copy.timeIsUpYourAnswersHaveBeenSubmittedAutoma')}
                     </div>
                 )}
 
@@ -337,7 +340,7 @@ export function StudentQuizPage() {
                     <>
                         <div className="alert alert-info u-mb sqz-no-back">
                             <span className="material-symbols-rounded sqz-alert-icon" aria-hidden="true">lock</span>
-                            One question at a time. Once you move on, you cannot go back to change an answer.
+                            {t('student.copy.oneQuestionAtATimeOnceYouMoveOnYouCannotGo')}
                         </div>
                         <p className="sqz-progress" aria-live="polite">
                             Question {Math.min(position + 1, quiz.question_count)} of {quiz.question_count}

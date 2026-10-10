@@ -25,6 +25,7 @@ function StatusPill({ status }) {
 }
 
 function TicketModal({ ticket, onClose, onReplied }) {
+    const { t } = useTranslation()
     const toast = useToast()
     const [reply, setReply] = useState('')
     const [busy, setBusy] = useState(false)
@@ -69,7 +70,7 @@ function TicketModal({ ticket, onClose, onReplied }) {
 
             {ticket.status !== 'closed' && (
                 <div className="support-reply">
-                    <textarea className="form-input" rows={3} placeholder="Add a reply…" value={reply} onChange={e => setReply(e.target.value)}  aria-label="Add a reply…"/>
+                    <textarea className="form-input" rows={3} placeholder={t('admin.copy.addAReply')} value={reply} onChange={e => setReply(e.target.value)}  aria-label={t('admin.copy.addAReply')}/>
                 </div>
             )}
         </Modal>
@@ -116,7 +117,7 @@ export function AdminSupport() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={adminNavItems} secondaryItems={adminSecondaryItems} />
@@ -132,24 +133,24 @@ export function AdminSupport() {
                         {/* New ticket */}
                         <div className="card mb-1-5">
                             <div className="card-content">
-                                <h3 className="support-h3">Contact support</h3>
+                                <h3 className="support-h3">{t('admin.copy.contactSupport')}</h3>
                                 <form onSubmit={submit} className="support-stack">
                                     <div className="support-form-row">
                                         <label className="support-field support-field-subject">
-                                            Subject
-                                            <input className="form-input" required value={form.subject} onChange={e => set('subject', e.target.value)} placeholder="Brief summary of the issue" />
+                                            {t('common.subject')}
+                                            <input className="form-input" required value={form.subject} onChange={e => set('subject', e.target.value)} placeholder={t('admin.copy.briefSummaryOfTheIssue')} />
                                         </label>
                                         <label className="support-field support-field-priority">
-                                            Priority
+                                            {t('common.priority')}
                                             <select className="form-input" value={form.priority} onChange={e => set('priority', e.target.value)}>
-                                                <option value="low">Low</option><option value="normal">Normal</option>
-                                                <option value="high">High</option><option value="urgent">Urgent</option>
+                                                <option value="low">Low</option><option value="normal">{t('admin.copy.normal')}</option>
+                                                <option value="high">High</option><option value="urgent">{t('common.urgent')}</option>
                                             </select>
                                         </label>
                                     </div>
                                     <label className="support-field">
-                                        Message
-                                        <textarea className="form-input" rows={4} required value={form.body} onChange={e => set('body', e.target.value)} placeholder="Describe what's happening…" />
+                                        {t('landing.contact.message')}
+                                        <textarea className="form-input" rows={4} required value={form.body} onChange={e => set('body', e.target.value)} placeholder={t('admin.copy.describeWhatSHappening')} />
                                     </label>
                                     <div>
                                         <button className="btn btn-primary" disabled={saving}>{saving ? 'Submitting…' : 'Submit ticket'}</button>
@@ -159,7 +160,7 @@ export function AdminSupport() {
                         </div>
 
                         {/* My tickets */}
-                        <h3 className="support-h3">Your tickets</h3>
+                        <h3 className="support-h3">{t('admin.copy.yourTickets')}</h3>
                         {loading ? (
                             <SkeletonCards count={2} lines={2} />
                         ) : tickets.length === 0 ? (

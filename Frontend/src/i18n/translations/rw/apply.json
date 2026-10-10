@@ -2,5 +2,14 @@
   "received": "Murakoze — twakiriye ubusabe bwanyu, tuzabasubiza kuri imeyili.",
   "sendFailed": "Ntibyashobotse kohereza ubusabe bwawe.",
   "subtitle": "Tubwire ibyerekeye ishuri ryawe tuzakuvugisha.",
-  "title": "Saba kwinjira muri Imboni"
+  "title": "Saba kwinjira muri Imboni",
+  "copy": {
+    "anythingElse": "Hari ikindi?",
+    "approxStudents": "Umubare w'abanyeshuri wegereye",
+    "country": "Igihugu",
+    "notSure": "Simbizi neza",
+    "schoolName": "Izina ry'ikigo",
+    "tellUsAboutYourSchool": "Tubwire iby'ikigo cyanyu…",
+    "yourName": "Izina ryawe"
+  }
 }

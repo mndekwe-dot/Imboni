@@ -139,7 +139,7 @@ export function DisTimetable() {
 
     return (
         <>
-            <a href="#main-content" className="skip-link">Skip to content</a>
+            <a href="#main-content" className="skip-link">{t('common.skipToContent')}</a>
             <div className="sidebar-overlay"></div>
             <div className="dashboard-layout">
                 <Sidebar navItems={disNavItems} secondaryItems={disSecondaryItems} />
@@ -161,14 +161,14 @@ export function DisTimetable() {
 
                         <div className="card">
                             <div className="card-header">
-                                <h2 className="card-title">Weekly Extracurricular Schedule</h2>
+                                <h2 className="card-title">{t('dis.copy.weeklyExtracurricularSchedule')}</h2>
                                 <div className="flex-row-gap">
                                     <button
                                         className="btn btn-outline btn-sm"
                                         onClick={() => setShowSlotManager(true)}
                                     >
                                         <span className="material-symbols-rounded icon-sm" aria-hidden="true">schedule</span>
-                                        Edit Time Slots
+                                        {t('dis.copy.editTimeSlots')}
                                     </button>
                                     <button
                                         className="btn btn-primary btn-sm"

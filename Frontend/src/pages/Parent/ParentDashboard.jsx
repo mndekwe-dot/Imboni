@@ -64,11 +64,12 @@ function AssessmentItem({ title, assessment_type, date, score_display, grade }) 
 }
 
 function ResultRow({ subject_name, grade, final_score, total_maximum }) {
+    const { t } = useTranslation()
     const score = total_maximum ? `${Math.round(final_score)}/${total_maximum}` : `${Math.round(final_score)}`
     return (
         <tr>
             <td className="subject-name">{subject_name}</td>
-            <td className="type-submission">Term Result</td>
+            <td className="type-submission">{t('parent.copy.termResult')}</td>
             <td>{score}</td>
             <td><span className={`badge ${gradeBadge(grade)}`}>{grade}</span></td>
         </tr>
@@ -188,7 +189,7 @@ export function ParentDashboard() {
                         {loadingChildren ? (
                             <SkeletonList items={3} />
                         ) : children.length === 0 ? (
-                            <p className="u-pad u-muted">No children linked to your account yet.</p>
+                            <p className="u-pad u-muted">{t('parent.noChildren')}</p>
                         ) : (
                             <div className="tabs">
                                 <div className="tabs-list">
@@ -211,13 +212,13 @@ export function ParentDashboard() {
                                         <div className="card">
                                             <div className="card-header">
                                                 <h3 className="card-title">Recent Assessments &amp; Projects</h3>
-                                                <span className="badge badge-secondary">This Term</span>
+                                                <span className="badge badge-secondary">{t('parent.results.thisTerm')}</span>
                                             </div>
                                             <div className="card-content">
                                                 {loadingData ? (
                                                     <SkeletonList items={3} />
                                                 ) : assessments.length === 0 ? (
-                                                    <p className="u-muted">No assessments recorded yet.</p>
+                                                    <p className="u-muted">{t('parent.results.noAssessments')}</p>
                                                 ) : (
                                                     <div className="assessment-list">
                                                         {assessments.slice(0, 4).map(a => (
@@ -233,16 +234,16 @@ export function ParentDashboard() {
                                             <div className="dashboard-content-grid">
                                                 <div className="dashboard-content-grid-card">
                                                     <div className="card-header">
-                                                        <h3 className="card-title">Recent Results</h3>
+                                                        <h3 className="card-title">{t('parent.copy.recentResults')}</h3>
                                                     </div>
                                                     <div className="card-content">
                                                         <table className="data-table">
                                                             <thead>
                                                                 <tr>
-                                                                    <th>Subject</th>
+                                                                    <th>{t('common.subject')}</th>
                                                                     <th>Type</th>
-                                                                    <th>Score</th>
-                                                                    <th>Grade</th>
+                                                                    <th>{t('common.score')}</th>
+                                                                    <th>{t('common.grade')}</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>

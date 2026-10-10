@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState } from 'react'
 import { Modal } from './Modal'
 
@@ -13,6 +14,7 @@ import { Modal } from './Modal'
      onClose  — called when the user closes the modal
 ──────────────────────────────────────────────────────────────────────────── */
 export function PeriodManager({ periods, onChange, onClose }) {
+    const { t } = useTranslation()
     /* Track which row (by index) is being deleted — shows a confirm step */
     const [pendingDelete, setPendingDelete] = useState(null)
 
@@ -37,14 +39,14 @@ export function PeriodManager({ periods, onChange, onClose }) {
     }
 
     return (
-        <Modal title="Manage Time Slots" icon="schedule" onClose={onClose} wide>
+        <Modal title={t('timetable.copy.manageTimeSlots')} icon="schedule" onClose={onClose} wide>
             <div className="tt-form">
 
                 {/* Column headers */}
                 <div className="tt-period-row">
-                    <span className="form-label">Label</span>
+                    <span className="form-label">{t('timetable.copy.label')}</span>
                     <span className="form-label">Time</span>
-                    <span className="form-label">Break</span>
+                    <span className="form-label">{t('timetable.break')}</span>
                     <span className="tt-period-spacer"></span>
                 </div>
 
@@ -74,14 +76,14 @@ export function PeriodManager({ periods, onChange, onClose }) {
                         {pendingDelete === i ? (
                             <div className="tt-period-confirm">
                                 <button className="btn btn-outline btn-sm tt-btn-danger" onClick={() => removeRow(i)}>
-                                    Confirm
+                                    {t('common.confirm')}
                                 </button>
                                 <button className="btn btn-outline btn-sm" onClick={() => setPendingDelete(null)}>
-                                    Cancel
+                                    {t('common.cancel')}
                                 </button>
                             </div>
                         ) : (
-                            <button className="btn btn-outline btn-sm" onClick={() => removeRow(i)} title="Remove row" aria-label="Remove row">
+                            <button className="btn btn-outline btn-sm" onClick={() => removeRow(i)} title={t('timetable.copy.removeRow')} aria-label={t('timetable.copy.removeRow')}>
                                 <span className="material-symbols-rounded icon-sm" aria-hidden="true">delete</span>
                             </button>
                         )}

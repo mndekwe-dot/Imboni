@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useState, useMemo } from 'react'
 import { formatWeekdayShortUTC } from '../../utils/date'
 import '../../styles/tables.css'
@@ -53,6 +54,7 @@ function daysBetween(fromIso, toIso) {
 }
 
 export function ExamCalendar({ exams, onReschedule }) {
+    const { t } = useTranslation()
     const [dragId, setDragId] = useState(null)
     const [overCell, setOverCell] = useState(null)
     const [notice, setNotice] = useState('')
@@ -86,7 +88,7 @@ export function ExamCalendar({ exams, onReschedule }) {
     }, [exams])
 
     if (dates.length === 0) {
-        return <p className="u-muted u-sm">No dated exams to lay out yet.</p>
+        return <p className="u-muted u-sm">{t('dos.copy.noDatedExamsToLayOutYet')}</p>
     }
 
     function handleDrop(date, slot) {
@@ -117,7 +119,7 @@ export function ExamCalendar({ exams, onReschedule }) {
     return (
         <>
             <p className="u-muted u-sm mb-1">
-                Drag an exam onto another day or time slot to reschedule it.
+                {t('dos.copy.dragAnExamOntoAnotherDayOrTimeSlotToResche')}
             </p>
             {notice && <p className="u-danger u-fs-085 mb-1" role="status">{notice}</p>}
 

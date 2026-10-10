@@ -214,7 +214,7 @@ function InviteStudentModal({ onClose, onInvite, onBulkInvite, admitYears, admit
                 <div className="dos-info-box">
                     <span className="material-symbols-rounded dos-info-icon" aria-hidden="true">info</span>
                     <p className="dos-info-text">
-                        Two invitation emails will be sent: one for the student to create their account, and one for the parent/guardian.
+                        {t('dos.copy.twoInvitationEmailsWillBeSentOneForTheStud')}
                     </p>
                 </div>
 

@@ -453,5 +453,15 @@
     "readOnlyNote": "Votre emploi du temps est établi par le Directeur des études. Contactez-le pour demander une modification.",
     "subtitle": "Votre emploi du temps hebdomadaire",
     "title": "Mon emploi du temps"
+  },
+  "copy": {
+    "attendanceSavedOfflineItWillSyncAutomatica": "Présence enregistrée hors ligne. Elle sera synchronisée automatiquement au retour de la connexion.",
+    "attendanceSavedSuccessfully": "Présence enregistrée avec succès.",
+    "clickToPreFillTheForm": "Cliquez pour pré-remplir le formulaire",
+    "comment": "Commentaire",
+    "enterTheFirstResultsNow": "Saisissez les premiers résultats maintenant.",
+    "markAllPresent": "Tout marquer présent",
+    "noSubjectsAssigned": "Aucune matière attribuée",
+    "reset": "Réinitialiser"
   }
 }

@@ -244,8 +244,8 @@ export function StudentDiscipline() {
                                         <table className="data-table">
                                             <thead>
                                                 <tr>
-                                                    <th>Date</th><th>Type</th><th>Description</th>
-                                                    <th>Issued By</th>
+                                                    <th>Date</th><th>Type</th><th>{t('common.description')}</th>
+                                                    <th>{t('student.copy.issuedBy')}</th>
                                                 </tr>
                                             </thead>
                                             <tbody>

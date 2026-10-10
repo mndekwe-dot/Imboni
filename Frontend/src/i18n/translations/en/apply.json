@@ -2,5 +2,14 @@
   "received": "Thank you — we have your application and will reply by email.",
   "sendFailed": "Could not send your application.",
   "subtitle": "Tell us about your school and we will be in touch.",
-  "title": "Apply to Imboni"
+  "title": "Apply to Imboni",
+  "copy": {
+    "anythingElse": "Anything else?",
+    "approxStudents": "Approx. students",
+    "country": "Country",
+    "notSure": "Not sure",
+    "schoolName": "School name",
+    "tellUsAboutYourSchool": "Tell us about your school…",
+    "yourName": "Your name"
+  }
 }
