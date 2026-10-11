@@ -52,12 +52,8 @@
    is why it is a token rather than a literal - see the palettes in index.css. */
 [data-portal] .sidebar {
   background: linear-gradient(180deg, var(--chrome-from) 0%, var(--chrome-to) 100%);
-  box-shadow: none;
-  /* No border-right. It ran the full height, including alongside the header,
-     drawing a seam down the one place the two are meant to read as a single
-     piece of chrome. The header starts at the gradient's top colour, so the
-     corner joins with nothing between them. */
-  border-right: none;
+  box-shadow: 0 4px 20px rgba(14, 53, 96, 0.15);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 /* The shared rule sets the active nav item to
@@ -67,13 +63,14 @@
    surface the active state has to be lighter, not more saturated. */
 [data-portal] .sidebar-nav-item.active,
 [data-portal] .sidebar.collapsed .sidebar-nav-item.active {
-  background-color: rgba(255, 255, 255, 0.14);
+  background-color: rgba(255, 255, 255, 0.16);
   color: #ffffff;
-  box-shadow: none;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 [data-portal] .sidebar-nav-item.active::before {
   background: var(--accent);
-  border-radius: 0 2px 2px 0;
+  border-radius: 0 3px 3px 0;
 }
 
 /* Hover slid the item 4px sideways. A row that moves under the cursor is
@@ -81,26 +78,19 @@
 @media (hover: hover) { [data-portal] .sidebar-nav-item:hover:not(.active) {
   background-color: rgba(255, 255, 255, 0.09);
   color: #ffffff;
+  border-radius: 10px;
   transform: none;
 } }
 @media (hover: hover) { [data-portal] .sidebar.collapsed .sidebar-nav-item:hover { transform: none; } }
 
-/* ── 2. Header ───────────────────────────────────────────── */
+/* ── 2. Header (Option 2: Translucent Frosted Glass Blue Chrome) ── */
 
-/* Blue header, matched to the TOP of the sidebar gradient (var(--chrome-from)) so the
-   two meet as one continuous piece of chrome rather than as two panels.
-   White on var(--chrome-from) is 8.10:1.
-
-   Worth knowing: this puts the sidebar and the header both in the strongest
-   colour on screen, which is the arrangement that made the original design
-   feel heavy - the loudest colour covering the most area leaves the accent
-   nothing to stand out against. The content area is much lighter than it was,
-   so it should hold up; if it still feels top-heavy, the fix is to lighten
-   this bar rather than to re-lighten the page. */
 [data-portal] .dashboard-header {
-  background: var(--chrome-from);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
-  box-shadow: none;
+  background: color-mix(in srgb, var(--chrome-from) 90%, transparent);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 14px rgba(14, 53, 96, 0.12);
   min-height: 68px;
 }
 
@@ -131,15 +121,18 @@
 
 [data-portal] .date-display {
   color: rgba(255, 255, 255, 0.85);
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
 }
 
 [data-portal] .notification-btn,
 [data-portal] .mobile-menu-btn {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.16);
-  color: rgba(255, 255, 255, 0.88);
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
+  border-radius: 9999px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
 }
 
 @media (hover: hover) { [data-portal] .notification-btn:hover,
@@ -242,20 +235,24 @@
 }
 [data-portal] .welcome-banner-icon { display: none; }
 
-/* ── 5. Cards ────────────────────────────────────────────── */
+/* ── 5. Cards (Option 2: Soft Apple Workspace Depth & Smooth Corners) ── */
 
 [data-portal] .card,
 [data-portal] .toolbar-card,
 [data-portal] .overview-panel {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--card-radius);
-  box-shadow: var(--shadow-sm);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: box-shadow var(--duration-hover) var(--ease-hover), border-color var(--duration-hover) var(--ease-hover);
 }
 
-/* Hover lift is for things you can click. A card that only holds
-   content is not clickable, so it does not move. */
-@media (hover: hover) { [data-portal] .card:hover { box-shadow: var(--shadow-sm); } }
+/* Subtle, smooth hover depth for interactive surfaces */
+@media (hover: hover) {
+  [data-portal] .card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 8px 20px rgba(0, 0, 0, 0.04);
+  }
+}
 
 [data-portal] .card-header {
   padding: var(--space-4) var(--space-5);
@@ -337,14 +334,15 @@
 [data-portal] .portal-stat-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--card-radius);
-  box-shadow: var(--shadow-xs);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 3px 10px rgba(0, 0, 0, 0.02);
   padding: var(--space-5);
   gap: var(--space-4);
+  transition: box-shadow var(--duration-hover) var(--ease-hover), border-color var(--duration-hover) var(--ease-hover);
 }
 
 @media (hover: hover) { [data-portal] .portal-stat-card:hover {
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06), 0 6px 16px rgba(0, 0, 0, 0.03);
   border-color: var(--border-hover);
 } }
 
@@ -523,6 +521,12 @@
   font-size: var(--text-sm);
   color: var(--foreground);
   border-bottom: 1px solid var(--border);
+}
+
+[data-portal] .dt-container {
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.03);
 }
 
 @media (hover: hover) { [data-portal] .data-table tbody tr:hover td { background: var(--surface-2); } }
