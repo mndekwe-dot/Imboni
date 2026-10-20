@@ -69,7 +69,8 @@ jobs:
         # accept one with no fix yet, add: --ignore-vuln <ID>  (with a comment).
         run: |
           pip install pip-audit
-          pip-audit -r requirements.txt
+          # CVE-2026-106454: ReDoS in twisted.mail.imap4 (transitive dep of daphne); unused in app (no IMAP); no upstream fix yet.
+          pip-audit -r requirements.txt --ignore-vuln CVE-2026-106454
 
       - name: Lint (ruff)
         working-directory: Backend
